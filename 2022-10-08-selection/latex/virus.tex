@@ -1,0 +1,91 @@
+\documentclass{article}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[a4paper, total={170mm, 257mm}]{geometry}
+\usepackage{graphicx}
+\usepackage{import}
+\usepackage{setspace}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{7pt}
+\onehalfspacing
+
+\import{}{headfoot}
+
+\begin{document}
+
+\section*{Problema Virus}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l l @{\hspace{4cm}}l l}
+Fișier de intrare: & \texttt{virus.in} & Limită de timp: & 0,4 secunde \\
+Fișier de ieșire: & \texttt{virus.out} & Limită de memorie: & 256 MB \\
+\end{tabular}
+\end{table}
+
+O rețea de calculatoare este formată din $N^2$ calculatoare așezate într-un pătrat cu $N$ linii și $N$ coloane. Inițial toate calculatoarele sînt pornite. Fiecare calculator este conectat prin cabluri la vecinii săi din cele patru direcții, iar oricare două calculatoare pot comunica dacă între ele există o cale formată din calculatoare pornite și conectate prin cabluri. Un virus straniu începe să infecteze această rețea. Fiecare pas al infecției oprește calculatoarele aflate pe un dreptunghi (nu și pe cele din interiorul dreptunghiului). Dreptunghiurile de la oricare doi pași \textbf{nu se intersectează și nu coincid}, dar pot fi incluse unul într-altul.
+
+Administratorul de sistem dorește să știe, pe parcursul infecției, dacă diverse perechi de calculatoare mai pot comunica. Concret, se dau $Q$ operații de două tipuri posibile, în ordine cronologică:
+
+\begin{itemize}
+\item $\mathtt{1 \ L_1 \ C_1 \ L_2 \ C_2}$: virusul oprește calculatoarele de pe dreptunghiul $(L_1,C_1)-(L_2,C_2)$.
+\item $\mathtt{2 \ L_1 \ C_1 \ L_2 \ C_2}$: administratorul se întreabă dacă cele două calculatoare de la $(L_1,C_1)$ și $(L_2,C_2)$ \textbf{sînt pornite și pot comunica între ele}.
+\end{itemize}
+
+Se cere să afișați răspunsurile la toate operațiile de tipul 2.
+
+\subsection*{Date de intrare}
+
+Prima linie conține întregii $N$ și $Q$, separați prin spații. Fiecare dintre următoarele $Q$ linii conține cinci întregi $T$, $L_1$, $C_1$, $L_2$ și $C_2$ care codifică o operație.
+
+\subsection*{Date de ieșire}
+
+Pentru fiecare operație de tip 2, în aceeași ordine ca la intrare, afișați cîte o linie cu textul \texttt{DA} dacă cele două calculatoare \textbf{sînt pornite și pot comunica} sau \texttt{NU} în caz contrar.
+
+\subsection*{Restricții}
+
+\begin{itemize}
+\item $3 \leq N \leq 2.000$
+\item $1 \leq Q \leq 100.000$
+\item $1 \leq L_1, L_2, C_1, C_2 \leq N$
+\item Pentru operațiile de tip 1, $L_1 < L_2$ și $C_1 < C_2$.
+\item Pentru operațiile de tip 2, $(L_1, C_1)$ și $(L_2, C_2)$ sînt distincte.
+\end{itemize}
+
+\begin{table}[H]
+\setlength{\tabcolsep}{30pt}
+\begin{tabular}{ccl} \toprule
+    \textbf{\#} & \textbf{Puncte} & \textbf{Restricții} \\ \midrule
+    1  & 30 & $N \leq 100$, $Q \leq 1.000$ \\
+    2  & 70 & Fără restricții suplimentare. \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Exemplu}
+
+\begin{table}[H]
+\setlength{\tabcolsep}{40pt}
+  \texttt{
+    \begin{tabular}{l l l} \toprule
+      virus.in     & virus.out & configurație finală\\ \midrule
+      10 8         & DA        & * * * * * * * * * * \\
+      2 3 6 8 2    & DA        & * · · · · · · · · · \\
+      1 2 2 8 7    & NU        & * · * * * * · · * · \\
+      2 5 5 4 3    & NU        & * · * · · · · · * · \\
+      2 5 5 4 1    & NU        & * · * · * · · · * · \\
+      1 4 4 6 6    &           & * · * · · · · · · · \\
+      2 5 5 4 3    &           & * · * * * * · * * * \\
+      1 2 8 6 10   &           & * · · · · · · * * * \\
+      2 6 9 7 9    &           & * * * * * * * * * * \\
+                   &           & * * * * * * * * * * \\
+      \bottomrule
+    \end{tabular}
+  }
+\end{table}
+
+\subsubsection*{Explicații}
+
+Inițial toate calculatoarele sînt pornite, deci (3,6) și (8,2) pot comunica. După oprirea dreptunghiului (2,2)-(8,7), calculatoarele (5,5) și (4,3) se află în interiorul dreptunghiului și pot comunica, dar (5,5) și (4,1) sînt separate de dreptunghi și nu pot comunica. După oprirea dreptunghiului (4,4)-(6,6), calculatoarele (5,5) și (4,3) nu mai pot comunica. După oprirea dreptunghiului (2,8)-(6,10), calculatorul (6,9) \textbf{este oprit}, deci implicit nu poate comunica cu (7,9). Configurația finală este descrisă pe ultima coloană (calculatoarele pornite sînt marcate cu \texttt{*}, cele oprite cu punct).
+
+\end{document}

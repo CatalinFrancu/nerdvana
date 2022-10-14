@@ -1,0 +1,133 @@
+\documentclass{article}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{forest}
+\usepackage[a4paper, total={170mm, 257mm}]{geometry}
+\usepackage{graphicx}
+\usepackage{import}
+\usepackage{setspace}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{7pt}
+\onehalfspacing
+
+\import{}{headfoot}
+
+\begin{document}
+
+\section*{Problema Arbperm}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l l @{\hspace{4cm}}l l}
+    Fișier de intrare: & \texttt{arbperm.in} & Limită de timp: & 0,1 secunde \\
+    Fișier de ieșire: & \texttt{arbperm.out} & Limită de memorie: & 256 MB \\
+  \end{tabular}
+\end{table}
+
+Arborele tuturor permutărilor se generează astfel. În rădăcină așezăm singura permutare cu un element, (1). Aceasta are doi fii, (2, 1) și (1, 2). În general, nodul corespunzător unei permutări $P$ cu $N$ elemente va avea $N+1$ fii obținuți prin inserarea valorii $N+1$ în $P$ pe toate pozițiile de la cea mai din stînga pînă la cea mai din dreapta. Figura de mai jos prezintă primele 4 niveluri ale arborelui de permutări.
+
+{\footnotesize
+  \begin{forest}
+    where n children=0{rotate=90}{}
+    [
+      {(1)}
+      [
+        {(2,1)}
+        [
+          {(3,2,1)}
+          [{(4,3,2,1)}]
+          [{(3,4,2,1)}]
+          [{(3,2,4,1)}]
+          [{(3,2,1,4)}]
+        ]
+        [
+          {(2,3,1)}
+          [{(4,2,3,1)}]
+          [{(2,4,3,1)}]
+          [{(2,3,4,1)}]
+          [{(2,3,1,4)}]
+        ]
+        [
+          {(2,1,3)}
+          [{(4,2,1,3)}]
+          [{(2,4,1,3)}]
+          [{(2,1,4,3)}]
+          [{(2,1,3,4)}]
+        ]
+      ]
+      [
+        {(1,2)}
+        [
+          {(3,1,2)}
+          [{(4,3,1,2)}]
+          [{(3,4,1,2)}]
+          [{(3,1,4,2)}]
+          [{(3,1,2,4)}]
+        ]
+        [
+          {(1,3,2)}
+          [{(4,1,3,2)}]
+          [{(1,4,3,2)}]
+          [{(1,3,4,2)}]
+          [{(1,3,2,4)}]
+        ]
+        [
+          {(1,2,3)}
+          [{(4,1,2,3)}]
+          [{(1,4,2,3)}]
+          [{(1,2,4,3)}]
+          [{(1,2,3,4)}]
+        ]
+      ]
+    ]
+  \end{forest}
+}
+
+Observăm că, pentru un $N$ dat, toate permutările de $N$ elemente se află pe același nivel în arbore.
+
+Fiind dată o permutare $P$ și un număr $K$, găsiți permutarea $Q$ aflată cu $K$ poziții la dreapta lui $P$. Se garantează că există cel puțin $K$ permutări la dreapta lui $P$ pe același nivel.
+
+\subsection*{Date de intrare}
+
+Prima linie conține întregii $N$ și $K$, separați printr-un spațiu. A doua linie conține $N$ valori întregi, reprezentînd permutarea $P$.
+
+\subsection*{Date de ieșire}
+
+Afișați, pe o singură linie, $N$ numere separate prin spații reprezentînd permutarea $Q$.
+
+\subsection*{Restricții}
+
+\begin{itemize}
+\item $3 \leq N \leq 100.000$
+\item $1 \leq K \leq 1.000.000.000$
+\end{itemize}
+
+\begin{table}[H]
+  \setlength{\tabcolsep}{30pt}
+  \begin{tabular}{ccl} \toprule
+    \textbf{\#} & \textbf{Puncte} & \textbf{Restricții} \\ \midrule
+    1  & 20 & $N \leq 20$ \\
+    2  & 20 & $N \leq 1.000$, $K \leq 100.000$ \\
+    3  & 30 & $K \leq 5.000.000$ \\
+    4  & 30 & Fără restricții suplimentare. \\ \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection*{Exemple}
+
+\begin{table}[H]
+  \setlength{\tabcolsep}{40pt}
+  \texttt{
+    \begin{tabular}{l l} \toprule
+      arbperm.in      & arbperm.out  \\ \midrule
+      3 1          & 3 1 2   \\
+      2 1 3        &         \\  \midrule
+      4 7          & 1 4 3 2 \\
+      2 1 4 3      &         \\
+      \bottomrule
+    \end{tabular}
+  }
+\end{table}
+
+\end{document}

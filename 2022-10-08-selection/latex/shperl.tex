@@ -1,0 +1,80 @@
+\documentclass{article}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[a4paper, total={170mm, 257mm}]{geometry}
+\usepackage{graphicx}
+\usepackage{import}
+\usepackage{setspace}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{7pt}
+\onehalfspacing
+
+\import{}{headfoot}
+
+\begin{document}
+
+\section*{Problema Shperl}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l l @{\hspace{4cm}}l l}
+Fișier de intrare: & \texttt{shperl.in} & Limită de timp: & 0,4 secunde \\
+Fișier de ieșire: & \texttt{shperl.out} & Limită de memorie: & 256 MB \\
+\end{tabular}
+\end{table}
+
+Pentru că lumea are nevoie de mai mulți programatori, un consorțiu a inventat limbajul Shperl. Acesta este atît de simplu, că oricine poate deveni programator, fără ca măcar să meargă la facultate! În Shperl există un singur tip de date, întregul pe $N$ biți, și doar două tipuri de operații:
+
+\begin{itemize}
+\item $\mathtt{1 \ X \ Y}$: neagă toți biții aflați pe poziții între $X$ și $Y$ inclusiv;
+\item $\mathtt{2 \ X \ Y}$: raportează numărul de biți 1 aflați pe poziții între $X$ și $Y$ inclusiv.
+\end{itemize}
+
+Consorțiul vă angajează să testați primul compilator de Shperl din lume, verificînd corectitudinea unui șir de $Q$ operații.
+
+\subsection*{Date de intrare}
+
+Prima linie conține întregii $N$ și $Q$, separați prin spațiu. Următoarea linie conține $N$ caractere \texttt{'0'} și \texttt{'1'}, \textbf{nedespărțite}. Următoarele $Q$ linii conțin cîte trei întregi $T$, $X$ și $Y$ care codifică o operație.
+
+\subsection*{Date de ieșire}
+
+Pentru fiecare operație de tip 2, în aceeași ordine ca la intrare, afișați cîte o linie cu rezultatul operației.
+
+\subsection*{Restricții}
+
+\begin{itemize}
+\item $3 \leq N \leq 300.000$
+\item $1 \leq Q \leq 300.000$
+\item $1 \leq X \leq Y \leq N$ pentru toate operațiile.
+\end{itemize}
+
+\begin{table}[H]
+\setlength{\tabcolsep}{30pt}
+\begin{tabular}{ccl} \toprule
+    \textbf{\#} & \textbf{Puncte} & \textbf{Restricții} \\ \midrule
+    1  & 10 & $N \leq 10.000$, $Q \leq 10.000$ \\
+    2  & 30 & $N \leq 100.000$, $Q \leq 100.000$ \\
+    3  & 20 & $N \leq 150.000$, $Q \leq 150.000$ \\
+    4  & 20 & $N \leq 250.000$, $Q \leq 250.000$ \\
+    5  & 20 & Fără restricții suplimentare. \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Exemplu}
+
+\begin{table}[H]
+  \setlength{\tabcolsep}{25pt}
+  \begin{tabular}{l l l} \toprule
+    \texttt{shperl.in} & \texttt{shperl.out} & explicații      \\ \midrule
+    \texttt{7 4}       & \texttt{3}          & Pe pozițiile 3-6 avem biții \texttt{1101}. \\
+    \texttt{1011011}   & \texttt{2}          & După prima modificare numărul devine \texttt{1100011}. \\
+    \texttt{2 3 6}     &                     & După a doua modificare numărul devine \texttt{1101100}. \\
+    \texttt{1 2 4}     &                     & Pe pozițiile 3-7 avem biții \texttt{01100}. \\
+    \texttt{1 4 7}     &                     & \\
+    \texttt{2 3 7}     &                     & \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\end{document}
