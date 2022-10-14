@@ -6,14 +6,6 @@
 
 long long s[2 * MAX_N];
 
-inline int min(int x, int y) {
-  return (x < y) ? x : y;
-}
-
-inline int max(int x, int y) {
-  return (x > y) ? x : y;
-}
-
 void st_build() {
   for (int i = n - 1; i >= 1; i--) {
     s[i] = s[2 * i] + s[2 * i + 1];
