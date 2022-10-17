@@ -1,11 +1,12 @@
 // Author: Cătălin Frâncu
 // Complexity: O(Q sqrt N)
 //
-// Method: Square root decomposition with hard-coded, power-of-2 bucket size.
+// Method: Square root decomposition with careless divisions.
 #include "common.h"
+#include <math.h>
 
 long long b[MAX_BUCKETS];
-int nb;
+int bs, nb;
 
 // naively computes the sum of the range [l, r)
 long long fragment_sum(int l, int r) {
@@ -18,13 +19,19 @@ long long fragment_sum(int l, int r) {
 
 // computes the sum of the range [l, r)
 long long range_sum(int l, int r) {
-  int bl = l >> P2_BUCKET_BITS, br = r >> P2_BUCKET_BITS;
+  int bl = l / bs, br = r / bs;
   if (bl == br) {
     return fragment_sum(l, r);
   } else {
     // loose ends
-    long long sum = fragment_sum(l, (bl + 1) << P2_BUCKET_BITS);
-    sum += fragment_sum(br << P2_BUCKET_BITS, r);
+    long long sum = 0;
+    do {
+      sum += v[l++];
+    } while (l % bs);
+
+    while (r % bs) {
+      sum += v[--r];
+    }
 
     // buckets spanned entirely
     for (int i = bl + 1; i < br; i++) {
@@ -36,7 +43,7 @@ long long range_sum(int l, int r) {
 
 void point_add(int pos, int val) {
   v[pos] += val;
-  b[pos >> P2_BUCKET_BITS] += val;
+  b[pos / bs] += val;
 }
 
 int main() {
@@ -44,11 +51,12 @@ int main() {
   read_data();
   mark_time();
 
-  nb = (n >> P2_BUCKET_BITS) + 1;
+  nb = sqrt(n + 1);
+  bs = n / nb + 1;
 
   for (int i = 0; i < nb; i++) {
-    int bucket_start = i << P2_BUCKET_BITS;
-    for (int j = 0; j < P2_BUCKET_SIZE; j++) {
+    int bucket_start = i * bs;
+    for (int j = 0; j < bs; j++) {
       b[i] += v[j + bucket_start];
     }
   }
@@ -62,7 +70,7 @@ int main() {
     }
   }
 
-  report_time("SQRT decomposition (2^k bucket)");
+  report_time("SQRT decomposition w/ divisions");
   write_data();
 
   return 0;
