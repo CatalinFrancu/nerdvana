@@ -19,7 +19,7 @@ long long st_query(int l, int r) {
   l += n;
   r += n;
 
-  while (l < r)  {
+  while (l <= r)  {
     // take l and advance if it is a right child
     if (l & 1) {
       sum += s[l++];
@@ -32,22 +32,16 @@ long long st_query(int l, int r) {
     }
     r >>= 1;
   }
-
-  if (l == r) {
-    sum += s[l];
-  }
+  // During the last iteration, l and r may point to the same node, in which
+  // case the node will be added exactly once, either by l or by r.
 
   return sum;
 }
 
 void st_update(int pos, int delta) {
-  pos += n;
-  s[pos] += delta;
-
-  do {
-    pos >>= 1;
-    s[pos] = s[2 * pos] + s[2 * pos + 1];
-  } while (pos > 1);
+  for (pos += n; pos > 1; pos >>= 1) {
+    s[pos] += delta;
+  }
 }
 
 int main() {
