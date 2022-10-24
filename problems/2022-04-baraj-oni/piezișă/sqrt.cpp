@@ -83,7 +83,7 @@ void preprocess_values() {
     return (v[a] < v[b]) || ((v[a] == v[b]) && (a < b));
   });
 
-  // renumber values starting from n; collect positions
+  // renumber values starting from 0; collect positions
   int from = -1;
   distinct = 0;
   for (int i = 0; i < n; i++) {
@@ -180,5 +180,3 @@ int main() {
 
   return 0;
 }
-
-// TODO: figure out usage of NONE and INF
