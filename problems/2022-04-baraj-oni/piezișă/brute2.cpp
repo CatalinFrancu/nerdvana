@@ -38,13 +38,15 @@ int rightmost(int val, int p) {
 }
 
 int main() {
-  scanf("%d", &n);
+  FILE* fin = fopen("piezisa.in", "r");
+  FILE* fout = fopen("piezisa.out", "w");
+  fscanf(fin, "%d", &n);
 
   // read data and compute partial xor's
   v[0] = 0;
   for (int i = 1; i <= n; i++) {
     int x;
-    scanf("%d", &x);
+    fscanf(fin, "%d", &x);
     v[i] = v[i - 1] ^ x;
   }
 
@@ -71,10 +73,10 @@ int main() {
   // value i occurs.
 
   int num_queries;
-  scanf("%d", &num_queries);
+  fscanf(fin, "%d", &num_queries);
   while (num_queries--) {
     int l, r;
-    scanf("%d %d", &l, &r);
+    fscanf(fin, "%d %d", &l, &r);
     r++;
 
     int end = r, best = INFINITY;
@@ -87,8 +89,11 @@ int main() {
       end++;
     }
 
-    printf("%d\n", (best == INFINITY) ? NONE : best);      
+    fprintf(fout, "%d\n", (best == INFINITY) ? NONE : best);
   }
+
+  fclose(fin);
+  fclose(fout);
 
   return 0;
 }

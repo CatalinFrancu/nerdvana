@@ -39,7 +39,7 @@ void find_folds(int u, int parent, int dest) {
   }
 
   if (vc[u] && (parent != NIL)) {
-    // fold dest onto its parent or grandparent
+    // fold u onto its parent or grandparent
     printf("%d %d\n", name[u], name[dest]);
     name[dest] = next_name++;
   }
