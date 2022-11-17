@@ -1,0 +1,129 @@
+registers i j Out2 X2 zero
+
+# make a copy of X
+copy_x:
+  jeq X X2 end_copy_x
+  inc X2
+  jeq X X copy_x
+end_copy_x:
+
+####
+# Main program loop: decrement X. If it didn't take, simply loop. If it did
+# take, decrement X2 robustly.
+####
+main:
+  # while X > 0
+  jeq X zero end_prog
+
+  # decrement X, loop if it didn't take
+dec_x:
+  dec X
+  jeq X X2 dec_x
+
+  # decrement X2 robustly
+dec_x2:
+  dec X2
+  jeq X2 X end_dec_x2
+  jeq X X dec_x2
+end_dec_x2:
+
+  # decide if i moves from 0 to Y or Y to 0
+  jeq i Y pass_down
+
+
+####
+# Upwards pass: for i = 0 to Y increment j, Out and Out2
+####
+pass_up:
+  jeq i Y main
+
+# increment i and j robustly
+inc_i:
+  inc i
+  jeq i j inc_i
+
+inc_j:
+  # Dirty trick. With a single repetition of the inc+jump, this block will
+  # spend an estimated 4 cycles to increment j. The inc instruction will run
+  # twice on average before it actually executes once, which causes three
+  # additional jeq's. By repeating the inc+jump, we most likely skip the final
+  # "jeq X X", which cuts the average number of cycles down to 3.
+  inc j
+  jeq j i end_inc_j
+  inc j
+  jeq j i end_inc_j
+  inc j
+  jeq j i end_inc_j
+  inc j
+  jeq j i end_inc_j
+  inc j
+  jeq j i end_inc_j
+  jeq X X inc_j
+end_inc_j:
+
+# increment Out and Out2 robustly
+inc_out:
+  inc Out
+  jeq Out Out2 inc_out
+
+inc_out2:
+  inc Out2
+  jeq Out2 Out pass_up
+  inc Out2
+  jeq Out2 Out pass_up
+  inc Out2
+  jeq Out2 Out pass_up
+  inc Out2
+  jeq Out2 Out pass_up
+  inc Out2
+  jeq Out2 Out pass_up
+  inc Out2
+  jeq Out2 Out pass_up
+  jeq X X inc_out2
+
+
+####
+# Downwards pass: for i = Y to 0 decrement j, increment Out and Out2
+####
+pass_down:
+  jeq i zero main
+
+# decrement i and j robustly
+dec_i:
+  dec i
+  jeq i j dec_i
+
+dec_j:
+  dec j
+  jeq j i end_dec_j
+  dec j
+  jeq j i end_dec_j
+  dec j
+  jeq j i end_dec_j
+  dec j
+  jeq j i end_dec_j
+  dec j
+  jeq j i end_dec_j
+  jeq X X dec_j
+end_dec_j:
+
+# increment Out and Out2 robustly
+inc_out_alt:
+  inc Out
+  jeq Out Out2 inc_out_alt
+
+inc_out2_alt:
+  inc Out2
+  jeq Out2 Out pass_down
+  inc Out2
+  jeq Out2 Out pass_down
+  inc Out2
+  jeq Out2 Out pass_down
+  inc Out2
+  jeq Out2 Out pass_down
+  inc Out2
+  jeq Out2 Out pass_down
+  jeq X X inc_out2_alt
+
+
+end_prog:
