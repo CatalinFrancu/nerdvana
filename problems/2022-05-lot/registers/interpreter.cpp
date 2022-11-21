@@ -70,17 +70,23 @@ bool read_token() {
 
   if (c == EOF) {
     return false;
-  } else if (c == '\n') {
+  } else if (c == '\n' || c == '\r') {
+    // consume \n\r, \r\n, \r or \n
     buf[0] = '\n';
     buf[1] = '\0';
     line_no++;
+
+    char next = fgetc(prog);
+    if (next != '\n' || next != '\r' || next == c) {
+      ungetc(next, prog);
+    }
     return true;
   } else {
     int pos = 0;
     do {
       buf[pos++] = c;
       c = fgetc(prog);
-    } while (c != ' ' && c != '\n');
+    } while (c != ' ' && c != '\n' && c != '\r');
     buf[pos] = '\0';
     ungetc(c, prog);
     return true;
