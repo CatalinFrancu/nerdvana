@@ -7,51 +7,54 @@
 #define NIL -1
 
 typedef struct {
-  int adj; // start of adjacency list
-  int d;   // distance from source
-  int p;   // parent (closest node on path to source)
-} node;
-
-typedef struct {
   int v, next;
 } edge;
 
-node n[MAX_NODES];
+// consider encapsulating these in a node structure
+int adj[MAX_NODES]; // start of adjacency list
+int d[MAX_NODES];   // distance from source
+int p[MAX_NODES];   // parent (closest node on path to source)
+
 edge e[2 * MAX_EDGES];
 int q[MAX_NODES]; // queue
 int nodes, edges;
 
 void add_edge(int u, int v) {
-  e[edges] = { v, n[u].adj };
-  n[u].adj = edges++;
+  e[edges] = { v, adj[u] };
+  adj[u] = edges++;
 }
 
 void bfs(int source) {
+  // All the vertices are white: we know nothing about them.
+  // Starting point: make the source gray.
   int head = 0, tail = 1;
-  n[source].d = 0;
-  n[source].p = NIL;
-  q[0] = source;
+  d[source] = 0;   // initialize queue to just the source
+  p[source] = NIL; // the distance from source to source is 0
+  q[0] = source;   // the path from source to source is empty
 
   while (head != tail) {
+    // remove the front of the queue and explore it
     int u = q[head++];
-    printf("d[%d] = %d, parent = %d\n", u, n[u].d, n[u].p);
-    for (int pos = n[u].adj; pos != NIL; pos = e[pos].next) {
+    printf("d[%d] = %d, parent = %d\n", u, d[u], p[u]);
+    for (int pos = adj[u]; pos != NIL; pos = e[pos].next) {
       int v = e[pos].v;
-      if (n[v].d == INFINITY) {
-        n[v].d = 1 + n[u].d;
-        n[v].p = u;
+      // we are only interested in the white successors, which we make gray
+      if (d[v] == INFINITY) {
+        d[v] = 1 + d[u];
+        p[v] = u;        // the shortest path from source to v goes through u
         q[tail++] = v;
       }
     }
+    // vertex u is fully explored and becomes black
   }
 }
 
 int main() {
   int m, source, u, v;
   scanf("%d %d %d", &nodes, &m, &source);
-  for (int i = 0; i < nodes; i++) {
-    n[i].adj = NIL;
-    n[i].d = INFINITY;
+  for (u = 0; u < nodes; u++) {
+    adj[u] = NIL;
+    d[u] = INFINITY;
   }
   while (m--) {
     scanf("%d %d", &u, &v);
