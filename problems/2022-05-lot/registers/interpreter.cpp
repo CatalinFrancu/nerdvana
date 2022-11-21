@@ -86,7 +86,7 @@ bool read_token() {
     do {
       buf[pos++] = c;
       c = fgetc(prog);
-    } while (c != ' ' && c != '\n' && c != '\r');
+    } while (c != EOF && c != ' ' && c != '\n' && c != '\r');
     buf[pos] = '\0';
     ungetc(c, prog);
     return true;
