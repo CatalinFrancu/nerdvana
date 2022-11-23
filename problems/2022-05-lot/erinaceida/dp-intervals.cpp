@@ -1,5 +1,5 @@
 // Method: For the maximum number of fruit, run the classic dynamic
-// programming algorithm (a[i][j] = max(a[i-1][j], a[i][j-1] and so on), but
+// programming algorithm (a[i][j] = max(a[i-1][j], a[i][j-1]) and so on), but
 // on a sparse matrix. Scan fruit in row order, breaking ties in column
 // order. For every fruit, the most we can collect up to it is 1 + the maximum
 // in its north-west quadrant. Use a Fenwick tree to update the maxima.
@@ -22,6 +22,10 @@
 // fruit in batches with equal q. From those unions we build the batch for
 // q+1.
 //
+// Two nasty bugs up until submission 6011: (1) printing ints as %hd and (2)
+// defining MAX_BUCKETS as sqrt(MAX_N), when it really should be
+// sqrt(MAX_INTERVALS).
+//
 // An apple, a pear, a plum, a cherry, any good thing to make us all merry.
 #include <algorithm>
 #include <math.h>
@@ -29,7 +33,7 @@
 #include <string.h>
 
 #define MAX_N 35'000
-#define MAX_BUCKETS 188
+#define MAX_BUCKETS 6'000
 #define MAX_INTERVALS 30'000'000
 #define MAX_BUCKET_INTERVALS 5'000'000
 
@@ -46,13 +50,11 @@ typedef struct {
 } fruit;
 
 u16 fen[MAX_N + 1]; // Fenwick tree
-fruit f[MAX_N];
+fruit f[MAX_N + 1];
 interval in[MAX_INTERVALS], bin[MAX_BUCKET_INTERVALS];
+int b[MAX_BUCKETS + 1]; // bucket pointers
 int n;
 int ni, nb, bs;   // number of intervals, buckets and sizes for decomposition
-
-// bucket pointers
-int b[MAX_BUCKETS + 1];
 
 int max(int x, int y) {
   return (x > y) ? x : y;
@@ -62,7 +64,7 @@ int min(int x, int y) {
   return (x < y) ? x : y;
 }
 
-// max update: f[pos] increases to val
+// max update: fen[pos] increases to val
 void fenwick_update(int pos, u16 val) {
   while (pos <= n && fen[pos] < val) {
     fen[pos] = val;
@@ -248,7 +250,9 @@ int main() {
     return (a.q < b.q) || (a.q == b.q && a.c < b.c);
   });
 
+  f[n].q = f[n - 1].q + 1; // sentinel
   int start = 0, prev = 0;
+
   while (start < n) {
     int end = start;
     while (f[end].q == f[start].q) {
@@ -262,13 +266,10 @@ int main() {
 
   // for the highest q value, find the minimum difference
   int max_fruit = f[prev].q, min_diff = MAX_N;
-  for (int i = f[prev].st; i < f[n].st; i++) {
+  for (int i = f[prev].st; i < ni; i++) {
     min_diff = min(min_diff, dist(in[i], max_fruit));
   }
 
-  printf("%hd %hd\n", max_fruit, min_diff);
+  printf("%d %d\n", max_fruit, min_diff);
   return 0;
 }
-
-// TODOs
-// How many intervals are needed? Some tests failed for 1 M, passed for 30 M

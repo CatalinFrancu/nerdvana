@@ -17,8 +17,17 @@ struct hashFunction {
 };
 
 void usage() {
-  fprintf(stderr, "Usage: generator <n> <num_apples>\n");
+  // max_diag_distance: when small, place most fruit on the (n,1)-(1,n) diagonal
+  fprintf(stderr, "Usage: generator <n> <num_apples> <max_diag_distance>\n");
   _exit(1);
+}
+
+int max(int x, int y) {
+  return (x > y) ? x : y;
+}
+
+int min(int x, int y) {
+  return (x < y) ? x : y;
 }
 
 int rand2(int x, int y) {
@@ -26,12 +35,13 @@ int rand2(int x, int y) {
 }
 
 int main(int argc, char** argv) {
-  if (argc != 3) {
+  if (argc != 4) {
     usage();
   }
 
   int n = atoi(argv[1]);
   int apples = atoi(argv[2]);
+  int max_diag_distance = atoi(argv[3]);
   int pears = n - apples;
 
   struct timeval time;
@@ -47,7 +57,9 @@ int main(int argc, char** argv) {
 
     do {
       p.first = rand2(1, n);
-      p.second = rand2(1, n);
+      int lo = max(1, n + 1 - p.first - max_diag_distance);
+      int hi = min(n, n + 1 - p.first + max_diag_distance);
+      p.second = rand2(lo, hi);
     } while (s.find(p) != s.end());
     s.insert(p);
 
