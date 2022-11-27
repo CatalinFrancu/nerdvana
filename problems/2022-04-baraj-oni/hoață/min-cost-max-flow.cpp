@@ -168,23 +168,21 @@ int dijkstra() {
 
   while (hsize) {
     heap_node pair = heap_pop();
-    if (pair.d == d[pair.u]) {
-      int u = pair.u;
-      for (int pos = adj[u]; pos != NIL; pos = e[pos].next) {
-        // Relax the edge.
-        //
-        // Relax, have a cigar, make yourself at home. Hell is full of high
-        // court judges, failed saints. We've got cardinals, archbishops,
-        // barristers, certified accountants, music critics, they're all
-        // here. You're not alone. You're never alone, not here you're not. OK
-        // break's over.
-        int v = e[pos].v;
-        if (e[pos].cap && d[u] + e[pos].cost < d[v]) {
-          d[v] = d[u] + e[pos].cost;
-          p[v] = u;
-          pe[v] = pos; // Make a note of e[pos] so we can later push flow on it
-          heap_decrease_key(v);
-        }
+    int u = pair.u;
+    for (int pos = adj[u]; pos != NIL; pos = e[pos].next) {
+      // Relax the edge.
+      //
+      // Relax, have a cigar, make yourself at home. Hell is full of high
+      // court judges, failed saints. We've got cardinals, archbishops,
+      // barristers, certified accountants, music critics, they're all
+      // here. You're not alone. You're never alone, not here you're not. OK
+      // break's over.
+      int v = e[pos].v;
+      if (e[pos].cap && d[u] + e[pos].cost < d[v]) {
+        d[v] = d[u] + e[pos].cost;
+        p[v] = u;
+        pe[v] = pos; // Make a note of e[pos] so we can later push flow on it
+        heap_decrease_key(v);
       }
     }
   }
