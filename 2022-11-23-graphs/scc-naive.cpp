@@ -10,7 +10,8 @@ bool r[MAX_NODES][MAX_NODES];   // reachability matrix
 bool marked[MAX_NODES];
 int nodes;
 
-// Runs a DFS from root. Current node is u. Fills r[root].
+// Runs a DFS from root. Current node is u. Fills r[root] with the nodes
+// reachable from root.
 void dfs(int root, int u) {
   r[root][u] = true;
   for (int v = 0; v < nodes; v++) {
@@ -35,7 +36,7 @@ int main() {
   for (u = 0; u < nodes; u++) {
     if (!marked[u]) {
       // begin a new SCC
-      for (int v = 0; v < nodes; v++) {
+      for (int v = u; v < nodes; v++) {
         if (r[u][v] && r[v][u]) {
           printf("%d ", v);
           marked[v] = true;

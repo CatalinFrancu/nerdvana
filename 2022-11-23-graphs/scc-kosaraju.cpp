@@ -1,8 +1,7 @@
 // Strongly connected components - Kosaraju's algorithm.
 //
 // The second step is more complicated than it needs to be. We only store and
-// sort the components in order to conform with the output format of the naive
-// algorithm.
+// sort the components to ensure output consistency with other algorithms.
 #include <algorithm>
 #include <stdio.h>
 
@@ -16,22 +15,17 @@ typedef struct {
 
 int adj[MAX_NODES], adjt[MAX_NODES]; // adjacency lists in G and G_T
 int st[MAX_NODES], ss;    // stack of nodes in order of finish time
-int comp[MAX_NODES], nc;  // each node's component
+int d[MAX_NODES];         // multipurpose node info
 edge e[2 * MAX_EDGES];
 int nodes, edges;
 
-void add_edge(int u, int v) {
-  e[edges] = { v, adj[u] };
-  adj[u] = edges++;
-}
-
-// DFS in G. comp[u] is a visited marker for u. Pushes nodes on the st in
-// order of their finish time.
+// DFS in G. d[u] is a visited marker for u. Pushes nodes on the stack in
+// order of their finish times.
 void dfs(int u) {
-  comp[u] = true;
+  d[u] = true;
   for (int pos = adj[u]; pos != NIL; pos = e[pos].next) {
     int v = e[pos].v;
-    if (!comp[v]) {
+    if (!d[v]) {
       dfs(v);
     }
   }
@@ -56,18 +50,19 @@ void transpose() {
   }
 }
 
-// DFS in G_T. comp[u] stores u's connected component.
+// DFS in G_T. d[u] stores u's connected component.
 void dfs2(int u, int comp_num) {
-  comp[u] = comp_num;
+  d[u] = comp_num;
   for (int pos = adjt[u]; pos != NIL; pos = e[pos].next) {
     int v = e[pos].v;
-    if (comp[v] == NIL) {
+    if (d[v] == NIL) {
       dfs2(v, comp_num);
     }
   }
 }
 
 int main() {
+  // read the graph and create adjacency lists
   int m, u, v;
   scanf("%d %d", &nodes, &m);
   for (u = 0; u < nodes; u++) {
@@ -75,44 +70,50 @@ int main() {
   }
   while (m--) {
     scanf("%d %d", &u, &v);
-    add_edge(u, v);
+    e[edges] = { v, adj[u] };
+    adj[u] = edges++;
   }
 
+  // DFS #1: create a stack of nodes in reverse finish order
   for (u = 0; u < nodes; u++) {
-    if (!comp[u]) {
+    if (!d[u]) {
       dfs(u);
     }
   }
 
-  transpose();  
+  transpose();
 
+  // DFS #2 on transpose graph in stack order
   for (u = 0; u < nodes; u++) {
-    comp[u] = NIL;
+    d[u] = NIL;
   }
 
+  int nc = 0;
   while (ss) {
     u = st[--ss];
-    if (comp[u] == NIL) {
+    if (d[u] == NIL) {
       dfs2(u, nc++);
     }
   }
 
-  // We no longer need adj[] and edges[], so we repurpose them. adj[x] stores
-  // a sorted list of nodes u having comp[u] = x.
+  // The rest is fluff needed to achieve a consistent output order.
+
+  // Repurpose adj[] and edges[]. adj[x] stores a sorted list of nodes u
+  // having d[u] = x.
   for (int x = 0; x < nc; x++) {
     adj[x] = NIL;
   }
   for (u = nodes - 1; u >= 0; u--) {
-    e[u] = { u, adj[comp[u]] };
-    adj[comp[u]] = u;
+    e[u] = { u, adj[d[u]] };
+    adj[d[u]] = u;
   }
 
+  // Traverse and print components, not in comp order, but in node order.
   for (u = 0; u < nodes; u++) {
-    if (comp[u] != NIL)  {
-      // traverse and print this component
-      for (int pos = adj[comp[u]]; pos != NIL; pos = e[pos].next) {
+    if (d[u] != NIL)  {
+      for (int pos = adj[d[u]]; pos != NIL; pos = e[pos].next) {
         printf("%d ", e[pos].v);
-        comp[e[pos].v] = NIL;
+        d[e[pos].v] = NIL; // wipe it so we don't print it twice
       }
       printf("\n");
     }
