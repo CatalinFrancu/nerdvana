@@ -5,8 +5,8 @@
 #include <algorithm>
 #include <stdio.h>
 
-#define MAX_NODES 100'000
-#define MAX_EDGES 500'000
+#define MAX_NODES 300'000
+#define MAX_EDGES 1'000'000
 #define NIL -1
 
 typedef struct {
