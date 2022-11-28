@@ -12,10 +12,6 @@ typedef struct {
   int v, cap, cost, next;
 } edge;
 
-typedef struct {
-  int u, d;
-} heap_node;
-
 // input data
 int val[MAX_N], weight[MAX_N], alarm[MAX_N];
 int rooms, thieves, knapsack;
@@ -31,7 +27,7 @@ int sink_potential;  // cumulative
 int nodes, edges;
 
 // heap for Dijkstra
-heap_node h[MAX_NODES]; // 1-based
+int h[MAX_NODES]; // 1-based
 int hpos[MAX_NODES];    // lookup table for decrease_key
 int hsize;
 
@@ -47,38 +43,38 @@ void heap_init() {
   }
 }
 
-inline void heap_set(int pos, heap_node x) {
-  h[pos] = x;
-  hpos[x.u] = pos;
+inline void heap_set(int pos, int u) {
+  h[pos] = u;
+  hpos[u] = pos;
 }
 
 // Updates u's distance to d[u], which is known to have decreased.
 // If u is not in the heap, then inserts u.
 void heap_decrease_key(int u) {
   int pos = (hpos[u] == NIL) ? ++hsize : hpos[u];
-  h[0].d = d[u]; // sentinel
+  h[0] = u; // sentinel
 
-  while (d[u] < h[pos / 2].d) {
+  while (d[u] < d[h[pos / 2]]) {
     heap_set(pos, h[pos / 2]);
     pos /= 2;
   }
 
-  heap_set(pos, { u, d[u] });
+  heap_set(pos, u);
 }
 
-heap_node heap_pop() { // not to be confused with hip-hop
-  heap_node root = h[1], f = h[hsize--];
-  hpos[root.u] = NIL;
+int heap_pop() { // not to be confused with hip-hop
+  int root = h[1], f = h[hsize--];
+  hpos[root] = NIL;
 
   int p = 1;
   bool run = true;
   while (run && 2 * p <= hsize) {
     // c = best child
-    int c = ((2 * p + 1 <= hsize) && (h[2 * p + 1].d < h[2 * p].d))
+    int c = ((2 * p + 1 <= hsize) && (d[h[2 * p + 1]] < d[h[2 * p]]))
       ? (2 * p + 1)
       : (2 * p);
 
-    if (h[c].d < f.d)  {
+    if (d[h[c]] < d[f])  {
       heap_set(p, h[c]);
       p = c;
     } else {
@@ -167,8 +163,7 @@ int dijkstra() {
   heap_decrease_key(0);
 
   while (hsize) {
-    heap_node pair = heap_pop();
-    int u = pair.u;
+    int u = heap_pop();
     for (int pos = adj[u]; pos != NIL; pos = e[pos].next) {
       // Relax the edge.
       //
