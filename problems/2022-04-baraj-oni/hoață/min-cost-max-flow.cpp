@@ -48,13 +48,17 @@ inline void heap_set(int pos, int u) {
   hpos[u] = pos;
 }
 
+inline bool heap_cmp(int u, int v) {
+  return (d[u] < d[v]) || (d[u] == d[v] && u < v);
+}
+
 // Updates u's distance to d[u], which is known to have decreased.
 // If u is not in the heap, then inserts u.
 void heap_decrease_key(int u) {
   int pos = (hpos[u] == NIL) ? ++hsize : hpos[u];
   h[0] = u; // sentinel
 
-  while (d[u] < d[h[pos / 2]]) {
+  while (heap_cmp(u, h[pos / 2])) {
     heap_set(pos, h[pos / 2]);
     pos /= 2;
   }
@@ -70,11 +74,11 @@ int heap_pop() { // not to be confused with hip-hop
   bool run = true;
   while (run && 2 * p <= hsize) {
     // c = best child
-    int c = ((2 * p + 1 <= hsize) && (d[h[2 * p + 1]] < d[h[2 * p]]))
+    int c = ((2 * p + 1 <= hsize) && heap_cmp(h[2 * p + 1], h[2 * p]))
       ? (2 * p + 1)
       : (2 * p);
 
-    if (d[h[c]] < d[f])  {
+    if (heap_cmp(h[c], f))  {
       heap_set(p, h[c]);
       p = c;
     } else {
