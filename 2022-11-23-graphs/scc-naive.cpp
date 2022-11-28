@@ -3,7 +3,6 @@
 #include <stdio.h>
 
 #define MAX_NODES 1'000
-#define INFINITY 1'000'000'000
 
 bool adj[MAX_NODES][MAX_NODES]; // adjacency matrix
 bool r[MAX_NODES][MAX_NODES];   // reachability matrix

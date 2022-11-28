@@ -2,7 +2,6 @@
 //
 // The second step is more complicated than it needs to be. We only store and
 // sort the components to ensure output consistency with other algorithms.
-#include <algorithm>
 #include <stdio.h>
 
 #define MAX_NODES 100'000
@@ -108,14 +107,14 @@ int main() {
     adj[d[u]] = u;
   }
 
-  // Traverse and print components, not in comp order, but in node order.
+  // Traverse and print components in *node* order.
   for (u = 0; u < nodes; u++) {
-    if (d[u] != NIL)  {
+    if (adj[d[u]] != NIL)  {
       for (int pos = adj[d[u]]; pos != NIL; pos = e[pos].next) {
         printf("%d ", e[pos].v);
-        d[e[pos].v] = NIL; // wipe it so we don't print it twice
       }
       printf("\n");
+      adj[d[u]] = NIL; // wipe it so we don't print it twice
     }
   }
 
