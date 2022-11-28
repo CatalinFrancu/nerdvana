@@ -12,24 +12,25 @@ typedef struct {
   int v, cap, cost, next;
 } edge;
 
+typedef struct {
+  int adj;  // head of adjacency list
+  int d;    // Dijkstra distance / potential
+  int p;    // Dijkstra parent
+  int pe;   // edge from parent to child in Dijkstra
+  int hpos; // lookup table for decrease_key
+} node;
+
 // input data
 int val[MAX_N], weight[MAX_N], alarm[MAX_N];
 int rooms, thieves, knapsack;
 
 // Note: because we always call add_edge() in pairs, the reverse edge of i
 // will always be i ^ 1.
-edge e[MAX_EDGES];   // statically allocated edge array
-int adj[MAX_NODES];  // heads of adjacency lists
-int d[MAX_NODES];    // Dijkstra distances / potentials
-int p[MAX_NODES];    // Dijkstra parents
-int pe[MAX_NODES];   // edge from parent to child in Dijkstra
+node n[MAX_NODES];
+edge e[MAX_EDGES];       // statically allocated edge array
+int h[MAX_NODES], hsize; // heap for Dijkstra (1-based)
 int sink_potential;  // cumulative
 int nodes, edges;
-
-// heap for Dijkstra
-int h[MAX_NODES]; // 1-based
-int hpos[MAX_NODES];    // lookup table for decrease_key
-int hsize;
 
 inline int min(int x, int y) {
   return (x < y) ? x : y;
@@ -39,23 +40,23 @@ inline int min(int x, int y) {
 void heap_init() {
   hsize = 0;
   for (int u = 0; u < nodes; u++) {
-    hpos[u] = NIL;
+    n[u].hpos = NIL;
   }
 }
 
 inline void heap_set(int pos, int u) {
   h[pos] = u;
-  hpos[u] = pos;
+  n[u].hpos = pos;
 }
 
 inline bool heap_cmp(int u, int v) {
-  return (d[u] < d[v]) || (d[u] == d[v] && u < v);
+  return (n[u].d < n[v].d) || (n[u].d == n[v].d && u < v);
 }
 
 // Updates u's distance to d[u], which is known to have decreased.
 // If u is not in the heap, then inserts u.
 void heap_decrease_key(int u) {
-  int pos = (hpos[u] == NIL) ? ++hsize : hpos[u];
+  int pos = (n[u].hpos == NIL) ? ++hsize : n[u].hpos;
   h[0] = u; // sentinel
 
   while (heap_cmp(u, h[pos / 2])) {
@@ -68,7 +69,7 @@ void heap_decrease_key(int u) {
 
 int heap_pop() { // not to be confused with hip-hop
   int root = h[1], f = h[hsize--];
-  hpos[root] = NIL;
+  n[root].hpos = NIL;
 
   int p = 1;
   bool run = true;
@@ -91,15 +92,15 @@ int heap_pop() { // not to be confused with hip-hop
 }
 
 void add_edge(int u, int v, int cap, int cost) {
-  e[edges] = { v, cap, cost, adj[u] };
-  adj[u] = edges++;
+  e[edges] = { v, cap, cost, n[u].adj };
+  n[u].adj = edges++;
 }
 
 void init_graph() {
   nodes = rooms * (knapsack + 1) + 1;
   edges = 0;
-  for (int i = 0; i < nodes; i++) {
-    adj[i] = NIL;
+  for (int u = 0; u < nodes; u++) {
+    n[u].adj = NIL;
   }
 
   for (int i = 0; i < rooms; i++) {
@@ -131,15 +132,15 @@ void init_graph() {
 // exist. However, there exist negative edges, so Dijkstra can be very slow
 // (hundreds of millions of heap inserts).
 void init_potentials() {
-  d[0] = 0;
+  n[0].d = 0;
   for (int u = 1; u < nodes; u++) {
-    d[u] = INFINITY;
+    n[u].d = INFINITY;
   }
 
   for (int u = 0; u < nodes; u++) {
-    for (int pos = adj[u]; pos != NIL; pos = e[pos].next) {
+    for (int pos = n[u].adj; pos != NIL; pos = e[pos].next) {
       if (e[pos].cap) {
-        d[e[pos].v] = min(d[e[pos].v], d[u] + e[pos].cost);
+        n[e[pos].v].d = min(n[e[pos].v].d, n[u].d + e[pos].cost);
       }
     }
   }
@@ -147,28 +148,28 @@ void init_potentials() {
 
 void reduce_costs() {
   for (int u = 0; u < nodes; u++) {
-    if (d[u] != INFINITY) {
-      for (int pos = adj[u]; pos != NIL; pos = e[pos].next) {
-        e[pos].cost += d[u] - d[e[pos].v];
+    if (n[u].d != INFINITY) {
+      for (int pos = n[u].adj; pos != NIL; pos = e[pos].next) {
+        e[pos].cost += n[u].d - n[e[pos].v].d;
       }
     }
   }
 
-  sink_potential += d[nodes - 1];
+  sink_potential += n[nodes - 1].d;
 }
 
 // Returns true iff the sink is reachable
-int dijkstra() {
-  d[0] = 0;
+bool dijkstra() {
+  n[0].d = 0;
   for (int u = 1; u < nodes; u++) {
-    d[u] = INFINITY;
+    n[u].d = INFINITY;
   }
   heap_init();
   heap_decrease_key(0);
 
   while (hsize) {
     int u = heap_pop();
-    for (int pos = adj[u]; pos != NIL; pos = e[pos].next) {
+    for (int pos = n[u].adj; pos != NIL; pos = e[pos].next) {
       // Relax the edge.
       //
       // Relax, have a cigar, make yourself at home. Hell is full of high
@@ -177,16 +178,16 @@ int dijkstra() {
       // here. You're not alone. You're never alone, not here you're not. OK
       // break's over.
       int v = e[pos].v;
-      if (e[pos].cap && d[u] + e[pos].cost < d[v]) {
-        d[v] = d[u] + e[pos].cost;
-        p[v] = u;
-        pe[v] = pos; // Make a note of e[pos] so we can later push flow on it
+      if (e[pos].cap && n[u].d + e[pos].cost < n[v].d) {
+        n[v].d = n[u].d + e[pos].cost;
+        n[v].p = u;
+        n[v].pe = pos; // Make a note of e[pos] so we can later push flow on it
         heap_decrease_key(v);
       }
     }
   }
 
-  return d[nodes - 1] < INFINITY;
+  return n[nodes - 1].d < INFINITY;
 }
 
 // Determines the bottleneck capacity along the shortest path (no more than
@@ -194,16 +195,16 @@ int dijkstra() {
 int push_flow(int u, int flow) {
   int v = u;
   while (v) {
-    flow = min(flow, e[pe[v]].cap);
-    v = p[v];
+    flow = min(flow, e[n[v].pe].cap);
+    v = n[v].p;
   }
 
   // Now push it.
   while (u) {
-    int pos = pe[u];
+    int pos = n[u].pe;
     e[pos].cap -= flow;
     e[pos ^ 1].cap += flow;
-    u = p[u];
+    u = n[u].p;
   }
 
   return flow;
