@@ -12,7 +12,7 @@ typedef struct {
 int adj[MAX_NODES], adjt[MAX_NODES]; // adjacency lists in G and G_T
 int st[MAX_NODES], ss;  // stack of nodes in order of finish time
 bool seen[MAX_NODES];   // visited markers
-edge e[2 * MAX_EDGES];
+edge e[MAX_EDGES];
 int nodes, edges;
 
 // Common code for both DFS's in G.

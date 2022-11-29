@@ -18,7 +18,7 @@ typedef struct {
 
 node n[MAX_NODES];
 int st[MAX_NODES], ss;  // DFS stack
-edge e[2 * MAX_EDGES];
+edge e[MAX_EDGES];
 int nodes, edges, time;
 
 int min(int x, int y) {
@@ -38,9 +38,9 @@ void dfs(int u) {
   for (int pos = n[u].adj; pos != NIL; pos = e[pos].next) {
     int v = e[pos].v;
     if (!n[v].d) {
-      dfs(v);
       // Traverse the white descendant and make a note of how high it can
       // climb.
+      dfs(v);
       n[u].low = min(n[u].low, n[v].low);
     } else if (n[v].onStack) {
       // We can climb to v's level.
