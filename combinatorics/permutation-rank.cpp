@@ -201,11 +201,32 @@ void unrank_popcount2(u64 rank, char* witness) {
     // of the mask, then the higher half. The point is that we only need 2^10
     // entries instead of 2^20, which runs much faster because of better
     // caching.
-    int lo = mask & ((1 << (N/2)) - 1);
-    int pop = (N/2) - __builtin_popcount(lo);
+    int lo = mask & ((1 << (N >> 1)) - 1);
+    int pop = (N >> 1) - __builtin_popcount(lo);
     int j = (q < pop)
       ? kth[lo][q]
-      : ((N/2) + kth[mask >> (N/2)][q - pop]);
+      : ((N >> 1) + kth[mask >> (N >> 1)][q - pop]);
+
+    assert(j == witness[i]);
+    mask |= (1 << j);
+  }
+}
+
+// Same as unrank_popcount2, but replaces divisions with repeated subtractions.
+void unrank_popcount3(u64 rank, char* witness) {
+  int mask = 0;
+  for (int i = 0; i < N; i++) {
+    int q = 0;
+    while (fact[N - 1 - i] <= rank) {
+      rank -= fact[N - 1 - i];
+      q++;
+    }
+
+    int lo = mask & ((1 << (N >> 1)) - 1);
+    int pop = (N >> 1) - __builtin_popcount(lo);
+    int j = (q < pop)
+      ? kth[lo][q]
+      : ((N >> 1) + kth[mask >> (N >> 1)][q - pop]);
 
     assert(j == witness[i]);
     mask |= (1 << j);
@@ -298,6 +319,12 @@ int main() {
     unrank_popcount2(p[i].rank, p[i].v);
   }
   report_time("Popcount2 unrank");
+
+  mark_time();
+  for (int i = 0; i < TRIALS; i++) {
+    unrank_popcount3(p[i].rank, p[i].v);
+  }
+  report_time("Popcount3 unrank");
 
   return 0;
 }
