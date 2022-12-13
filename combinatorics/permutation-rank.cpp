@@ -268,11 +268,6 @@ int main() {
       p[i].v[k] = j;
     }
     p[i].rank = rank_popcount(p[i].v);
-
-    // for (int j = 0; j < N; j++) {
-    //   printf("%d ", p[i].v[j]);
-    // }
-    // printf("rank %llu\n", p[i].rank);
   }
   report_time("Generated trials");
   printf("--\n");
