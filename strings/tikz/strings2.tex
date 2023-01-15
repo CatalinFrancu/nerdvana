@@ -1,0 +1,47 @@
+% compile with: pdflatex -shell-escape filename.tex
+\documentclass[crop,tikz,convert=pdf2svg]{standalone}
+\usetikzlibrary{decorations.pathreplacing}
+
+\begin{document}
+
+\begin{tikzpicture}
+
+  \node[] at (-0.25, 0) {$X$};
+  \node[] at (4.2, 0) {$a$};
+  \node[] at (0.75, 1.5) {$P$};
+  \node[] at (1.75, -1.5) {$P$};
+
+  \draw (0, -0.25) rectangle (3.95, 0.25); % X's rectangle
+  \draw (4, -0.25) rectangle (4.4, 0.25);  % a's rectangle
+
+  % upper P's open rectangle with dotted ends
+  \draw (4.5, 1.25) -- (1, 1.25) -- (1, 1.75) -- (4.5, 1.75);
+  \draw[densely dotted] (4.5, 1.25) -- (5.5, 1.25);
+  \draw[densely dotted] (4.5, 1.75) -- (5.5, 1.75);
+
+  % lower P's open rectangle with dotted ends
+  \draw (5.5, -1.25) -- (2, -1.25) -- (2, -1.75) -- (5.5, -1.75);
+  \draw[densely dotted] (5.5, -1.25) -- (6.5, -1.25);
+  \draw[densely dotted] (5.5, -1.75) -- (6.5, -1.75);
+
+  % brace above upper P's rectangle
+  \draw[decorate, decoration={
+      brace,
+      raise=3,
+  }] (1, 1.75) -- (3.95, 1.75)
+  node[pos=0.5,above=5pt]{$\sigma(X) = q$};
+
+  % brace under P's rectangle
+  \draw[decorate, decoration={
+      brace,
+      raise=3,
+  }] (4.4, -1.75) -- (2, -1.75)
+  node[pos=0.5,below=5pt]{$\sigma(Xa) = r$};
+
+  % vertical aligners
+  \draw[dotted] (3.975, 2.45) -- (3.975, -0.65);
+  \draw[dotted] (4.4, 0.65) -- (4.4, -2.35);
+
+\end{tikzpicture}
+
+\end{document}
