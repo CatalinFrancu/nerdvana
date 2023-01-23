@@ -7,9 +7,9 @@
 
 #define TRIALS 10
 #define N 1'000'000
-
 #define DECAY 20
 #define SIGMA 6
+#define INFINITY 1'000'000
 
 typedef int vector[N + 1];
 
@@ -20,6 +20,14 @@ struct entry {
 char s[N + 1];
 vector p, c, p2, c2, cnt;
 long long _time;
+
+int max(int x, int y) {
+  return (x > y) ? x : y;
+}
+
+int min(int x, int y) {
+  return (x < y) ? x : y;
+}
 
 /**
  * Gestiunea timpului
@@ -35,13 +43,14 @@ void mark_time() {
   _time = get_time();
 }
 
-void report_time(const char* msg, int len) {
-  long long now = get_time();
+int report_time(const char* msg, int len) {
+  long long delta = get_time() - _time;
   fprintf(stderr, "%s: %lld ms; ultima lungime necesară: %d\n",
-          msg, now - _time, len);
+          msg, delta, len);
+  return delta;
 }
 
-inline int circ(int x, int n) {
+int circ(int x, int n) {
   return (x >= n) ? (x - n) : x;
 }
 
@@ -71,7 +80,7 @@ int build_with_radix_sort() {
   int num_classes = 1;
   c[p[0]] = 0;
   for (int i = 1; i < n; i++) {
-    if (s[p[i]] != s[p[i-1]]) {
+    if (s[p[i]] != s[p[i - 1]]) {
       num_classes++;
     }
     c[p[i]] = num_classes - 1;
@@ -84,19 +93,20 @@ int build_with_radix_sort() {
   int len = 1;
   while (num_classes < n) {
     for (int i = 0; i < n; i++) {
-      p2[i] = p[i] - len;
-      if (p2[i] < 0) {
-        p2[i] += n;
-      }
+      p2[i] = circ(p[i] - len + n, n);
     }
     // Calculează frecvențele claselor și sumele parțiale.
     memset(cnt, 0, sizeof(int) * num_classes);
     for (int i = 0; i < n; i++) {
-      cnt[c[p2[i]]]++;
+      cnt[c[i]]++;
     }
     for (int i = 1; i < num_classes; i++) {
-      cnt[i] += cnt[i-1];
+      cnt[i] += cnt[i - 1];
     }
+    // Acum cnt[x] este numărul de poziții de clasă <= x.
+
+    // Redistribuie valorile din p[], în clase de mărimea cnt[], în ordinea
+    // dată de p2[].
     for (int i = n - 1; i >= 0; i--) {
       p[--cnt[c[p2[i]]]] = p2[i];
     }
@@ -169,8 +179,10 @@ int main() {
   gettimeofday(&time, NULL);
   srand(time.tv_usec);
 
-  for (int t = 0; t < TRIALS; t++) {
-    printf("Testul %d/%d\n", t + 1, TRIALS);
+  int sum1 = 0, min1 = INFINITY, max1 = 0; // milisecunde
+  int sum2 = 0, min2 = INFINITY, max2 = 0;
+  for (int trial = 1; trial <= TRIALS; trial++) {
+    printf("Testul %d/%d\n", trial, TRIALS);
 
     // Generează un șir de lungime N.
     for (int i = 0; i < N; i++) {
@@ -185,7 +197,10 @@ int main() {
     // Metoda 1
     mark_time();
     int len = build_with_radix_sort();
-    report_time("Construcție cu radix sort", len);
+    int t = report_time("Construcție cu radix sort", len);
+    sum1 += t;
+    min1 = min(min1, t);
+    max1 = max(max1, t);
 
     // Verifică corectitudinea.
     for (int i = 0; i < N; i++) {
@@ -195,13 +210,21 @@ int main() {
     // Metoda 2
     mark_time();
     len = build_with_sort();
-    report_time("Construcție cu STL sort", len);
+    t = report_time("Construcție cu STL sort", len);
+    sum2 += t;
+    min2 = min(min2, t);
+    max2 = max(max2, t);
 
     // Verifică corectitudinea.
     for (int i = 0; i < N - 1; i++) {
       assert(strcmp(s + p[i], s + p[i + 1]) < 0);
     }
   }
+
+  sum1 -= min1 + max1; // Ignoră extremele.
+  sum2 -= min2 + max2;
+  printf("Timp mediu radix sort: %d ms\n", sum1 / (TRIALS - 2));
+  printf("Timp mediu STL sort: %d ms\n", sum2 / (TRIALS - 2));
 
   return 0;
 }
