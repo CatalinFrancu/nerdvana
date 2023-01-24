@@ -69,7 +69,7 @@ int build_with_radix_sort() {
   for (int i = 0; i < 'a' + SIGMA; i++) {
     cnt[i] += cnt[i - 1];
   }
-  // Acum c[x] este numărul de caractere <= x.
+  // Acum cnt[x] este numărul de caractere <= x.
 
   // Fă-l pe p să rețină o ordine a subșirurilor de lungime 1.
   for (int i = 0; i < n; i++) {
@@ -92,9 +92,6 @@ int build_with_radix_sort() {
 
   int len = 1;
   while (num_classes < n) {
-    for (int i = 0; i < n; i++) {
-      p2[i] = circ(p[i] - len + n, n);
-    }
     // Calculează frecvențele claselor și sumele parțiale.
     memset(cnt, 0, sizeof(int) * num_classes);
     for (int i = 0; i < n; i++) {
@@ -107,6 +104,9 @@ int build_with_radix_sort() {
 
     // Redistribuie valorile din p[], în clase de mărimea cnt[], în ordinea
     // dată de p2[].
+    for (int i = 0; i < n; i++) {
+      p2[i] = circ(p[i] - len + n, n);
+    }
     for (int i = n - 1; i >= 0; i--) {
       p[--cnt[c[p2[i]]]] = p2[i];
     }
@@ -133,7 +133,7 @@ int build_with_sort() {
   int n = N;
 
   for (int i = 0; i < n; i++) {
-    p2[i] = s[i] - 'a';
+    p2[i] = s[i];
   }
 
   bool collision = true;
