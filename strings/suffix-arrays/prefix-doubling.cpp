@@ -7,7 +7,7 @@
 
 #define TRIALS 10
 #define N 1'000'000
-#define DECAY 20
+#define DECAY 10
 #define SIGMA 6
 #define INFINITY 1'000'000
 
@@ -173,6 +173,45 @@ int build_with_sort() {
   return len / 2;
 }
 
+void swap(int i, int j) {
+  int tmp = p[i];
+  p[i] = p[j];
+  p[j] = tmp;
+}
+
+void tsort(int first, int last, int pos) {
+  if (last - first <= 1) {
+    return;
+  }
+
+  int i = first, left = first, right = last;
+  char pivot = s[p[first] + pos];
+
+  while (i < right) {
+    char x = s[p[i] + pos];
+    if (x < pivot) {
+      swap(i++, left++);
+    } else if (x > pivot)  {
+      swap(i, --right);
+    } else {
+      i++;
+    }
+  }
+
+  tsort(first, left, pos);
+  if (s[p[left] + pos] != '\0') {
+    tsort(left, right, pos + 1);
+  }
+  tsort(right, last, pos);
+}
+
+void build_with_ternary_qsort() {
+  for (int i = 0; i < N; i++) {
+    p[i] = i;
+  }
+  tsort(0, N, 0);
+}
+
 int main() {
 
   struct timeval time;
@@ -181,6 +220,7 @@ int main() {
 
   int sum1 = 0, min1 = INFINITY, max1 = 0; // milisecunde
   int sum2 = 0, min2 = INFINITY, max2 = 0;
+  // int sum3 = 0, min3 = INFINITY, max3 = 0;
   for (int trial = 1; trial <= TRIALS; trial++) {
     printf("Testul %d/%d\n", trial, TRIALS);
 
@@ -219,12 +259,27 @@ int main() {
     for (int i = 0; i < N - 1; i++) {
       assert(strcmp(s + p[i], s + p[i + 1]) < 0);
     }
+
+    // // Metoda 3
+    // mark_time();
+    // build_with_ternary_qsort();
+    // t = report_time("Construcție cu ternary qsort", 0);
+    // sum3 += t;
+    // min3 = min(min3, t);
+    // max3 = max(max3, t);
+
+    // // Verifică corectitudinea.
+    // for (int i = 0; i < N - 1; i++) {
+    //   assert(strcmp(s + p[i], s + p[i + 1]) < 0);
+    // }
   }
 
   sum1 -= min1 + max1; // Ignoră extremele.
   sum2 -= min2 + max2;
+  // sum3 -= min3 + max3;
   printf("Timp mediu radix sort: %d ms\n", sum1 / (TRIALS - 2));
   printf("Timp mediu STL sort: %d ms\n", sum2 / (TRIALS - 2));
+  // printf("Timp mediu ternary qsort: %d ms\n", sum3 / (TRIALS - 2));
 
   return 0;
 }
