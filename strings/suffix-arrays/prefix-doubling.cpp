@@ -66,7 +66,7 @@ int build_with_radix_sort() {
   for (int i = 0; i < n; i++) {
     cnt[(int)s[i]]++;
   }
-  for (int i = 0; i < 'a' + SIGMA; i++) {
+  for (int i = 1; i < 'a' + SIGMA; i++) {
     cnt[i] += cnt[i - 1];
   }
   // Acum cnt[x] este numărul de caractere <= x.
