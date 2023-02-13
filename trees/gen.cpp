@@ -18,6 +18,8 @@ void usage() {
   fprintf(stderr, "    no values or updates, just the tree\n");
   fprintf(stderr, "  op_type = 1 <num_ops> <max_value>:\n");
   fprintf(stderr, "    initial values, delta updates per node, queries per node\n");
+  fprintf(stderr, "  op_type = 2 <num_ops>:\n");
+  fprintf(stderr, "    no values, no updates, queries are pairs of nodes\n");
   _exit(1);
 }
 
@@ -98,6 +100,18 @@ void generate_ops(int n, int num_ops, int max_value) {
   }
 }
 
+void generate_lca_queries(int n, int num_ops) {
+  // Generate pairs of distinct nodes
+  printf("%d\n", num_ops);
+  while (num_ops--) {
+    int u = rand() % n, v;
+    do {
+      v = rand() % n;
+    } while (u == v);
+    printf("%d %d\n", u, v);
+  }
+}
+
 int main(int argc, char** argv) {
   if (argc < 5) {
     usage();
@@ -109,7 +123,6 @@ int main(int argc, char** argv) {
   int op_type = atoi(argv[4]);
 
   assert(chain_length + dense_node <= n);
-  assert(op_type <= 1);
 
   struct timeval time;
   gettimeofday(&time, NULL);
@@ -117,13 +130,31 @@ int main(int argc, char** argv) {
 
   generate_tree(n, chain_length, dense_node);
 
-  if (op_type == 1) {
-    if (argc != 7) {
-      usage();
-    }
-    int num_ops = atoi(argv[5]);
-    int max_value = atoi(argv[6]);
-    generate_ops(n, num_ops, max_value);
+  int num_ops, max_value;
+  switch (op_type) {
+    case 0:
+      // Nothing left to do.
+      break;
+
+    case 1:
+      if (argc != 7) {
+        usage();
+      }
+      num_ops = atoi(argv[5]);
+      max_value = atoi(argv[6]);
+      generate_ops(n, num_ops, max_value);
+      break;
+
+    case 2:
+      if (argc != 6) {
+        usage();
+      }
+      num_ops = atoi(argv[5]);
+      generate_lca_queries(n, num_ops);
+      break;
+
+    default:
+      assert(false);
   }
 
   return 0;

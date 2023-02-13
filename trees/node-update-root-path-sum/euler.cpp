@@ -83,7 +83,7 @@ int main() {
     fen[last[i]] = -val;
   }
   fenwick_build(); // O(n), as opposed to O(n log n) for 2n insertions.
-
+   
   int num_queries;
   scanf("%d", &num_queries);
   while (num_queries--) {
