@@ -1,6 +1,7 @@
 // Tree generator. The tree is guaranteed to have a chain of length at least
 // chain_length and a node with at least dense_node neighbors.
-// NOTE: Nodes are number from 0.
+// Can also generate various types of node values, queries and updates.
+// NOTE: Nodes are numbered from 0.
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
