@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-#include <stdio.h>
-
 #define MAX_N 500'000
 #define NIL -1
 
