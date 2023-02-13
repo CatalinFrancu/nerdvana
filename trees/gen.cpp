@@ -1,5 +1,6 @@
 // Tree generator. The tree is guaranteed to have a chain of length at least
 // chain_length and a node with at least dense_node neighbors.
+// NOTE: Nodes are number from 0.
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,7 +13,11 @@
 int v[MAX_N], p[MAX_N];
 
 void usage() {
-  fprintf(stderr, "Usage: gen <n> <chain_length> <dense_node>\n");
+  fprintf(stderr, "Usage: gen <n> <chain_length> <dense_node> <op_type> [...]\n");
+  fprintf(stderr, "  op_type = 0:\n");
+  fprintf(stderr, "    no values or updates, just the tree\n");
+  fprintf(stderr, "  op_type = 1 <num_ops> <max_value>:\n");
+  fprintf(stderr, "    initial values, delta updates per node, queries per node\n");
   _exit(1);
 }
 
@@ -25,21 +30,7 @@ void shuffle(int* v, int n) {
   }
 }
 
-int main(int argc, char** argv) {
-  if (argc != 4) {
-    usage();
-  }
-
-  int n = atoi(argv[1]);
-  int chain_length = atoi(argv[2]);
-  int dense_node = atoi(argv[3]);
-
-  assert(chain_length + dense_node <= n);
-
-  struct timeval time;
-  gettimeofday(&time, NULL);
-  srand(time.tv_usec);
-
+void generate_tree(int n, int chain_length, int dense_node) {
   for (int i = 0; i < n; i++) {
     v[i] = i;
     p[i] = NIL;
@@ -79,8 +70,60 @@ int main(int argc, char** argv) {
         x = y;
         y = tmp;
       }
-      printf("%d %d\n", x + 1, y + 1);
+      printf("%d %d\n", x, y);
     }
+  }
+}
+
+void generate_ops(int n, int num_ops, int max_value) {
+  // Generate and print the initial values.
+  for (int i = 0; i < n; i++) {
+    v[i] = rand() % (max_value + 1);
+    printf("%d ", v[i]);
+  }
+  printf("\n");
+
+  printf("%d\n", num_ops);
+  while (num_ops--) {
+    int u = rand() % n;
+    if (rand() % 2) {
+      // update -- make sure we stay within max_value
+      int delta = rand() % (max_value + 1) - v[u];
+      v[u] += delta;
+      printf("1 %d %d\n", u, delta);
+    } else {
+      // query
+      printf("2 %d\n", u);
+    }
+  }
+}
+
+int main(int argc, char** argv) {
+  if (argc < 5) {
+    usage();
+  }
+
+  int n = atoi(argv[1]);
+  int chain_length = atoi(argv[2]);
+  int dense_node = atoi(argv[3]);
+  int op_type = atoi(argv[4]);
+
+  assert(chain_length + dense_node <= n);
+  assert(op_type <= 1);
+
+  struct timeval time;
+  gettimeofday(&time, NULL);
+  srand(time.tv_usec);
+
+  generate_tree(n, chain_length, dense_node);
+
+  if (op_type == 1) {
+    if (argc != 7) {
+      usage();
+    }
+    int num_ops = atoi(argv[5]);
+    int max_value = atoi(argv[6]);
+    generate_ops(n, num_ops, max_value);
   }
 
   return 0;
