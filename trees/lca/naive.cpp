@@ -65,4 +65,6 @@ int main() {
     scanf("%d %d", &u, &v);
     printf("%d\n", naive_lca(u, v));
   }
+
+  return 0;
 }
