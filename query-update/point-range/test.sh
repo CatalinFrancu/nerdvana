@@ -8,7 +8,7 @@ while ! $fail; do
   echo ==== Test $count
   ./generator 500000 1000000000 100000 400000 1000000 5 5 > data.in
 
-  for method in sqrt segtree segtree2 fenwick; do
+  for method in sqrt segtree segtree2 fenwick fenwick0; do
     rm -f $method.out
     eval ./$method < data.in > $method.out
     diff sqrt.out $method.out || fail=true
