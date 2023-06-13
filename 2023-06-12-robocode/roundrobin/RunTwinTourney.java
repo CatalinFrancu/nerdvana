@@ -11,7 +11,7 @@ import java.util.Collections;
 
 public class RunTwinTourney {
   public static final String ROBOCODE_PATH = "/opt/robocode";
-  static final int NUM_ROUNDS = 10;
+  static final int NUM_ROUNDS = 100;
   static final int NUM_ITERATIONS = 1;
   static final int BATTLEFIELD_WIDTH = 800;
   static final int BATTLEFIELD_HEIGHT = 600;
@@ -74,11 +74,8 @@ public class RunTwinTourney {
                                   _roboEngine.getLocalRepository(joined));
           _roboEngine.runBattle(battleSpec, WAIT_UNTIL_OVER);
 
-
           int score1 = _twinListener.lastResult1.getScore();
           int score2 = _twinListener.lastResult2.getScore();
-          System.out.printf("SCORE = %-33s %7d - %-33s %7d\n",
-                            botName1, score1, botName2, score2);
 
           CompetitorData cd1, cd2;
           if (competitorHash.containsKey(botName1)) {
@@ -98,6 +95,9 @@ public class RunTwinTourney {
             competitorHash.put(botName2, cd2);
           }
           cd2.score += score2;
+
+          System.out.printf("SCORE = %-16s %7d - %-16s %7d\n",
+                            cd1.getDisplayName(), score1, cd2.getDisplayName(), score2);
         }
       }
       System.out.println();
@@ -111,7 +111,7 @@ public class RunTwinTourney {
 
     for (int x = 0; x < competitorStats.size(); x++) {
       CompetitorData stats = competitorStats.get(x);
-      System.out.printf("%2d. %-33s %7d\n", x + 1, stats.name, stats.score);
+      System.out.printf("%2d. %-16s %7d\n", x + 1, stats.getDisplayName(), stats.score);
     }
   }
 
@@ -123,6 +123,13 @@ public class RunTwinTourney {
     long roundsTotal = 0;
     int tourneySeed = -1;
     int score = 0;
+
+    public String getDisplayName() {
+      String noStars = name.replace("*", "");
+      int lastDot = noStars.lastIndexOf('.');
+      String lastChunk = noStars.substring(lastDot + 1);
+      return lastChunk;
+    }
 
     public double roundWinPercentage() {
       return (
