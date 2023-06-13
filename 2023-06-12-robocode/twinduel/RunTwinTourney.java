@@ -278,15 +278,11 @@ public class RunTwinTourney {
 
         battlesFought++;
         if (firstBot.name.equals(botNameFirst)) {
-          tourneyBattleResult.firstSurvival.add(
-                                                new Integer(botSurvivalFirst));
-          tourneyBattleResult.secondSurvival.add(
-                                                 new Integer(botSurvivalSecond));
+          tourneyBattleResult.firstSurvival.add(botSurvivalFirst);
+          tourneyBattleResult.secondSurvival.add(botSurvivalSecond);
         } else {
-          tourneyBattleResult.secondSurvival.add(
-                                                 new Integer(botSurvivalFirst));
-          tourneyBattleResult.firstSurvival.add(
-                                                new Integer(botSurvivalSecond));
+          tourneyBattleResult.secondSurvival.add(botSurvivalFirst);
+          tourneyBattleResult.firstSurvival.add(botSurvivalSecond);
         }
         // For debugging suspected problems...
         //                System.out.println("RAW TOURNEY RESULT: " + botNameFirst +
