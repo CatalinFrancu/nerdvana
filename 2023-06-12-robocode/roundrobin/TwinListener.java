@@ -1,4 +1,4 @@
-package twinduel;
+package roundrobin;
 
 import robocode.control.BattleSpecification;
 import robocode.control.RobotResults;
