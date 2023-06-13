@@ -20,13 +20,13 @@ public class RunTwinTourney {
     "apadeizvor.ApaDeIzvor*",
     "dummy.Dummy*",
     "Kasparov.Kasparov*",
-    "MateiArmin.MateiArmin*",
-    "megarobo.MegaRobot*",
-    "Mircea.FuriaNoptii.FuriaNoptii*",
-    "mma.TTCO*",
-    "PerformantRobot.PerformantRobot*",
-    "victor.D3XtrBot*",
-    "vr.Robo*",
+    //"MateiArmin.MateiArmin*",
+    //"megarobo.MegaRobot*",
+    //"Mircea.FuriaNoptii.FuriaNoptii*",
+    //"mma.TTCO*",
+    //"PerformantRobot.PerformantRobot*",
+    //"victor.D3XtrBot*",
+    //"vr.Robo*",
   };
 
   static final boolean WAIT_UNTIL_OVER = true;
@@ -54,8 +54,6 @@ public class RunTwinTourney {
     System.out.println();
     System.out.println("Round Robin Results: ");
     printCompetitorStats(sortedCompetitorList);
-
-    processBracketTourney(sortedCompetitorList);
   }
 
   public ArrayList<CompetitorData> processRoundRobin() {
@@ -162,75 +160,6 @@ public class RunTwinTourney {
     return new ArrayList<CompetitorData>(competitorHash.values());
   }
 
-  public void processBracketTourney(ArrayList<CompetitorData> competitorList) {
-    for (int x = 0; x < competitorList.size(); x++) {
-      CompetitorData competitor = competitorList.get(x);
-      competitor.tourneySeed = (x + 1);
-    }
-
-    int rounds = 1, slots = 2;
-
-    while (slots < competitorList.size()) {
-      rounds++;
-      slots *= 2;
-    }
-
-    for (int x = 0; x < rounds; x++) {
-      System.out.println();
-      System.out.println("----");
-      System.out.println();
-      if (x < rounds - 1) {
-        System.out.println("Bracket Tourney Round " + (x + 1));
-      } else {
-        System.out.println("Tourney Finals");
-      }
-      System.out.println();
-
-      boolean needExtraNewline = false;
-
-      for (int y = 0; y < (slots / 2); y++) {
-        int effectiveSeed1 = (y + 1);
-        int effectiveSeed2 = slots - y;
-
-        if (competitorList.size() < effectiveSeed2) {
-          System.out.println("Seed " + effectiveSeed1
-                             + " gets a bye");
-          needExtraNewline = true;
-        } else {
-          if (needExtraNewline) {
-            System.out.println();
-            needExtraNewline = false;
-          }
-
-          CompetitorData higherSeed =
-            competitorList.get(effectiveSeed1 - 1);
-          CompetitorData lowerSeed =
-            competitorList.get(effectiveSeed2 - 1);
-
-          System.out.println(
-                             higherSeed.tourneySeed + " " + higherSeed.name);
-          System.out.println(
-                             lowerSeed.tourneySeed + " " + lowerSeed.name);
-
-          String tourneyResultString = tourneyBattleResult(
-                                                           higherSeed, lowerSeed, (slots == 2));
-          System.out.println("\t" + tourneyResultString);
-
-          if (!tourneyResultString.contains(
-                                            higherSeed.name + " wins")) {
-            competitorList.set(y, lowerSeed);
-          }
-
-          needExtraNewline = true;
-        }
-      }
-
-      slots /= 2;
-    }
-
-    System.out.println();
-  }
-
   public static void printCompetitorStats(
                                           ArrayList<CompetitorData> competitorStats) {
 
@@ -242,58 +171,6 @@ public class RunTwinTourney {
       System.out.println("Rounds won: " + stats.roundsWon +
                          " (" + stats.roundWinPercentage() + "%)");
     }
-  }
-
-  public String tourneyBattleResult(CompetitorData firstBot,
-                                    CompetitorData secondBot, boolean tourneyFinals) {
-
-    String botNameFirst = "", botNameSecond = "";
-    int botSurvivalFirst = -1, botSurvivalSecond = -1;
-    int battlesFought = 0;
-
-    TwinBattleResult tourneyBattleResult = new TwinBattleResult();
-    tourneyBattleResult.firstBotName = firstBot.name;
-    tourneyBattleResult.secondBotName = secondBot.name;
-
-    do {
-      BattleSpecification battleSpec =
-        new BattleSpecification(NUM_ROUNDS, _battlefield,
-                                _roboEngine.getLocalRepository(firstBot.name +
-                                                               "," + secondBot.name));
-      _twinListener.lastBattleErrored = false;
-      _roboEngine.runBattle(battleSpec, WAIT_UNTIL_OVER);
-
-      if (_twinListener.lastBattleErrored) {
-        System.out.println("Encountered a Robocode error. " +
-                           "Re-initializing Robocode engine and rerunning...");
-        _roboEngine = new RobocodeEngine(new File(ROBOCODE_PATH));
-        _roboEngine.addBattleListener(_twinListener);
-      } else {
-        botNameFirst = _twinListener.lastResult1.getRobot().getTeamId();
-        botNameFirst = botNameFirst.replaceFirst("\\[.*\\]", "");
-        botSurvivalFirst = _twinListener.lastResult1.getFirsts();
-        botNameSecond = _twinListener.lastResult2.getRobot().getTeamId();
-        botNameSecond = botNameSecond.replaceFirst("\\[.*\\]", "");
-        botSurvivalSecond = _twinListener.lastResult2.getFirsts();
-
-        battlesFought++;
-        if (firstBot.name.equals(botNameFirst)) {
-          tourneyBattleResult.firstSurvival.add(botSurvivalFirst);
-          tourneyBattleResult.secondSurvival.add(botSurvivalSecond);
-        } else {
-          tourneyBattleResult.secondSurvival.add(botSurvivalFirst);
-          tourneyBattleResult.firstSurvival.add(botSurvivalSecond);
-        }
-        // For debugging suspected problems...
-        //                System.out.println("RAW TOURNEY RESULT: " + botNameFirst +
-        //                    " = " + botSurvivalFirst + ", " + botNameSecond + " = " +
-        //                    botSurvivalSecond);
-      }
-    } while ((tourneyFinals && battlesFought < 3) ||
-             (!tourneyFinals && botSurvivalFirst == botSurvivalSecond) ||
-             _twinListener.lastBattleErrored);
-
-    return tourneyBattleResult.winString();
   }
 
   class CompetitorData {
