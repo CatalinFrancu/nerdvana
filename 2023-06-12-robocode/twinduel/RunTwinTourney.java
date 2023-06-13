@@ -1,3 +1,4 @@
+// Adapted from https://www.cse.chalmers.se/~bergert/robowiki-mirror/RoboWiki/robowiki.net/wiki/Twin_Duel/Tourney_Runner.html
 package twinduel;
 
 import robocode.control.*;
@@ -9,31 +10,23 @@ import java.util.Comparator;
 import java.util.Collections;
 
 public class RunTwinTourney {
-  public static final String ROBOCODE_PATH = "/PATH/TO/ROBOCODE";
-  static final int NUM_ROUNDS = 75;
+  public static final String ROBOCODE_PATH = "/opt/robocode";
+  static final int NUM_ROUNDS = 10;
   static final int NUM_ITERATIONS = 1;
   static final int BATTLEFIELD_WIDTH = 800;
-  static final int BATTLEFIELD_HEIGHT = 800;
+  static final int BATTLEFIELD_HEIGHT = 600;
   static final String[] competitors = {
-    "ags.lunartwins.LunarTwins 1.2",
-    "bvh.two.Ravens 0.2",
-    "bvh.two.Valkiries 0.44t_mk3",
-    "chase.twin.SurroundingTeam 1.0",
-    "davidalves.twin.YinYang 1.2",
-    "gh.GruwelTwins 0.1",
-    "gh.twin.GrauwuarG 0.41",
-    "jk.team.NightAndDay 1.6",
-    "kawigi.micro.ShizPair 1.1",
-    "kawigi.twin.MarioBros 1.0",
-    "kc.twins.GeminiTeam 2.1",
-    "kinsen.twin.SelcouthTeam 1.1",
-    "krillr.mini.JointStrikeForce 2.0",
-    "voidious.team.LuminariousDuo 1.0591",
-    "wcsv.Coyote.CoyotePair .1",
-    "whind.TwintelligenceTeam 1.0",
-    "wiki.twin.InevitableTeam 0.1",
-    "wiki.twin.KomariousTeam 1.0"
-
+    "ana.Nitta*",
+    "apadeizvor.ApaDeIzvor*",
+    "dummy.Dummy*",
+    "Kasparov.Kasparov*",
+    "MateiArmin.MateiArmin*",
+    "megarobo.MegaRobot*",
+    "Mircea.FuriaNoptii.FuriaNoptii*",
+    "mma.TTCO*",
+    "PerformantRobot.PerformantRobot*",
+    "victor.D3XtrBot*",
+    "vr.Robo*",
   };
 
   static final boolean WAIT_UNTIL_OVER = true;
@@ -98,6 +91,12 @@ public class RunTwinTourney {
                 botNameSecond.replaceFirst("\\[.*\\]", "");
               botSurvivalSecond =
                 _twinListener.lastResult2.getFirsts();
+
+              int score1 = _twinListener.lastResult1.getScore();
+              int score2 = _twinListener.lastResult2.getScore();
+              System.out.printf("SCORE = %s %d - %s %d\n",
+                                botNameFirst, score1, botNameSecond, score2);
+
               if (botSurvivalFirst == botSurvivalSecond) {
                 System.out.println(botNameFirst + " tied with " +
                                    botNameSecond + ": " + botSurvivalFirst +
