@@ -1,10 +1,15 @@
-// Author: Cătălin Frâncu
 // Complexity: O(Q log N)
 //
 // Method: segment tree, optimized
 #include "common.h"
 
 long long s[2 * MAX_N];
+int orig_n;
+
+void augment_n() {
+  orig_n = n;
+  n = next_power_of_2(n);
+}
 
 void st_build() {
   for (int i = n - 1; i >= 1; i--) {
@@ -44,23 +49,7 @@ void st_update(int pos, int delta) {
   }
 }
 
-int main() {
-
-  read_data();
-  mark_time();
-
-  // round n to the next power of 2
-  int orig_n = n;
-  while (n & (n - 1)) {
-    n += (n & -n);
-  }
-
-  for (int i = 0; i < orig_n; i++) {
-    s[n + i] = v[i + 1];
-  }
-
-  st_build();
-
+void process_ops() {
   for (int i = 0; i < num_queries; i++) {
     if (q[i].t == OP_UPDATE) {
       st_update(q[i].x - 1, q[i].y);
@@ -68,6 +57,17 @@ int main() {
       answer[num_answers++] = st_query(q[i].x - 1, q[i].y - 1);
     }
   }
+}
+
+int main() {
+
+  read_data();
+  mark_time();
+
+  augment_n();
+  copy_array(s + n, v + 1, orig_n);
+  st_build();
+  process_ops();
 
   report_time("segment tree, iterative");
   write_data();

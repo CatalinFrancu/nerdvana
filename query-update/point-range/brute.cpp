@@ -1,4 +1,3 @@
-// Author: Cătălin Frâncu
 // Complexity: O(QN)
 //
 // Method: brute force

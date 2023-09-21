@@ -41,6 +41,22 @@ void write_data() {
   }
 }
 
+//////////////// various tools
+
+void copy_array(long long* dest, long long* src, int count) {
+  for (int i = 0; i < count; i++) {
+    dest[i] = src[i];
+  }
+}
+
+int next_power_of_2(int n) {
+  while (n & (n - 1)) {
+    n += (n & -n);
+  }
+
+  return n;
+}
+
 //////////////// time management
 
 // Returns the current timestamp in milliseconds
@@ -56,5 +72,5 @@ void mark_time() {
 
 void report_time(const char* msg) {
   long long time2 = get_time();
-  fprintf(stderr, "%s: %lld milliseconds\n", msg, time2 - time1);
+  fprintf(stderr, "%-35s %4lld milliseconds\n", msg, time2 - time1);
 }

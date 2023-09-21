@@ -11,6 +11,6 @@ while ! $fail; do
   for method in sqrt-div sqrt sqrt-pow2 segtree-rec segtree-iter fenwick0 fenwick1; do
     rm -f $method.out
     eval ./$method < data.in > $method.out
-    diff sqrt-div.out $method.out || fail=true
+    diff -q sqrt-div.out $method.out || fail=true
   done
 done

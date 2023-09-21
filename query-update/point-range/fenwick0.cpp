@@ -1,4 +1,3 @@
-// Author: Cătălin Frâncu
 // Complexity: O(Q log N)
 //
 // Method: Fenwick trees indexed from 0.
@@ -51,7 +50,7 @@ int main() {
     }
   }
 
-  report_time("Fenwick trees, 0-based");
+  report_time("Fenwick tree, 0-based");
   write_data();
 
   return 0;

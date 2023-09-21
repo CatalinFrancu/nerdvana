@@ -1,4 +1,3 @@
-// Author: Cătălin Frâncu
 // Complexity: O(Q sqrt N)
 //
 // Method: Square root decomposition with hard-coded, power-of-2 bucket size.
