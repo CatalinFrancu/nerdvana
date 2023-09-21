@@ -10,7 +10,7 @@ int main() {
   mark_time();
 
   for (int i = 0; i < num_queries; i++) {
-    if (q[i].t == T_UPDATE) {
+    if (q[i].t == OP_UPDATE) {
       v[q[i].x] += q[i].y;
     } else {
       long long sum = 0;

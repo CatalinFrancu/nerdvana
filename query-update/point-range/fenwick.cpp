@@ -44,14 +44,14 @@ int main() {
   fenwick_build();
 
   for (int i = 0; i < num_queries; i++) {
-    if (q[i].t == T_UPDATE) {
+    if (q[i].t == OP_UPDATE) {
       fenwick_add(q[i].x, q[i].y);
     } else {
       answer[num_answers++] = fenwick_range_sum(q[i].x, q[i].y);
     }
   }
 
-  report_time("Fenwick trees");
+  report_time("Fenwick trees, 1-based");
   write_data();
 
   return 0;

@@ -52,7 +52,7 @@ int main() {
   // round n to the next power of 2
   int orig_n = n;
   while (n & (n - 1)) {
-    n = (n | (n - 1)) + 1;
+    n += (n & -n);
   }
 
   for (int i = 0; i < orig_n; i++) {
@@ -62,14 +62,14 @@ int main() {
   st_build();
 
   for (int i = 0; i < num_queries; i++) {
-    if (q[i].t == T_UPDATE) {
+    if (q[i].t == OP_UPDATE) {
       st_update(q[i].x - 1, q[i].y);
     } else {
       answer[num_answers++] = st_query(q[i].x - 1, q[i].y - 1);
     }
   }
 
-  report_time("segment tree optimized");
+  report_time("segment tree, iterative");
   write_data();
 
   return 0;

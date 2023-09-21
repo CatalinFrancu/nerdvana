@@ -62,7 +62,7 @@ int main() {
   }
 
   for (int i = 0; i < num_queries; i++) {
-    if (q[i].t == T_UPDATE) {
+    if (q[i].t == OP_UPDATE) {
       point_add(q[i].x, q[i].y);
     } else {
       q[i].y++; // use the [x, y) interval, 1-based
