@@ -9,13 +9,29 @@
 long long bsum[MAX_BUCKETS], bdelta[MAX_BUCKETS];
 int bs, nb;
 
+void init_buckets() {
+  nb = sqrt(n + 1);
+  bs = n / nb + 1;
+
+  for (int i = 0; i < nb; i++) {
+    int bucket_start = i * bs;
+    for (int j = 0; j < bs; j++) {
+      bsum[i] += v[j + bucket_start];
+    }
+  }
+}
+
 // naively computes the sum of the range [l, r)
 long long fragment_sum(int l, int r, int bucket) {
-  long long sum = (r - l) * bdelta[bucket];
-  while (l < r) {
-    sum += v[l++];
-  }
-  return sum;
+  return
+    (r - l) * bdelta[bucket] +
+    array_sum(v, l, r);
+}
+
+long long bucket_sum(int l, int r) {
+  return
+    array_sum(bsum, l, r) +
+    bs * array_sum(bdelta, l, r);
 }
 
 // computes the sum of the range [l, r)
@@ -24,25 +40,19 @@ long long range_sum(int l, int r) {
   if (bl == br) {
     return fragment_sum(l, r, bl);
   } else {
-    // loose ends
-    long long sum =
+    return
+      // loose ends
       fragment_sum(l, (bl + 1) * bs, bl) +
-      fragment_sum(br * bs, r, br);
-
-    // buckets spanned entirely
-    for (int i = bl + 1; i < br; i++) {
-      sum += bsum[i] + bs * bdelta[i];
-    }
-    return sum;
+      fragment_sum(br * bs, r, br) +
+      // buckets spanned entirely
+      bucket_sum(bl + 1, br);
   }
 }
 
 // naively adds val the range [l, r), contained in bucket
 void fragment_add(int l, int r, int bucket, int val) {
   bsum[bucket] += (r - l) * val;
-  while (l < r) {
-    v[l++] += val;
-  }
+  array_add(v, l, r, val);
 }
 
 void range_add(int l, int r, int val) {
@@ -55,8 +65,17 @@ void range_add(int l, int r, int val) {
     fragment_add(br * bs, r, br, val);
 
     // fully spanned buckets
-    for (int i = bl + 1; i < br; i++) {
-      bdelta[i] += val;
+    array_add(bdelta, bl + 1, br, val);
+  }
+}
+
+void process_ops() {
+  for (int i = 0; i < num_queries; i++) {
+    q[i].r++; // use the [x, y) interval, 1-based
+    if (q[i].t == OP_UPDATE) {
+      range_add(q[i].l, q[i].r, q[i].val);
+    } else {
+      answer[num_answers++] = range_sum(q[i].l, q[i].r);
     }
   }
 }
@@ -66,24 +85,8 @@ int main() {
   read_data();
   mark_time();
 
-  nb = sqrt(n + 1);
-  bs = n / nb + 1;
-
-  for (int i = 0; i < nb; i++) {
-    int bucket_start = i * bs;
-    for (int j = 0; j < bs; j++) {
-      bsum[i] += v[j + bucket_start];
-    }
-  }
-
-  for (int i = 0; i < num_queries; i++) {
-    q[i].r++; // use the [x, y) interval, 1-based
-    if (q[i].t == OP_UPDATE) {
-      range_add(q[i].l, q[i].r, q[i].val);
-    } else {
-      answer[num_answers++] = range_sum(q[i].l, q[i].r);
-    }
-  }
+  init_buckets();
+  process_ops();
 
   report_time("SQRT decomposition");
   write_data();

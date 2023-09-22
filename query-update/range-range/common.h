@@ -44,6 +44,36 @@ void write_data() {
   }
 }
 
+//////////////// various tools
+
+void copy_array(long long* dest, long long* src, int count) {
+  for (int i = 0; i < count; i++) {
+    dest[i] = src[i];
+  }
+}
+
+long long array_sum(long long* v, int l, int r) {
+  long long sum = 0;
+  while (l < r) {
+    sum += v[l++];
+  }
+  return sum;
+}
+
+void array_add(long long* v, int l, int r, int val) {
+  while (l < r) {
+    v[l++] += val;
+  }
+}
+
+int next_power_of_2(int n) {
+  while (n & (n - 1)) {
+    n += (n & -n);
+  }
+
+  return n;
+}
+
 //////////////// time management
 
 // Returns the current timestamp in milliseconds

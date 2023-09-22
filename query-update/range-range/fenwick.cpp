@@ -48,13 +48,7 @@ long long fenwick_range_sum(int l, int r) {
   return fenwick_sum2(r) - fenwick_sum2(l - 1);
 }
 
-int main() {
-
-  read_data();
-  mark_time();
-
-  fenwick_build();
-
+void process_ops() {
   for (int i = 0; i < num_queries; i++) {
     if (q[i].t == OP_UPDATE) {
       fenwick_range_add(q[i].l, q[i].r, q[i].val);
@@ -62,6 +56,15 @@ int main() {
       answer[num_answers++] = fenwick_range_sum(q[i].l, q[i].r);
     }
   }
+}
+
+int main() {
+
+  read_data();
+  mark_time();
+
+  fenwick_build();
+  process_ops();
 
   report_time("Fenwick trees");
   write_data();

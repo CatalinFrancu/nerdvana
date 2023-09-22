@@ -6,6 +6,12 @@
 
 long long s[2 * MAX_N];
 long long lazy[2 * MAX_N]; // quantity to add to every element spanned
+int orig_n;
+
+void augment_n() {
+  orig_n = n;
+  n = next_power_of_2(n);
+}
 
 inline int min(int x, int y) {
   return (x < y) ? x : y;
@@ -60,23 +66,7 @@ void st_update(int node, int pl, int pr, int l, int r, int delta) {
   }
 }
 
-int main() {
-
-  read_data();
-  mark_time();
-
-  // round n to the next power of 2
-  int orig_n = n;
-  while (n & (n - 1)) {
-    n = (n | (n - 1)) + 1;
-  }
-
-  for (int i = 0; i < orig_n; i++) {
-    s[n + i] = v[i + 1];
-  }
-
-  st_build();
-
+void process_ops() {
   for (int i = 0; i < num_queries; i++) {
     if (q[i].t == OP_UPDATE) {
       st_update(1, 0, n, q[i].l - 1, q[i].r, q[i].val);
@@ -84,6 +74,17 @@ int main() {
       answer[num_answers++] = st_query(1, 0, n, q[i].l - 1, q[i].r);
     }
   }
+}
+
+int main() {
+
+  read_data();
+  mark_time();
+
+  augment_n();
+  copy_array(s + n, v + 1, orig_n);
+  st_build();
+  process_ops();
 
   report_time("segment tree");
   write_data();
