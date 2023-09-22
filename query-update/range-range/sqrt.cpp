@@ -1,4 +1,3 @@
-// Author: Cătălin Frâncu
 // Complexity: O(Q sqrt N)
 //
 // Method: Square root decomposition
@@ -79,7 +78,7 @@ int main() {
 
   for (int i = 0; i < num_queries; i++) {
     q[i].r++; // use the [x, y) interval, 1-based
-    if (q[i].t == T_UPDATE) {
+    if (q[i].t == OP_UPDATE) {
       range_add(q[i].l, q[i].r, q[i].val);
     } else {
       answer[num_answers++] = range_sum(q[i].l, q[i].r);

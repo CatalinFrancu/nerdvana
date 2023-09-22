@@ -1,4 +1,3 @@
-// Author: Cătălin Frâncu
 // Complexity: O(Q log N)
 //
 // Method: Fenwick trees with range updates
@@ -57,7 +56,7 @@ int main() {
   fenwick_build();
 
   for (int i = 0; i < num_queries; i++) {
-    if (q[i].t == T_UPDATE) {
+    if (q[i].t == OP_UPDATE) {
       fenwick_range_add(q[i].l, q[i].r, q[i].val);
     } else {
       answer[num_answers++] = fenwick_range_sum(q[i].l, q[i].r);

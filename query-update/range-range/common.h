@@ -3,14 +3,14 @@
 #include <sys/time.h>
 
 // some of these are specific to one source; keep them together for consistency
-#define MAX_BUCKETS 1024
-#define P2_BUCKET_SIZE 512
-#define P2_BUCKET_BITS 9
-#define MAX_N 0x80000  // 2^19, power of two for segment trees
-#define MAX_Q 500'000
+const int MAX_BUCKETS = 1024;
+const int P2_BUCKET_SIZE = 512;
+const int P2_BUCKET_BITS = 9;
+const int MAX_N = 0x80000;  // 2^19, power of two for segment trees
+const int MAX_Q = 500'000;
 
-#define T_UPDATE 1
-#define T_SUM 2
+const int OP_UPDATE = 1;
+const int OP_QUERY = 2;
 
 typedef struct {
   int t, l, r, val;
@@ -32,7 +32,7 @@ void read_data() {
 
   for (int i = 0; i < num_queries; i++) {
     scanf("%d %d %d", &q[i].t, &q[i].l, &q[i].r);
-    if (q[i].t == T_UPDATE) {
+    if (q[i].t == OP_UPDATE) {
       scanf("%d", &q[i].val);
     }
   }

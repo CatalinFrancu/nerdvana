@@ -1,4 +1,3 @@
-// Author: Cătălin Frâncu
 // Complexity: O(Q log N)
 //
 // Method: segment tree with lazy updates
@@ -79,7 +78,7 @@ int main() {
   st_build();
 
   for (int i = 0; i < num_queries; i++) {
-    if (q[i].t == T_UPDATE) {
+    if (q[i].t == OP_UPDATE) {
       st_update(1, 0, n, q[i].l - 1, q[i].r, q[i].val);
     } else {
       answer[num_answers++] = st_query(1, 0, n, q[i].l - 1, q[i].r);

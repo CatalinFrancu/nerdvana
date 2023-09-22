@@ -1,4 +1,3 @@
-// Author: Cătălin Frâncu
 // Complexity: O(QN)
 //
 // Method: brute force
@@ -10,7 +9,7 @@ int main() {
   mark_time();
 
   for (int i = 0; i < num_queries; i++) {
-    if (q[i].t == T_UPDATE) {
+    if (q[i].t == OP_UPDATE) {
       while (q[i].l <= q[i].r) {
         v[q[i].l++] += q[i].val;
       }
