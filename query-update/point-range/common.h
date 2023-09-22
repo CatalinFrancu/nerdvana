@@ -49,6 +49,14 @@ void copy_array(long long* dest, long long* src, int count) {
   }
 }
 
+long long array_sum(long long* v, int l, int r) {
+  long long sum = 0;
+  while (l < r) {
+    sum += v[l++];
+  }
+  return sum;
+}
+
 int next_power_of_2(int n) {
   while (n & (n - 1)) {
     n += (n & -n);

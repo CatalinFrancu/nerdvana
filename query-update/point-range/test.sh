@@ -6,7 +6,7 @@ fail=false
 while ! $fail; do
   count=$((count+1))
   echo ==== Test $count
-  ./generator 500000 1000000000 100000 400000 1000000 5 5 > data.in
+  ./generator 500000 1000000000 250000 250000 1000000 5 5 > data.in
 
   for method in sqrt-div sqrt sqrt-pow2 segtree-rec segtree-iter fenwick0 fenwick1; do
     rm -f $method.out

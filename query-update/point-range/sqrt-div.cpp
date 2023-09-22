@@ -7,13 +7,25 @@
 long long b[MAX_BUCKETS];
 int bs, nb;
 
+void init_buckets() {
+  nb = sqrt(n + 1);
+  bs = n / nb + 1;
+
+  for (int i = 0; i < nb; i++) {
+    int bucket_start = i * bs;
+    for (int j = 0; j < bs; j++) {
+      b[i] += v[j + bucket_start];
+    }
+  }
+}
+
 // naively computes the sum of the range [l, r)
 long long fragment_sum(int l, int r) {
-  long long sum = 0;
-  while (l < r) {
-    sum += v[l++];
-  }
-  return sum;
+  return array_sum(v, l, r);
+}
+
+long long bucket_sum(int l, int r) {
+  return array_sum(b, l, r);
 }
 
 // computes the sum of the range [l, r)
@@ -33,9 +45,7 @@ long long range_sum(int l, int r) {
     }
 
     // buckets spanned entirely
-    for (int i = bl + 1; i < br; i++) {
-      sum += b[i];
-    }
+    sum += bucket_sum(bl + 1, br);
     return sum;
   }
 }
@@ -45,21 +55,7 @@ void point_add(int pos, int val) {
   b[pos / bs] += val;
 }
 
-int main() {
-
-  read_data();
-  mark_time();
-
-  nb = sqrt(n + 1);
-  bs = n / nb + 1;
-
-  for (int i = 0; i < nb; i++) {
-    int bucket_start = i * bs;
-    for (int j = 0; j < bs; j++) {
-      b[i] += v[j + bucket_start];
-    }
-  }
-
+void process_ops() {
   for (int i = 0; i < num_queries; i++) {
     if (q[i].t == OP_UPDATE) {
       point_add(q[i].x, q[i].y);
@@ -68,6 +64,15 @@ int main() {
       answer[num_answers++] = range_sum(q[i].x, q[i].y);
     }
   }
+}
+
+int main() {
+
+  read_data();
+  mark_time();
+
+  init_buckets();
+  process_ops();
 
   report_time("SQRT decomposition w/ divisions");
   write_data();
