@@ -1,0 +1,54 @@
+% compile with: pdflatex -shell-escape filename.tex
+\documentclass[crop,tikz,convert=pdf2svg]{standalone}
+\usepackage{tikz}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{matrix}
+\usetikzlibrary{patterns}
+
+\tikzset{
+  row 1/.style={
+    color=black!50,
+    font=\small,
+  },
+  column 1/.style={
+    color=black!50,
+    font=\small,
+  },
+}
+
+\begin{document}
+
+\begin{tikzpicture}
+
+  \matrix (mat) at (2, 0) [
+    matrix of math nodes,
+    nodes={anchor=center, minimum size=20pt},
+  ] {
+    \ & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16\\
+    1 & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \ \\
+    2 & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \ \\
+    3 & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \ \\
+    4 & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \ \\
+    5 & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \ \\
+    6 & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \ \\
+    7 & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \ \\
+    8 & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \ \\
+    9 & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \ \\
+    10 & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \ \\
+    11 & \  & \  & \  & \  & |[fill=black!20]| \times & \times & \  & \times & \  & \  & \  & \  & \  & \  & \  & \times\\
+    12 & \  & \  & \  & \  & \times & \times & \  & |[red]| \times & \  & \  & \  & \  & \  & \  & \  & \times\\
+    13 & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \ \\
+    14 & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \ \\
+    15 & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \ \\
+    16 & \  & \  & \  & \  & \times & \times & \  & \times & \  & \  & \  & \  & \  & \  & \  & \times\\
+  };
+
+  \draw[red!80] (mat-2-2.north west) rectangle (mat-13-9.south east);
+
+  \foreach \x in {1,...,17} {
+    \draw [help lines, dashed] (mat-1-\x.south east) -- (mat-17-\x.south east);
+    \draw [help lines, dashed] (mat-\x-1.south east) -- (mat-\x-17.south east);
+  }
+\end{tikzpicture}
+
+\end{document}
