@@ -40,10 +40,11 @@
     13 & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \ \\
     14 & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \ \\
     15 & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \  & \ \\
-    16 & \  & \  & \  & \  & \times & \times & \  & \times & \  & \  & \  & \  & \  & \  & \  & \times\\
+    16 & \  & \  & \  & \  & \times & |[brown]| \times & \  & \times & \  & \  & \  & \  & \  & \  & \  & \times\\
   };
 
-  \draw[red!80] (mat-2-2.north west) rectangle (mat-13-9.south east);
+  \draw[red!80] (mat-10-2.north west) rectangle (mat-13-9.south east);
+  \draw[brown] (mat-2-6.north west) rectangle (mat-17-7.south east);
 
   \foreach \x in {1,...,17} {
     \draw [help lines, dashed] (mat-1-\x.south east) -- (mat-17-\x.south east);

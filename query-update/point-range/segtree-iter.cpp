@@ -44,7 +44,7 @@ long long st_query(int l, int r) {
 }
 
 void st_update(int pos, int delta) {
-  for (pos += n; pos > 1; pos >>= 1) {
+  for (pos += n; pos; pos >>= 1) {
     s[pos] += delta;
   }
 }
