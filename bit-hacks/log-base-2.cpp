@@ -52,42 +52,35 @@ void pcNaive() {
 void pcLookupTable1() {
   for (int i = 0; i < N; i++) {
     unsigned x = v[i];
-    if (x >= (1 << 16)) {
-      if (x >= (1 << 24)) {
-        c[i] = 24 + lookup[x >> 24];
-      } else {
-        c[i] = 16 + lookup[x >> 16];
-      }
-    } else {
-      if (x >= (1 << 8)) {
-        c[i] = 8 + lookup[x >> 8];
-      } else {
-        c[i] = lookup[x];
-      }
-    }
+    c[i] = (x >= (1 << 16))
+      ? ((x >= (1 << 24))
+         ? (24 + lookup[x >> 24])
+         : (16 + lookup[x >> 16]))
+      : ((x >= (1 << 8))
+         ? (8 + lookup[x >> 8])
+         : lookup[x]);
   }
 }
 
 void pcLookupTable2() {
   for (int i = 0; i < N; i++) {
     unsigned x = v[i];
-    c[i] = 0;
+    int log = 0;
     while (x >= 256) {
       x >>= 8;
-      c[i] += 8;
+      log += 8;
     }
-    c[i] += lookup[x];
+    log += lookup[x];
+    c[i] = log;
   }
 }
 
 void pcLookupTable3() {
   for (int i = 0; i < N; i++) {
     unsigned x = v[i];
-    if (x >= (1 << 16)) {
-      c[i] = 16 + lookupBig[x >> 16];
-    } else {
-      c[i] = lookupBig[x];
-    }
+    c[i] = (x >= (1 << 16))
+      ? (16 + lookupBig[x >> 16])
+      : lookupBig[x];
   }
 }
 
@@ -180,7 +173,7 @@ int main(void) {
 
   markTime();
   pcStl();
-  reportTime("std::popcount");
+  reportTime("std::countl_zero");
   verify();
 
   markTime();
