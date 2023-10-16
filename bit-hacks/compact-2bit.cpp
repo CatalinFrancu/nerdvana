@@ -1,6 +1,3 @@
-// Prepare an array of <position, value>. At each pass, shift the positions by
-// one. Write down the previous values. At the end of the algorithm, compare
-// the naive approach with the compact approach.
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -14,12 +11,12 @@ typedef unsigned char u8;
 
 typedef struct {
   int pos;
-  bool val, prevVal;
+  u8 val, prevVal;
 } change;
 
 change c[NUM_CHANGES];
-bool v[ARRAY_SIZE];
-u8 compact[ARRAY_SIZE / 8];
+u8 v[ARRAY_SIZE];
+u8 compact[ARRAY_SIZE / 4];
 long long t0;
 
 void markTime() {
@@ -49,30 +46,18 @@ void genLocations() {
   }
 }
 
-void compactSet(int pos, bool val) {
-  u8& c = compact[pos >> 3];
-  u8 mask = 1 << (pos & 7);
+void compactSet(int pos, u8 val) {
+  u8& c = compact[pos >> 2];
+  int shift = 2 * (pos & 3);
+  u8 mask = 3 << shift;
 
-  if (val) {
-    c |= mask;
-  } else {
-    c &= ~mask;
-  }
-}
-
-void compactSetNoBranching(int pos, bool val) {
-  u8& c = compact[pos >> 3];
-  int shift = pos & 7;
-  u8 mask = 1 << shift;
-
-  // The first half clears the bit, the second half sets it.
   c = (c & ~mask) | (val << shift);
 }
 
-bool compactGet(int pos) {
-  u8& c = compact[pos >> 3];
-  int shift = pos & 7;
-  return (c >> shift) & 1;
+u8 compactGet(int pos) {
+  u8& c = compact[pos >> 2];
+  int shift = 2 * (pos & 3);
+  return (c >> shift) & 3;
 }
 
 void runCompact() {
@@ -81,16 +66,6 @@ void runCompact() {
       int pos = c[i].pos + pass;
       c[i].prevVal = compactGet(pos);
       compactSet(pos, c[i].val);
-    }
-  }
-}
-
-void runCompactNoBranching() {
-  for (int pass = 0; pass < NUM_PASSES; pass++) {
-    for (int i = 0; i < NUM_CHANGES; i++) {
-      int pos = c[i].pos + pass;
-      c[i].prevVal = compactGet(pos);
-      compactSetNoBranching(pos, c[i].val);
     }
   }
 }
@@ -125,12 +100,7 @@ int main(void) {
 
   markTime();
   runCompact();
-  reportTime("bitset");
-  verify();
-
-  markTime();
-  runCompactNoBranching();
-  reportTime("bitset, no branching");
+  reportTime("2-bit");
   verify();
 
   return 0;
