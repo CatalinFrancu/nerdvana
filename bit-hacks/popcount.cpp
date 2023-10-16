@@ -60,19 +60,6 @@ void pcKernighan() {
   }
 }
 
-void pcParallel() {
-  for (int i = 0; i < N; i++) {
-    unsigned x = v[i];
-    //    x = x - ((x >> 1) & 0x55555555); // rescrisă pentru claritate
-    x = ((x >> 1) & 0x55555555) + (x & 0x55555555);
-    x = ((x >> 2) & 0x33333333) + (x & 0x33333333);
-    x = ((x >> 4) + x) & 0x0f0f0f0f;
-    x = ((x >> 8) + x) & 0x00ff00ff;
-    x = ((x >> 16) + x) & 0x0000ffff;
-    c[i] = x;
-  }
-}
-
 void pcLookupTable1() {
   for (int i = 0; i < N; i++) {
     c[i] = lookup[v[i] & 0xff] +
@@ -99,6 +86,19 @@ void pcBuiltin() {
 void pcStl() {
   for (int i = 0; i < N; i++) {
     c[i] = std::popcount(v[i]);
+  }
+}
+
+void pcParallel() {
+  for (int i = 0; i < N; i++) {
+    unsigned x = v[i];
+    //    x = x - ((x >> 1) & 0x55555555); // rescrisă pentru claritate
+    x = ((x >> 1) & 0x55555555) + (x & 0x55555555);
+    x = ((x >> 2) & 0x33333333) + (x & 0x33333333);
+    x = ((x >> 4) + x) & 0x0f0f0f0f;
+    x = ((x >> 8) + x) & 0x00ff00ff;
+    x = ((x >> 16) + x) & 0x0000ffff;
+    c[i] = x;
   }
 }
 
@@ -140,11 +140,6 @@ int main(void) {
   verify();
 
   markTime();
-  pcParallel();
-  reportTime("în paralel");
-  verify();
-
-  markTime();
   pcBuiltin();
   reportTime("__builtin_popcount");
   verify();
@@ -153,4 +148,11 @@ int main(void) {
   pcStl();
   reportTime("std::popcount");
   verify();
+
+  markTime();
+  pcParallel();
+  reportTime("în paralel");
+  verify();
+
+  return 0;
 }
