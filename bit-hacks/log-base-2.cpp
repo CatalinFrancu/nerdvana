@@ -5,7 +5,8 @@
 #include <sys/time.h>
 #include <time.h>
 
-const int N = 100'000'000;
+const int N = 100'000;
+const int NUM_PASSES = 10'000;
 
 unsigned v[N];
 int witness[N], c[N];
@@ -25,7 +26,11 @@ void reportTime(const char* msg) {
 
   gettimeofday (&tv, NULL);
   long long t = 1000LL * tv.tv_sec + tv.tv_usec / 1000;
-  printf("%s: %lld ms\n", msg, t - t0);
+  int millis = t - t0;
+  int ops = N * NUM_PASSES;
+
+  printf("%s: %lld ms pentru %d operații (%d Mops/sec)\n", msg, t - t0,
+         ops, ops / millis / 1000);
 }
 
 void lookupInit() {
@@ -38,90 +43,104 @@ void lookupInit() {
   }
 }
 
-void pcNaive() {
-  for (int i = 0; i < N; i++) {
-    unsigned x = v[i];
-    witness[i] = -1;
-    while (x) {
-      witness[i]++;
-      x >>= 1;
+void logNaive() {
+  for (int pass = 0; pass < NUM_PASSES; pass++) {
+    for (int i = 0; i < N; i++) {
+      unsigned x = v[i];
+      witness[i] = -1;
+      while (x) {
+        witness[i]++;
+        x >>= 1;
+      }
     }
   }
 }
 
-void pcLookupTable1() {
-  for (int i = 0; i < N; i++) {
-    unsigned x = v[i];
-    c[i] = (x >= (1 << 16))
-      ? ((x >= (1 << 24))
-         ? (24 + lookup[x >> 24])
-         : (16 + lookup[x >> 16]))
-      : ((x >= (1 << 8))
-         ? (8 + lookup[x >> 8])
-         : lookup[x]);
+void logLookupTable1() {
+  for (int pass = 0; pass < NUM_PASSES; pass++) {
+    for (int i = 0; i < N; i++) {
+      unsigned x = v[i];
+      c[i] = (x >= (1 << 16))
+        ? ((x >= (1 << 24))
+           ? (24 + lookup[x >> 24])
+           : (16 + lookup[x >> 16]))
+        : ((x >= (1 << 8))
+           ? (8 + lookup[x >> 8])
+           : lookup[x]);
+    }
   }
 }
 
-void pcLookupTable2() {
-  for (int i = 0; i < N; i++) {
-    unsigned x = v[i];
-    int log = 0;
-    while (x >= 256) {
-      x >>= 8;
-      log += 8;
+void logLookupTable2() {
+  for (int pass = 0; pass < NUM_PASSES; pass++) {
+    for (int i = 0; i < N; i++) {
+      unsigned x = v[i];
+      int log = 0;
+      while (x >= 256) {
+        x >>= 8;
+        log += 8;
+      }
+      log += lookup[x];
+      c[i] = log;
     }
-    log += lookup[x];
-    c[i] = log;
   }
 }
 
-void pcLookupTable3() {
-  for (int i = 0; i < N; i++) {
-    unsigned x = v[i];
-    c[i] = (x >= (1 << 16))
-      ? (16 + lookupBig[x >> 16])
-      : lookupBig[x];
+void logLookupTable3() {
+  for (int pass = 0; pass < NUM_PASSES; pass++) {
+    for (int i = 0; i < N; i++) {
+      unsigned x = v[i];
+      c[i] = (x >= (1 << 16))
+        ? (16 + lookupBig[x >> 16])
+        : lookupBig[x];
+    }
   }
 }
 
-void pcBuiltin() {
-  for (int i = 0; i < N; i++) {
-    c[i] = 31 - __builtin_clz(v[i]);
+void logBuiltin() {
+  for (int pass = 0; pass < NUM_PASSES; pass++) {
+    for (int i = 0; i < N; i++) {
+      c[i] = 31 - __builtin_clz(v[i]);
+    }
   }
 }
 
-void pcStl() {
-  for (int i = 0; i < N; i++) {
-    c[i] = 31 - std::countl_zero(v[i]);
+void logStl() {
+  for (int pass = 0; pass < NUM_PASSES; pass++) {
+    for (int i = 0; i < N; i++) {
+      c[i] = 31 - std::countl_zero(v[i]);
+    }
   }
 }
 
-void pcParallel() {
-  for (int i = 0; i < N; i++) {
-    unsigned x = v[i];
-    int log = 0;
+void logParallel() {
+  for (int pass = 0; pass < NUM_PASSES; pass++) {
+    for (int i = 0; i < N; i++) {
+      unsigned x = v[i];
+      int log = 0;
 
-    if (x > 0xffff) {
-      log += 16;
-      x >>= 16;
+      if (x > 0xffff) {
+        log += 16;
+        x >>= 16;
+      }
+      if (x > 0xff) {
+        log += 8;
+        x >>= 8;
+      }
+      if (x > 0xf) {
+        log += 4;
+        x >>= 4;
+      }
+      if (x > 0x3) {
+        log += 2;
+        x >>= 2;
+      }
+      if (x > 1) {
+        log += 1;
+        x >>= 1;
+      }
+      c[i] = log;
     }
-    if (x > 0xff) {
-      log += 8;
-      x >>= 8;
-    }
-    if (x > 0xf) {
-      log += 4;
-      x >>= 4;
-    }
-    if (x > 0x3) {
-      log += 2;
-      x >>= 2;
-    }
-    if (x > 1) {
-      log += 1;
-      x >>= 1;
-    }
-    c[i] = log;
   }
 }
 
@@ -144,40 +163,40 @@ int main(void) {
   lookupInit();
 
   markTime();
-  pcNaive(); // o dată pentru cache
+  logNaive(); // o dată pentru cache
   reportTime("inițializare");
 
   markTime();
-  pcNaive();
+  logNaive();
   reportTime("naiv");
 
   markTime();
-  pcLookupTable1();
-  reportTime("tabel 1");
+  logLookupTable1();
+  reportTime("tabel 1 (if)");
   verify();
 
   markTime();
-  pcLookupTable2();
-  reportTime("tabel 2");
+  logLookupTable2();
+  reportTime("tabel 2 (while)");
   verify();
 
   markTime();
-  pcLookupTable3();
+  logLookupTable3();
   reportTime("tabel 3 (64 kb)");
   verify();
 
   markTime();
-  pcBuiltin();
+  logBuiltin();
   reportTime("__builtin_clz");
   verify();
 
   markTime();
-  pcStl();
+  logStl();
   reportTime("std::countl_zero");
   verify();
 
   markTime();
-  pcParallel();
+  logParallel();
   reportTime("în paralel");
   verify();
 
