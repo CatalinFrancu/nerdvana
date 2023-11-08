@@ -29,7 +29,7 @@ void reportTime(const char* msg) {
   int millis = t - t0;
   int ops = N * NUM_PASSES;
 
-  printf("%s: %lld ms for %d ops (%d Mops/sec)\n", msg, t - t0,
+  printf("%s: %lld ms pentru %d operații (%d Mops/sec)\n", msg, t - t0,
          ops, ops / millis / 1000);
 }
 
@@ -150,12 +150,12 @@ int main(void) {
 
   markTime();
   pcLookupTable1();
-  reportTime("tabel 1");
+  reportTime("tabel + shift");
   verify();
 
   markTime();
   pcLookupTable2();
-  reportTime("tabel 2");
+  reportTime("tabel + char*");
   verify();
 
   markTime();
