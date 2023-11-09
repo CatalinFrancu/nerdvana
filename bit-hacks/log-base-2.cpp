@@ -8,6 +8,13 @@
 const int N = 100'000;
 const int NUM_PASSES = 10'000;
 
+const int mult32[32] = {
+  0 ,  9,  1, 10, 13, 21,  2, 29,
+  11, 14, 16, 18, 22, 25,  3, 30,
+  8 , 12, 20, 28, 15, 17, 24,  7,
+  19, 27, 23,  6, 26,  5,  4, 31,
+};
+
 unsigned v[N];
 int witness[N], c[N];
 int lookup[1 << 8];
@@ -144,6 +151,20 @@ void logParallel() {
   }
 }
 
+void logMult() {
+  for (int pass = 0; pass < NUM_PASSES; pass++) {
+    for (int i = 0; i < N; i++) {
+      unsigned x = v[i];
+      x |= x >> 1;
+      x |= x >> 2;
+      x |= x >> 4;
+      x |= x >> 8;
+      x |= x >> 16;
+      c[i] = mult32[x * 0x07C4ACDD >> 27];
+    }
+  }
+}
+
 // verificare de corectitudine
 void verify() {
   for (int i = 1; i < N; i++) {
@@ -198,6 +219,11 @@ int main(void) {
   markTime();
   logParallel();
   reportTime("în paralel");
+  verify();
+
+  markTime();
+  logParallel();
+  reportTime("cu înmulțire");
   verify();
 
   return 0;
