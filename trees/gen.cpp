@@ -73,7 +73,7 @@ void generate_tree(int n, int chain_length, int dense_node) {
         x = y;
         y = tmp;
       }
-      printf("%d %d\n", x, y);
+      printf("%d %d\n", 1 + x, 1 + y);
     }
   }
 }
@@ -93,10 +93,10 @@ void generate_ops(int n, int num_ops, int max_value) {
       // update -- make sure we stay within max_value
       int delta = rand() % (max_value + 1) - v[u];
       v[u] += delta;
-      printf("1 %d %d\n", u, delta);
+      printf("1 %d %d\n", 1 + u, delta);
     } else {
       // query
-      printf("2 %d\n", u);
+      printf("2 %d\n", 1 + u);
     }
   }
 }
@@ -109,7 +109,7 @@ void generate_lca_queries(int n, int num_ops) {
     do {
       v = rand() % n;
     } while (u == v);
-    printf("%d %d\n", u, v);
+    printf("%d %d\n", 1 + u, 1 + v);
   }
 }
 

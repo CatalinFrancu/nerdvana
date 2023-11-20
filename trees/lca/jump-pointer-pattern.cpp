@@ -2,7 +2,7 @@
 // method.
 #include <stdio.h>
 
-#define N 64
+const int N = 64;
 
 int jump[N + 1];
 

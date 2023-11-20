@@ -1,44 +1,70 @@
 // Answer LCA queries via binary lifting. Uses the ancestor test.
 #include <stdio.h>
 
-#define MAX_N 500'000
-#define MAX_LOG 19
-#define NIL -1
+const int MAX_NODES = 500'000;
+const int MAX_LOG = 19;
 
-struct edge {
+struct cell {
   int v, next;
-} e[2 * MAX_N];
-int adj[MAX_N];            // adjacency lists
-int jump[MAX_N][MAX_LOG];  // jump pointers
-int in[MAX_N], out[MAX_N]; // discovery / return times
-int l2;                    // log_2(n)
-int timer;
+};
 
-void add_edge(int u, int v, int pos) {
-  e[pos] = { v, adj[u] };
-  adj[u] = pos;
+struct node {
+  int adj;
+  int time_in, time_out;
+  int jump[MAX_LOG];
+};
+
+cell list[2 * MAX_NODES];
+node n[MAX_NODES + 1];
+int num_nodes, log_2;
+
+void add_edge(int u, int v) {
+  static int pos = 1;
+  list[pos] = { v, n[u].adj };
+  n[u].adj = pos++;
+}
+
+void read_input_data() {
+  scanf("%d", &num_nodes);
+
+  for (int i = 0; i < num_nodes - 1; i++) {
+    int u, v;
+    scanf("%d %d", &u, &v);
+    add_edge(u, v);
+    add_edge(v, u);
+  }
+}
+
+void compute_log_2() {
+  for (int n = num_nodes; n > 1; n >>= 1) {
+    log_2++;
+  }
 }
 
 // Traverse the tree and compute node timers and jump pointers.
 void dfs(int u, int parent) {
-  in[u] = timer++;
-  jump[u][0] = parent;
-  for (int i = 0; i < l2; i++) {
-    jump[u][i + 1] = jump[jump[u][i]][i];
+  static int time = 0;
+  n[u].time_in = time++;
+
+  n[u].jump[0] = parent;
+  for (int i = 0; i < log_2; i++) {
+    n[u].jump[i + 1] = n[n[u].jump[i]].jump[i];
   }
 
-  for (int pos = adj[u]; pos != NIL; pos = e[pos].next) {
-    int v = e[pos].v;
+  for (int ptr = n[u].adj; ptr; ptr = list[ptr].next) {
+    int v = list[ptr].v;
     if (v != parent) {
       dfs(v, u);
     }
   }
-  out[u] = timer++;
+
+  n[u].time_out = time++;
 }
 
-// Returns true iff u is an ancestor of v *or* v itself.
 bool is_ancestor(int u, int v) {
-  return (in[u] <= in[v]) && (out[u] >= out[v]);
+  return
+    (n[u].time_in <= n[v].time_in) &&
+    (n[u].time_out >= n[v].time_out);
 }
 
 int lca(int u, int v) {
@@ -47,43 +73,30 @@ int lca(int u, int v) {
   }
 
   // Find the highest ancestor of u that is *not* an ancestor of v.
-  for (int i = l2; i >= 0; i--) {
-    if (!is_ancestor(jump[u][i], v)) {
-      u = jump[u][i];
+  for (int i = log_2; i >= 0; i--) {
+    if (n[u].jump[i] && !is_ancestor(n[u].jump[i], v)) {
+      u = n[u].jump[i];
     }
   }
 
   // Now u's parent *is* an ancestor of v.
-  return jump[u][0];
+  return n[u].jump[0];
 }
 
-int main() {
-  int n;
-
-  scanf("%d", &n);
-  for (int i = 0; i < n; i++) {
-    adj[i] = NIL;
-  }
-  for (int i = 0; i < n - 1; i++) {
-    int u, v;
-    scanf("%d %d", &u, &v);
-    add_edge(u, v, 2 * i);
-    add_edge(v, u, 2 * i + 1);
-  }
-
-  // Compute floor(log2(n)) (the most we can ever climb at once).
-  for (int nc = n; nc > 1; nc >>= 1) {
-    l2++;
-  }
-
-  dfs(0, 0);
-
+void answer_queries() {
   int num_queries, u, v;
   scanf("%d", &num_queries);
   while (num_queries--) {
     scanf("%d %d", &u, &v);
     printf("%d\n", lca(u, v));
   }
+}
+
+int main() {
+  read_input_data();
+  compute_log_2();
+  dfs(1, 0);
+  answer_queries();
 
   return 0;
 }

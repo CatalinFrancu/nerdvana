@@ -1,70 +1,78 @@
 #include <stdio.h>
 
-#define MAX_N 500'000
-#define NIL -1
+const int MAX_NODES = 500'000;
 
-struct edge {
+struct cell {
   int v, next;
-} e[2 * MAX_N];
-int adj[MAX_N]; // adjacency lists
-int p[MAX_N];   // parents
-int d[MAX_N];   // depths
+};
 
-void add_edge(int u, int v, int pos) {
-  e[pos] = { v, adj[u] };
-  adj[u] = pos;
+struct node {
+  int adj;
+  int depth;
+  int parent;
+};
+
+cell list[2 * MAX_NODES];
+node n[MAX_NODES + 1];
+int num_nodes;
+
+void add_edge(int u, int v) {
+  static int pos = 1;
+  list[pos] = { v, n[u].adj };
+  n[u].adj = pos++;
 }
 
-// Traverse the tree and compute parents.
+void read_input_data() {
+  scanf("%d", &num_nodes);
+
+  for (int i = 0; i < num_nodes - 1; i++) {
+    int u, v;
+    scanf("%d %d", &u, &v);
+    add_edge(u, v);
+    add_edge(v, u);
+  }
+}
+
+// Traverse the tree and compute parents and depths.
 void dfs(int u) {
-  for (int pos = adj[u]; pos != NIL; pos = e[pos].next) {
-    int v = e[pos].v;
-    if (d[v] == NIL) {
-      d[v] = 1 + d[u];
-      p[v] = u;
+  for (int ptr = n[u].adj; ptr; ptr = list[ptr].next) {
+    int v = list[ptr].v;
+    if (!n[v].depth) {
+      n[v].depth = 1 + n[u].depth;
+      n[v].parent = u;
       dfs(v);
     }
   }
 }
 
 int naive_lca(int u, int v) {
-  while (d[u] > d[v]) {
-    u = p[u];
+  while (n[u].depth > n[v].depth) {
+    u = n[u].parent;
   }
-  while (d[v] > d[u]) {
-    v = p[v];
+  while (n[v].depth > n[u].depth) {
+    v = n[v].parent;
   }
   while (u != v) {
-    u = p[u];
-    v = p[v];
+    u = n[u].parent;
+    v = n[v].parent;
   }
   return u;
 }
 
-int main() {
-  int n;
-
-  scanf("%d", &n);
-  for (int i = 0; i < n; i++) {
-    adj[i] = d[i] = NIL;
-  }
-  for (int i = 0; i < n - 1; i++) {
-    int u, v;
-    scanf("%d %d", &u, &v);
-    add_edge(u, v, 2 * i);
-    add_edge(v, u, 2 * i + 1);
-  }
-
-  p[0] = NIL;
-  d[0] = 0;
-  dfs(0);
-
+void answer_queries() {
   int num_queries, u, v;
   scanf("%d", &num_queries);
   while (num_queries--) {
     scanf("%d %d", &u, &v);
     printf("%d\n", naive_lca(u, v));
   }
+}
+
+int main() {
+  read_input_data();
+  n[1].depth = 1;
+  dfs(1);
+  answer_queries();
 
   return 0;
 }
