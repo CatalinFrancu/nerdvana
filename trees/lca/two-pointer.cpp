@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 const int MAX_NODES = 500'000;
-const int MAX_LOG = 19;
 
 struct cell {
   int v, next;
