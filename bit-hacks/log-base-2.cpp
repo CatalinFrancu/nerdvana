@@ -222,7 +222,7 @@ int main(void) {
   verify();
 
   markTime();
-  logParallel();
+  logMult();
   reportTime("cu înmulțire");
   verify();
 
