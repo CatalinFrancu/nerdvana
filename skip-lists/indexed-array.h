@@ -1,10 +1,3 @@
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/time.h>
-#include <unordered_set>
-
-const int MAX_LEVELS = 20;
 const int MAX_NODES = 300'000;
 const int INF = 2'000'000'000;
 
@@ -12,6 +5,7 @@ struct node {
   int val;
   int height;
   int next[MAX_LEVELS];
+  int dist[MAX_LEVELS];
 };
 
 struct skip_list {
@@ -25,6 +19,7 @@ struct skip_list {
     a[0].height = a[1].height = MAX_LEVELS;
     for (int l = 0; l < MAX_LEVELS; l++) {
       a[0].next[l] = 1;
+      a[0].dist[l] = 1;
     }
   }
 
@@ -40,15 +35,28 @@ struct skip_list {
     a[size].val = val;
     a[size].height = get_height();
 
-    int pos = 0;
+    int pos = 0, order = 0;
 
     for (int l = MAX_LEVELS - 1; l >= 0; l--) {
       while (a[a[pos].next[l]].val < val) {
+        order += a[pos].dist[l];
         pos = a[pos].next[l];
       }
+      a[size].next[l] = pos;
+      a[size].dist[l] = order;
+    }
+
+    order++;
+    for (int l = MAX_LEVELS - 1; l >= 0; l--) {
+      int prev = a[size].next[l];
       if (l < a[size].height) {
-        a[size].next[l] = a[pos].next[l];
-        a[pos].next[l] = size;
+        a[size].next[l] = a[prev].next[l];
+        a[prev].next[l] = size;
+        int old_dist = a[prev].dist[l];
+        a[prev].dist[l] = order - a[size].dist[l];
+        a[size].dist[l] = old_dist - a[prev].dist[l] + 1;
+      } else {
+        a[prev].dist[l]++;
       }
     }
 
@@ -66,33 +74,31 @@ struct skip_list {
 
     return (a[a[pos].next[0]].val == val);
   }
+
+  int order_of(int val) {
+    int pos = 0, order = 0;
+
+    for (int l = MAX_LEVELS - 1; l >= 0; l--) {
+      while (a[a[pos].next[l]].val < val) {
+        order += a[pos].dist[l];
+        pos = a[pos].next[l];
+      }
+    }
+
+    return order;
+  }
+
+  int kth_element(int k) {
+    int pos = 0;
+    k++;
+
+    for (int l = MAX_LEVELS - 1; l >= 0; l--) {
+      while (a[pos].dist[l] <= k) {
+        k -= a[pos].dist[l];
+        pos = a[pos].next[l];
+      }
+    }
+
+    return a[pos].val;
+  }
 };
-
-void init_rng() {
-  struct timeval time;
-  gettimeofday(&time, NULL);
-  srand(time.tv_usec);
-}
-
-skip_list sl;
-std::unordered_set<int> stl_set;
-int values[MAX_NODES];
-
-int main() {
-  init_rng();
-
-  for (int i = 0; i < MAX_NODES; i++) {
-    values[i] = rand() % INF;
-  }
-
-  sl.init();
-
-  for (int i = 0; i < MAX_NODES; i++) {
-    sl.insert(values[i]);
-    stl_set.insert(values[i]);
-    int j = rand() % MAX_NODES;
-    assert(sl.contains(values[j]) == stl_set.contains(values[j]));
-  }
-
-  return 0;
-}

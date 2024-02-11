@@ -4,13 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
-#include <unordered_set>
 
 typedef __gnu_pbds::tree<
   int,
   __gnu_pbds::null_type,
   std::less<int>,
-  __gnu_pbds::rb_tree_tag,  
+  __gnu_pbds::rb_tree_tag,
   __gnu_pbds::tree_order_statistics_node_update
   > ordered_set;
 
@@ -31,9 +30,9 @@ struct skip_list {
 
   void init() {
     size = 2;
-    a[0].height = a[1].height = MAX_LEVELS;
     a[0].val = -INF;
     a[1].val = +INF;
+    a[0].height = a[1].height = MAX_LEVELS;
     for (int l = 0; l < MAX_LEVELS; l++) {
       a[0].next[l] = 1;
       a[0].dist[l] = 1;
@@ -150,7 +149,7 @@ int main() {
       assert(sl.order_of(x) == (int)stl_set.order_of_key(x));
     }
   }
-  
+
   for (int i = stl_set.size() - 1; i >= 0; i--) {
     assert(sl.kth_element(i) == *stl_set.find_by_order(i));
   }
