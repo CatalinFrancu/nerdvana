@@ -1,16 +1,17 @@
 const int MAX_NODES = 300'000;
 const int INF = 2'000'000'000;
-const char METHOD[] = "înălțimi fixe";
+const char METHOD[] = "buffer global";
 
 struct node {
   int val;
   int height;
-  int next[MAX_LEVELS];
-  int dist[MAX_LEVELS];
+  int* next;
+  int* dist;
 };
 
 struct skip_list {
   node a[MAX_NODES + 2];
+  int buf[MAX_NODES * 5], buf_ptr;
   int prev[MAX_LEVELS], prev_ord[MAX_LEVELS];
   int size;
 
@@ -19,6 +20,9 @@ struct skip_list {
     a[0].val = -INF;
     a[1].val = +INF;
     a[0].height = a[1].height = MAX_LEVELS;
+    a[0].next = buf;
+    a[0].dist = buf + MAX_LEVELS;
+    buf_ptr = 2 * MAX_LEVELS;
     for (int l = 0; l < MAX_LEVELS; l++) {
       a[0].next[l] = 1;
       a[0].dist[l] = 1;
@@ -37,6 +41,9 @@ struct skip_list {
     a[size].val = val;
     int h = get_height();
     a[size].height = h;
+    a[size].next = buf + buf_ptr;
+    a[size].dist = buf + buf_ptr + h;
+    buf_ptr += 2 * h;
 
     int pos = 0, order = 0;
 

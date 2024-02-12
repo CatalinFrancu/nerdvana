@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include <set>
 
-// #include "rand-naive.h"
+#include "rand-naive.h"
 // #include "rand-05.h"
-#include "rand-0375.h"
+// #include "rand-0375.h"
+// #include "rand-025.h"
 
 // #include "basic-array.h"
 #include "basic-buf.h"
@@ -83,6 +84,9 @@ int main() {
   init_rng();
 
   gen_witnesses();
+
+  printf("Metoda: %s\n", METHOD);
+  printf("Metoda RNG: %s\n", RAND_METHOD);
 
   mark_time();
   benchmark_insert_naive();

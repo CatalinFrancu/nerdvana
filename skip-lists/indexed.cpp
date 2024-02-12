@@ -26,6 +26,7 @@ struct node {
 
 struct skip_list {
   node a[MAX_NODES + 2];
+  int prev[MAX_LEVELS], prev_ord[MAX_LEVELS];
   int size;
 
   void init() {
@@ -49,7 +50,8 @@ struct skip_list {
 
   void insert(int val) {
     a[size].val = val;
-    a[size].height = get_height();
+    int h = get_height();
+    a[size].height = h;
 
     int pos = 0, order = 0;
 
@@ -58,27 +60,21 @@ struct skip_list {
         order += a[pos].dist[l];
         pos = a[pos].next[l];
       }
-      // For now, store the origin of the incoming pointer and its order.
-      a[size].next[l] = pos;
-      a[size].dist[l] = order;
+
+      a[pos].dist[l]++; // include ourselves
+      if (l < h) {
+        a[size].next[l] = a[pos].next[l];
+        a[pos].next[l] = size;
+        prev[l] = pos;
+        prev_ord[l] = order;
+      }
     }
 
-    // Now that we know our own order, update the incoming/outgoing info.
+    // Now that we know our own order, update the jump distances.
     order++;
-    for (int l = MAX_LEVELS - 1; l >= 0; l--) {
-      int prev = a[size].next[l];
-      if (l < a[size].height) {
-        // intercept the pointer
-        a[size].next[l] = a[prev].next[l];
-        a[prev].next[l] = size;
-        // split the distance
-        int old_dist = a[prev].dist[l];
-        a[prev].dist[l] = order - a[size].dist[l];
-        a[size].dist[l] = old_dist - a[prev].dist[l] + 1;
-      } else {
-        // the pointer passes over our head
-        a[prev].dist[l]++;
-      }
+    for (int l = 0; l < h; l++) {
+      a[size].dist[l] = a[prev[l]].dist[l] - (order - prev_ord[l]);
+      a[prev[l]].dist[l] = order - prev_ord[l];
     }
 
     size++;

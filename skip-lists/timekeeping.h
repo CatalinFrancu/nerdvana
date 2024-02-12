@@ -19,9 +19,7 @@ void report_time(const char* msg) {
 
   gettimeofday(&tv, NULL);
   long long t = 1000LL * tv.tv_sec + tv.tv_usec / 1000;
-  int millis = t - t0;
   int ops = N * NUM_PASSES;
 
-  printf("%s: %lld ms pentru %d operații (%d Mops/sec)\n", msg, t - t0,
-         ops, ops / millis / 1000);
+  printf("%s: %lld ms pentru %d operații\n", msg, t - t0, ops);
 }

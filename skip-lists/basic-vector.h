@@ -2,6 +2,7 @@
 
 const int MAX_NODES = 300'000;
 const int INF = 2'000'000'000;
+const char METHOD[] = "vectori STL";
 
 struct node {
   int val;
@@ -17,7 +18,6 @@ struct skip_list {
     a[0].val = -INF;
     a[1].val = +INF;
     a[0].next.resize(MAX_LEVELS);
-    a[1].next.resize(MAX_LEVELS);
     for (int l = 0; l < MAX_LEVELS; l++) {
       a[0].next[l] = 1;
     }

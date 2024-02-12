@@ -1,12 +1,13 @@
+#include <vector>
+
 const int MAX_NODES = 300'000;
 const int INF = 2'000'000'000;
-const char METHOD[] = "înălțimi fixe";
+const char METHOD[] = "vectori STL";
 
 struct node {
   int val;
   int height;
-  int next[MAX_LEVELS];
-  int dist[MAX_LEVELS];
+  std::vector<int> next, dist;
 };
 
 struct skip_list {
@@ -18,7 +19,8 @@ struct skip_list {
     size = 2;
     a[0].val = -INF;
     a[1].val = +INF;
-    a[0].height = a[1].height = MAX_LEVELS;
+    a[0].next.resize(MAX_LEVELS);
+    a[0].dist.resize(MAX_LEVELS);
     for (int l = 0; l < MAX_LEVELS; l++) {
       a[0].next[l] = 1;
       a[0].dist[l] = 1;
@@ -36,7 +38,8 @@ struct skip_list {
   void insert(int val) {
     a[size].val = val;
     int h = get_height();
-    a[size].height = h;
+    a[size].next.resize(h);
+    a[size].dist.resize(h);
 
     int pos = 0, order = 0;
 

@@ -1,5 +1,6 @@
 const int MAX_NODES = 300'000;
 const int INF = 2'000'000'000;
+const char METHOD[] = "buffer global";
 
 struct node {
   int val;
@@ -18,8 +19,7 @@ struct skip_list {
     a[1].val = +INF;
     a[0].height = a[1].height = MAX_LEVELS;
     a[0].next = buf;
-    a[1].next = buf + MAX_LEVELS;
-    buf_ptr = 2 * MAX_LEVELS;
+    buf_ptr = MAX_LEVELS;
     for (int l = 0; l < MAX_LEVELS; l++) {
       a[0].next[l] = 1;
     }

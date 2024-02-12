@@ -4,12 +4,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// #include "rand-naive.h"
+#include "rand-naive.h"
 // #include "rand-05.h"
-#include "rand-0375.h"
+// #include "rand-0375.h"
+// #include "rand-025.h"
 
-#include "indexed-array.h"
-// #include "indexed-buf.h"
+// #include "indexed-array.h"
+#include "indexed-buf.h"
 // #include "indexed-vector.h"
 
 typedef __gnu_pbds::tree<
@@ -44,7 +45,7 @@ void benchmark_naive() {
   for (int i = 0; i < N; i++) {
     stl_set.insert(perm[i]);
   }
-  
+
   for (int pass = 0; pass < NUM_PASSES; pass++) {
     for (int i = 0; i < N; i++) {
       int x = perm[i];
@@ -74,6 +75,9 @@ int main() {
   init_rng();
 
   gen_perm();
+
+  printf("Metoda: %s     niveluri: %d     RNG: %s\n",
+         METHOD, MAX_LEVELS, RAND_METHOD);
 
   mark_time();
   benchmark_naive();

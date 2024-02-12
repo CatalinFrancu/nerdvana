@@ -1,5 +1,6 @@
 const int MAX_NODES = 300'000;
 const int INF = 2'000'000'000;
+const char METHOD[] = "înălțimi fixe";
 
 struct node {
   int val;
