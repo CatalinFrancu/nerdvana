@@ -35,7 +35,10 @@ void write_perm(int k)  {
       int j = i;
       printf("(");
       do {
-        printf("%d ", j);
+        if (j != i) {
+          printf(" ");
+        }
+        printf("%d", j);
         vis[j] = true;
         j = p[k][j];
       } while (j != i);
