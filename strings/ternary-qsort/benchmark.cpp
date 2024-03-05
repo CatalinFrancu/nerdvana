@@ -1,4 +1,4 @@
-// Benchmarking code for three string-sorting algorithms:
+// Benchmarking code for three string sorting algorithms:
 // 1. STL sort of STL string objects;
 // 2. Quicksort of C strings;
 // 3. Ternary quicksort.
@@ -96,39 +96,39 @@ void swap(int i, int j) {
   ord[j] = tmp;
 }
 
-// Sorts the strings ord[first] ... ord[last]), which are known to be equal
-// up to position pos-1. Changes ord[] during the partitioning step, but does
-// not change c[], which would be expensive.
-void tsort(int first, int last, int pos) {
-  if (last - first <= 1) {
+// Sorts the strings ord[left] ... ord[right]), which are known to be equal up
+// to position pos-1. Changes ord[] during the partitioning step, but does not
+// change c[], which would be expensive.
+void tsort(int left, int right, int pos) {
+  if (right - left <= 1) {
     return;
   }
 
-  int i = first, left = first, right = last;
-  char pivot = ord[first][pos];
+  int i = left, lt = left, gt = right;
+  char pivot = ord[left][pos];
 
   // Loop invariant:
-  // * ord[first ... left)     the pos-th character is < pivot
-  // * ord[left ... i)         the pos-th character is == pivot
-  // * ord[i]                  the string currently being evaluated
-  // * ord(i ... right)        strings yet to be evaluated
-  // * ord[right ... last)     the pos-th character is > pivot
-  while (i < right) {
+  // * ord[left ... lt)     the pos-th character is < pivot
+  // * ord[lt ... i)        the pos-th character is == pivot
+  // * ord[i]               the string currently being evaluated
+  // * ord(i ... gt)        strings yet to be evaluated
+  // * ord[gt ... right)    the pos-th character is > pivot
+  while (i < gt) {
     char x = ord[i][pos];
     if (x < pivot) {
-      swap(i++, left++);
+      swap(i++, lt++);
     } else if (x > pivot)  {
-      swap(i, --right);
+      swap(i, --gt);
     } else {
       i++;
     }
   }
 
-  tsort(first, left, pos);
-  if (ord[left][pos] != '\0') {
-    tsort(left, right, pos + 1);
+  tsort(left, lt, pos);
+  if (ord[lt][pos] != '\0') {
+    tsort(lt, gt, pos + 1);
   }
-  tsort(right, last, pos);
+  tsort(gt, right, pos);
 }
 
 int main(void) {
