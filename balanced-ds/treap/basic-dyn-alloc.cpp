@@ -46,17 +46,17 @@ struct treap {
     }
   }
 
+  void insert(int key) {
+    treap* elem = new treap(key);
+    this->insert(&this->l, elem);
+  }
+
   treap* search(int key) {
     treap* t = this;
     while (t && key != t->key) {
       t = (key < t->key) ? t->l : t->r;
     }
     return t;
-  }
-
-  void insert(int key) {
-    treap* elem = new treap(key);
-    this->insert(&this->l, elem);
   }
 
   bool contains(int key) {

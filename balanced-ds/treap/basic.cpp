@@ -45,17 +45,17 @@ struct treap {
     }
   }
 
+  void insert(int key) {
+    v[n++] = { .key = key, .pri = rand(), .l = NIL, .r = NIL };
+    insert(v[0].l, n - 1);
+  }
+
   int search(int key) {
     int t = 0;
     while ((t != NIL) && (key != v[t].key)) {
       t = (key < v[t].key) ? v[t].l : v[t].r;
     }
     return t;
-  }
-
-  void insert(int key) {
-    v[n++] = { .key = key, .pri = rand(), .l = NIL, .r = NIL };
-    insert(v[0].l, n - 1);
   }
 
   bool contains(int key) {

@@ -1,17 +1,7 @@
 #include <assert.h>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
-
-typedef __gnu_pbds::tree<
-  int,
-  __gnu_pbds::null_type,
-  std::less<int>,
-  __gnu_pbds::rb_tree_tag,
-  __gnu_pbds::tree_order_statistics_node_update
-  > ordered_set;
 
 const int MAX_NODES = 300'000;
 const int INF = 2'000'000'000;
@@ -54,6 +44,21 @@ struct treap {
     }
   }
 
+  void merge(int& t, int l, int r) {
+    if (l == NIL) {
+      t = r;
+    } else if (r == NIL) {
+      t = l;
+    } else if (v[l].pri > v[r].pri) {
+      merge(v[l].r, v[l].r, r);
+      t = l;
+    } else {
+      merge(v[r].l, l, v[r].l);
+      t = r;
+    }
+    update_cnt(t);
+  }
+
   void insert(int& t, int elem) {
     if (t == NIL) {
       t = elem;
@@ -69,6 +74,19 @@ struct treap {
   void insert(int key) {
     v[n++] = make_node(key, rand());
     insert(v[1].l, n - 1);
+  }
+
+  void erase(int& t, int key) {
+    if (v[t].key == key) {
+      merge(t, v[t].l, v[t].r);
+    } else {
+      erase(key < v[t].key ? v[t].l : v[t].r, key);
+    }
+    update_cnt(t);
+  }
+
+  void erase(int key) {
+    erase(v[1].l, key);
   }
 
   int search(int key) {
@@ -119,7 +137,6 @@ void init_rng() {
 }
 
 treap t;
-ordered_set stl_set;
 int values[MAX_NODES];
 
 int main() {
@@ -128,17 +145,16 @@ int main() {
   t.init();
 
   for (int i = 0; i < MAX_NODES; i++) {
-    int x = rand() % INF;
-    // For simplicity, don't deal with multisets.
-    if (!t.contains(x)) {
-      t.insert(x);
-      stl_set.insert(x);
-      assert(t.order_of(x) == (int)stl_set.order_of_key(x));
-    }
+    do {
+      values[i] = rand() % INF;
+    } while (t.contains(values[i]));
+    t.insert(values[i]);
   }
 
-  for (int i = stl_set.size() - 1; i >= 0; i--) {
-    assert(t.kth_element(i) == *stl_set.find_by_order(i));
+  for (int i = 0; i < MAX_NODES; i++) {
+    assert(t.contains(values[i]));
+    t.erase(values[i]);
+    assert(!t.contains(values[i]));
   }
 
   return 0;
