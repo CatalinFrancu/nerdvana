@@ -13,6 +13,8 @@
 #include "skip-list/augmented-buf.h"
 // #include "skip-list/augmented-vector.h"
 
+#include "treap/augmented.h"
+
 typedef __gnu_pbds::tree<
   int,
   __gnu_pbds::null_type,
@@ -28,6 +30,7 @@ const int MAX_VALUE = 1'000'000'000;
 #include "timekeeping.h"
 
 skip_list sl;
+treap t;
 ordered_set stl_set;
 int perm[N];
 
@@ -70,14 +73,26 @@ void benchmark_skip_list() {
   }
 }
 
+void benchmark_treap() {
+  t.init();
+  for (int i = 0; i < N; i++) {
+    t.insert(perm[i]);
+  }
+
+  for (int pass = 0; pass < NUM_PASSES; pass++) {
+    for (int i = 0; i < N; i++) {
+      int x = perm[i];
+      assert(t.order_of(x) == x);
+      assert(t.kth_element(x) == x);
+    }
+  }
+}
+
 int main() {
 
   init_rng();
 
   gen_perm();
-
-  printf("Metoda: %s     niveluri: %d     RNG: %s\n",
-         METHOD, MAX_LEVELS, RAND_METHOD);
 
   mark_time();
   benchmark_naive();
@@ -86,6 +101,12 @@ int main() {
   mark_time();
   benchmark_skip_list();
   report_time("order statistics skip list");
+  printf("  (metoda skip list: %s     niveluri: %d     RNG: %s)\n",
+         METHOD, MAX_LEVELS, RAND_METHOD);
+
+  mark_time();
+  benchmark_treap();
+  report_time("order statistics treap");
 
   return 0;
 }
