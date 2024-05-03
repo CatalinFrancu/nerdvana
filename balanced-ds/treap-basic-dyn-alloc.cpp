@@ -27,10 +27,10 @@ struct treap {
     if (!t) {
       *l = *r = NULL;
     } else if (t->key <= key) {
-      split (t->r, key, &t->r, r);
+      split(t->r, key, &t->r, r);
       *l = t;
     } else {
-      split (t->l, key, l, &t->l);
+      split(t->l, key, l, &t->l);
       *r = t;
     }
   }
