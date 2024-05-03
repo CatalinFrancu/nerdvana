@@ -4,14 +4,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "rand-naive.h"
-// #include "rand-05.h"
-// #include "rand-0375.h"
-// #include "rand-025.h"
+#include "skip-list/rand-naive.h"
+// #include "skip-list/rand-05.h"
+// #include "skip-list/rand-0375.h"
+// #include "skip-list/rand-025.h"
 
-// #include "indexed-array.h"
-#include "indexed-buf.h"
-// #include "indexed-vector.h"
+// #include "skip-list/augmented-array.h"
+#include "skip-list/augmented-buf.h"
+// #include "skip-list/augmented-vector.h"
 
 typedef __gnu_pbds::tree<
   int,

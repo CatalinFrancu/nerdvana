@@ -3,14 +3,14 @@
 #include <stdlib.h>
 #include <set>
 
-#include "rand-naive.h"
-// #include "rand-05.h"
-// #include "rand-0375.h"
-// #include "rand-025.h"
+#include "skip-list/rand-naive.h"
+// #include "skip-list/rand-05.h"
+// #include "skip-list/rand-0375.h"
+// #include "skip-list/rand-025.h"
 
 // #include "basic-array.h"
-#include "basic-buf.h"
-// #include "basic-vector.h"
+#include "skip-list/basic-buf.h"
+// #include "skip-list/basic-vector.h"
 
 const int N = 300'000;
 const int NUM_PASSES = 10;
