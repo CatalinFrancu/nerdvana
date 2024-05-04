@@ -75,7 +75,7 @@ struct treap {
   }
 
   void insert(int pos, int val) {
-    v[n++] = make_node(val, rand() % 10000);
+    v[n++] = make_node(val, rand());
     insert(v[1].l, pos, n - 1);
   }
 
