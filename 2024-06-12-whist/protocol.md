@@ -61,7 +61,7 @@ initial_hand <card_0> ... <card_{hand_size-1}>
 phase <int>
 
 # Licitațiile făcute pînă acum, unde -1 = jucătorul încă nu a licitat
-bids <bid_0> ... <bid_{num_players-1}
+bids <bid_0> ... <bid_{num_players-1}>
 ```
 
 # Fișierul input.txt: Informații despre levatele jucate
