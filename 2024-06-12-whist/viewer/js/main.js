@@ -1,59 +1,76 @@
-function assert(x, msg) {
-  console.assert(x, msg);
-}
-
-class GameLine {
-  constructor(line) {
-    let parts = line.split(' ');
-    this.key = parts[0];
-    this.value = parts.slice(1);
-  }
-
-  getJoinedValue() {
-    return this.value.join(' ');
-  }
-
-  getNumber() {
-    return Number(this.value[0]);
-  }
-
-  getNumbers() {
-    let result = [];
-    for (let i = 0; i < this.value.length; i++) {
-      result.push(Number(this.value[i]));
-    }
-    return result;
-  }
-}
-
-class Player {
-  constructor(name) {
-    this.name = name;
-  }
-}
-
-class Round {
-  constructor() {
-    this.hands = [];
-    this.trump = null;
-    this.bids = [];
-    this.tricks = [];
-    this.trickWinners = [];
-    this.outcomes = [];
-    this.points = [];
-    this.streaks = [];
-  }
-}
-
 $(function() {
+  const BOARD_BORDER = 20;
+  const MAX_HAND_SIZE = 8;
+
+  let playerAreaStub = null;
   let gameFileLines = [];
   let players = [];
   let rounds = [];
+  let frame = null;
+  let maxFrames = 0;
+
+  function assert(x, msg) {
+    console.assert(x, msg);
+  }
+
+  class GameLine {
+    constructor(line) {
+      let parts = line.split(' ');
+      this.key = parts[0];
+      this.value = parts.slice(1);
+    }
+
+    getJoinedValue() {
+      return this.value.join(' ');
+    }
+
+    getNumber() {
+      return Number(this.value[0]);
+    }
+
+    getNumbers() {
+      let result = [];
+      for (let i = 0; i < this.value.length; i++) {
+        result.push(Number(this.value[i]));
+      }
+      return result;
+    }
+  }
+
+  class Player {
+    constructor(name) {
+      this.name = name;
+    }
+  }
+
+  class Round {
+    constructor() {
+      this.hands = [];
+      this.trump = null;
+      this.bids = [];
+      this.tricks = [];
+      this.trickWinners = [];
+      this.outcomes = [];
+      this.points = [];
+      this.streaks = [];
+    }
+
+    getFrameCount() {
+      let framesPerTrick = players.length + 1;
+
+      return 1 +          // scena inițială
+        players.length +  // licitația
+        framesPerTrick * this.handSize;
+    }
+  }
 
   init();
 
   function init() {
+    playerAreaStub = $('#player-area-stub').detach();
     $('#file-field').on('change', fileUploaded);
+    $('#button-back').on('click', goBack);
+    $('#button-forward').on('click', goForward);
   }
 
   function loadGameFile(contents) {
@@ -152,26 +169,184 @@ $(function() {
     });
   }
 
+  function positionPlayerArea(area, dir) {
+    let boardW = $('#board').width();
+    let boardH = $('#board').height();
+    let xcenter = boardW / 2;
+    let ycenter = boardH / 2;
+    let w = area.outerWidth();
+    let h = area.outerHeight();
+    let cs = Math.cos(dir);
+    let sn = Math.sin(dir);
+    let xcoef, ycoef;
+
+    if (cs > 0) {
+      xcoef = (boardW - BOARD_BORDER - w / 2 - xcenter) / cs;
+    } else if (cs < 0) {
+      xcoef = (xcenter - BOARD_BORDER - w / 2) / -cs;
+    } else {
+      xcoef = Infinity;
+    }
+
+    if (sn > 0) {
+      ycoef = (boardH - BOARD_BORDER - h / 2 - ycenter) / sn;
+    } else if (sn < 0) {
+      ycoef = (ycenter - BOARD_BORDER - h / 2) / -sn;
+    } else {
+      ycoef = Infinity;
+    }
+
+    let coef = Math.min(xcoef, ycoef);
+
+    area.css({
+      top: ycenter - coef * sn - h / 2,
+      left: xcenter + coef * cs - w / 2,
+    });
+  }
+
+  function createPlayerAreas() {
+    let dir = -Math.PI;
+
+    players.forEach(function(p) {
+      let c = playerAreaStub.clone();
+      c.find('.card-header').text(p.name);
+      c.appendTo('#board')
+      positionPlayerArea(c, dir);
+      dir -= 2 * Math.PI / players.length;
+    });
+  }
+
+  function adjustHeadRow() {
+    let head = $('#score-table thead tr');
+    head.find('th').slice(players.length + 1).remove();
+    while (head.find('th').length < players.length + 1) {
+      head.find('th').last().clone().appendTo(head);
+    }
+  }
+
+  function adjustFirstRow() {
+    // Păstrează un singur rînd cu o singură celulă și șterge-i conținutul.
+    $('#score-table tbody tr').slice(1).remove();
+    $('#score-table tbody tr td').slice(1).remove();
+    $('#score-table tbody tr td span').text('');
+
+    // Completează rîndul.
+    let row = $('#score-table tbody tr');
+    while (row.find('td').length < players.length) {
+      row.find('td').last().clone().appendTo(row);
+    }
+  }
+
+  function createRemainingRows() {
+    let body = $('#score-table tbody');
+    while (body.find('tr').length < rounds.length) {
+      body.find('tr').last().clone().appendTo(body);
+    }
+  }
+
+  function fillInTableData() {
+    let head = $('#score-table thead tr');
+    for (let i = 0; i < players.length; i++) {
+      head.find('th').eq(i + 1).text(players[i].name);
+    }
+
+    let colHeads = $('#score-table tbody tr th');
+    for (let i = 0; i < rounds.length; i++) {
+      colHeads.eq(i).text(rounds[i].handSize);
+    }
+  }
+
+  function createScoreTable() {
+    adjustHeadRow();
+    adjustFirstRow();
+    createRemainingRows();
+    fillInTableData();
+  }
+
+  function computeFrames() {
+    frame = 0;
+    maxFrames = 1; // scena inițială
+    for (let i = 0; i < rounds.length; i++) {
+      maxFrames += rounds[i].getFrameCount();
+    }
+  }
+
   function initGame(contents) {
     loadGameFile(contents);
     processGameLines();
     sanityCheck();
+    createPlayerAreas();
+    createScoreTable();
+    computeFrames();
   }
 
-  // See https://stackoverflow.com/a/39515846/6022817.
+  // Vezi https://stackoverflow.com/a/39515846/6022817.
   function fileUploaded(evt) {
     let fl_file = evt.target.files[0];
-    let reader = new FileReader(); // built in API
+    let reader = new FileReader();
 
     let display_file = ( e ) => {
       initGame(e.target.result);
     };
 
     let on_reader_load = () => {
-      return display_file; // a function
+      return display_file;
     };
 
     reader.onload = on_reader_load();
     reader.readAsText(fl_file);
+  }
+
+  function drawPlayerHands(hands) {
+    for (let i = 0; i < players.length; i++) {
+      let area = $('.player-area .card-holder').eq(i);
+      for (let j = 0; j < hands[i].length; j++) {
+        let f = ('0' + hands[i][j]).slice(-2);
+        let src = 'img/deck/' + f + '.svg';
+        area.find('img').eq(j).attr('src', src);
+      }
+      for (let j = hands[i].length; j < MAX_HAND_SIZE; j++) {
+        area.find('img').eq(j).attr('src', '');
+      }
+    }
+  }
+
+  function drawRoundFrame(frame, rid) {
+    console.log('drawing frame', frame, 'of round', rid);
+
+    let hands = [...rounds[rid].hands];
+    drawPlayerHands(hands);
+  }
+
+  function redrawGame() {
+    let fc = frame;
+    let rid = 0;
+    console.log('drawing frame', frame, 'of', maxFrames);
+    if (fc == 0) {
+      // Player areas are empty
+      return;
+    }
+    fc--;
+
+    while (fc >= rounds[rid].getFrameCount()) {
+      fc -= rounds[rid].getFrameCount();
+      rid++;
+    }
+
+    drawRoundFrame(fc, rid);
+  }
+
+  function goBack() {
+    if (frame > 0) {
+      frame--;
+      redrawGame();
+    }
+  }
+
+  function goForward() {
+    if (frame < maxFrames - 1) {
+      frame++;
+      redrawGame();
+    }
   }
 });

@@ -1,2 +1,62 @@
-body {
+#board {
+  background-color: #82E0AA;
+  min-height: 768px;
+  position: relative;
+}
+
+.player-area {
+  min-width: 270px;
+  position: absolute;
+}
+
+.player-area .card-body {
+  min-height: 135px;
+}
+
+.player-area .card-holder {
+  position: relative;
+}
+
+.player-area .card-holder img {
+  height: 100px;
+}
+
+.player-area .card-holder img:nth-child(2) {
+  position: absolute;
+  left: 18px;
+}
+
+.player-area .card-holder img:nth-child(3) {
+  position: absolute;
+  left: 36px;
+}
+
+.player-area .card-holder img:nth-child(4) {
+  position: absolute;
+  left: 54px;
+}
+
+.player-area .card-holder img:nth-child(5) {
+  position: absolute;
+  left: 72px;
+}
+
+.player-area .card-holder img:nth-child(6) {
+  position: absolute;
+  left: 90px;
+}
+
+.player-area .card-holder img:nth-child(7) {
+  position: absolute;
+  left: 108px;
+}
+
+.player-area .card-holder img:nth-child(8) {
+  position: absolute;
+  left: 126px;
+}
+
+#score-table thead th:not(:first-child) {
+  transform: rotate(180deg);
+  writing-mode: vertical-lr;
 }
