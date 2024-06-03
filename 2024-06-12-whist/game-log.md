@@ -33,8 +33,10 @@ bids <bid_0> ... <bid_{num_players-1}>
 
 # Levatele jucate. Cărțile apar în ordinea în care au fost jucate.
 trick <card_0> ... <card_{num_players-1}>
+trick_winner <player_id>
 ...
 trick <card_0> ... <card_{num_players-1}>
+trick_winner <player_id>
 
 # Rezultatul pentru fiecare jucător, 0 = licitație neîndeplinită, 1 = licitație îndeplinită
 outcomes <outcome_0> ... <outcome_{num_players-1}>
