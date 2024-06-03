@@ -1,6 +1,14 @@
 $(function() {
   const BOARD_BORDER = 20;
   const MAX_HAND_SIZE = 8;
+  const STREAK_FOR_BONUS = 5;
+  const COLOR_CLASSES = [
+    'text-bg-secondary',
+    'text-bg-info',
+    'text-bg-success',
+    'text-bg-warning',
+    'text-bg-danger',
+  ];
 
   let playerAreaStub = null;
   let gameFileLines = [];
@@ -52,6 +60,7 @@ $(function() {
       this.trickWinners = [];
       this.outcomes = [];
       this.points = [];
+      this.scores = [];
       this.streaks = [];
     }
 
@@ -61,6 +70,19 @@ $(function() {
       return 1 +          // scena inițială
         players.length +  // licitația
         framesPerTrick * this.handSize;
+    }
+
+    getBidClass(player) {
+      let s = this.streaks[player];
+      if (s == -STREAK_FOR_BONUS) {
+        return 'text-bg-danger';
+      } else if (s < 0) {
+        return 'text-bg-warning';
+      } else if (s == STREAK_FOR_BONUS) {
+        return 'text-bg-success';
+      } else {
+        return 'text-bg-info';
+      }
     }
   }
 
@@ -150,6 +172,16 @@ $(function() {
 
     assert(num_players == players.length, 'num_players nu corespunde cu numele');
     console.log(rounds);
+  }
+
+  function computeTotalScores() {
+    for (let p = 0; p < players.length; p++) {
+      let total = 0;
+      for (let r = 0; r < rounds.length; r++) {
+        total += rounds[r].points[p];
+        rounds[r].scores.push(total);
+      }
+    }
   }
 
   function sanityCheck() {
@@ -275,6 +307,7 @@ $(function() {
   function initGame(contents) {
     loadGameFile(contents);
     processGameLines();
+    computeTotalScores();
     sanityCheck();
     createPlayerAreas();
     createScoreTable();
@@ -326,6 +359,43 @@ $(function() {
     }
   }
 
+  function eraseFrame() {
+    $('#score-table tbody td span').text('');
+  }
+
+  function drawTrump(rid) {
+    $('img.deck').last().attr('src', getCardImg(rounds[rid].trump));
+  }
+
+  function setBidClass(elt, cssClass) {
+    COLOR_CLASSES.forEach(function(c) {
+      elt.removeClass(c);
+    });
+    elt.addClass(cssClass);
+  }
+
+  function drawRoundBids(rid, num_bids) {
+    let first_bidder = rid % players.length;
+    for (let i = 0; i < num_bids; i++) {
+      let bidder = (i + first_bidder) % players.length;
+      let row = $('#score-table tbody tr').eq(rid);
+      let cell = row.find('td').eq(bidder);
+      cell.find('span.bid').text(rounds[rid].bids[bidder]);
+      setBidClass(cell.find('span.bid'), 'text-bg-secondary');
+    }
+  }
+
+  function drawRoundScores(rid) {
+    for (let i = 0; i < players.length; i++) {
+      let row = $('#score-table tbody tr').eq(rid);
+      let cell = row.find('td').eq(i);
+      cell.find('span.score').text(rounds[rid].scores[i]);
+
+      let cssClass = rounds[rid].getBidClass(i);
+      setBidClass(cell.find('span.bid'), cssClass);
+    }
+  }
+
   function drawPlayerHands(hands) {
     for (let i = 0; i < players.length; i++) {
       let area = $('.player-area .card-holder').eq(i);
@@ -341,15 +411,21 @@ $(function() {
   function drawRoundFrame(frame, rid) {
     console.log('drawing frame', frame, 'of round', rid);
 
+    drawTrump(rid);
+
+    let num_bids = Math.min(frame, players.length);
+    drawRoundBids(rid, num_bids);
+
     let hands = [...rounds[rid].hands];
     drawPlayerHands(hands);
-  }
 
-  function drawTrump(rid) {
-    $('img.deck').last().attr('src', getCardImg(rounds[rid].trump));
+    if (frame == rounds[rid].getFrameCount() - 1) {
+      drawRoundScores(rid);
+    }
   }
 
   function redrawGame() {
+    eraseFrame();
     console.log('drawing frame', frame, 'of', maxFrames);
     if (frame == 0) {
       // Player areas are empty
@@ -358,13 +434,15 @@ $(function() {
 
     let fc = frame - 1;
     let rid = 0;
+
     while (fc >= rounds[rid].getFrameCount()) {
+      drawRoundBids(rid, players.length);
+      drawRoundScores(rid);
       fc -= rounds[rid].getFrameCount();
       rid++;
     }
 
     drawRoundFrame(fc, rid);
-    drawTrump(rid);
   }
 
   function goBack() {
