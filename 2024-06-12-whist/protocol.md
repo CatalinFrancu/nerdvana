@@ -31,7 +31,7 @@ player_id <int>
 scores <score_0> ... <score_{num_players-1}>
 
 # Seria de jocuri cîștigate / pierdute consecutiv, -4 ≤ streak_i ≤ 4.
-streaks <streak_0> ... <streak_{num_players-1-1}>
+streaks <streak_0> ... <streak_{num_players-1}>
 ```
 
 # Fișierul input.txt: Informații despre runda curentă
