@@ -66,7 +66,7 @@ bids <bid_0> ... <bid_{num_players-1}
 
 # Fișierul input.txt: Informații despre levatele jucate
 
-Numai cînd `phase = 0`:
+Numai cînd `phase = 1`:
 
 ```txt
 # Numărul levatei curente, 0 ≤ trick_id < hand_size
