@@ -14,6 +14,10 @@ Programul trebuie să se încadreze în timpul de rulare de 1 secundă / mutare 
 Dacă programul se termină anormal, se blochează sau mută incorect, arbitrul va face o mutare corectă, aleasă uniform aleatoriu dintre toate mutările corecte la dispoziție. În faza de licitație asta înseamnă că va licita în numele vostru un număr
 aleatoriu între 0 și mărimea jocului.
 
+# Fișierul input.txt: Generalități
+
+Fișierul va conține cîte o informație pe fiecare linie, exact în ordinea de mai jos. Fișierul **nu** va conține linii goale nici comentarii. Ele există mai jos doar pentru clarificări.
+
 # Fișierul input.txt: Situația la zi a jocului
 
 ```txt
