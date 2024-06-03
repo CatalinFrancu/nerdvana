@@ -70,14 +70,14 @@ Numai cînd `phase = 1`:
 
 ```txt
 # Numărul levatei curente, 0 ≤ trick_id < hand_size
-trick_id = <int>
+trick_id <int>
 ```
 Urmează `trick_id+1` înregistrări, toate conținînd cîte `num_players` cards, în afară de ultima (levata curentă), care poate fi incompletă. Levatele sînt date în ordinea în care au fost puse cărțile pe masă, așadar prima carte este a jucătorului care a cîștigat levata anterioară. Ultima levată poate avea `trick_size=0` dacă tu deschizi levata.
 
 ```txt
-trick = <trick_size> <card_0> ... <card_{num_cards-1}>
+trick <trick_size> <card_0> ... <card_{num_cards-1}>
 ...
-trick = <trick_size> <card_0> ... <card_{num_cards-1}>
+trick <trick_size> <card_0> ... <card_{num_cards-1}>
 ```
 
 # Convenții
