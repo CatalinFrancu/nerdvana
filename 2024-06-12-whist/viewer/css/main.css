@@ -4,6 +4,12 @@
   position: relative;
 }
 
+.deck {
+  display: none;
+  height: 100px;
+  position: absolute;
+}
+
 .player-area {
   min-width: 270px;
   position: absolute;

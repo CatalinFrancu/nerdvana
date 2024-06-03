@@ -71,6 +71,7 @@ $(function() {
     $('#file-field').on('change', fileUploaded);
     $('#button-back').on('click', goBack);
     $('#button-forward').on('click', goForward);
+    positionDeck();
   }
 
   function loadGameFile(contents) {
@@ -297,13 +298,39 @@ $(function() {
     reader.readAsText(fl_file);
   }
 
+  function positionDeck() {
+    let boardW = $('#board').width();
+    let boardH = $('#board').height();
+    let xcenter = boardW / 2;
+    let ycenter = boardH / 2;
+    let w = $('img.deck').outerWidth();
+    let h = $('img.deck').outerHeight();
+    let drift = 0;
+
+    $('img.deck').each(function() {
+      $(this).css({
+        display: 'inline',
+        top: ycenter - h / 2,
+        left: xcenter - w / 2 + drift,
+      });
+      drift += 2;
+    });
+  }
+
+  function getCardImg(card) {
+    if (card == -1) {
+      return 'img/deck/back.svg';
+    } else {
+      let f = ('0' + card).slice(-2);
+      return 'img/deck/' + f + '.svg';
+    }
+  }
+
   function drawPlayerHands(hands) {
     for (let i = 0; i < players.length; i++) {
       let area = $('.player-area .card-holder').eq(i);
       for (let j = 0; j < hands[i].length; j++) {
-        let f = ('0' + hands[i][j]).slice(-2);
-        let src = 'img/deck/' + f + '.svg';
-        area.find('img').eq(j).attr('src', src);
+        area.find('img').eq(j).attr('src', getCardImg(hands[i][j]));
       }
       for (let j = hands[i].length; j < MAX_HAND_SIZE; j++) {
         area.find('img').eq(j).attr('src', '');
@@ -318,22 +345,26 @@ $(function() {
     drawPlayerHands(hands);
   }
 
+  function drawTrump(rid) {
+    $('img.deck').last().attr('src', getCardImg(rounds[rid].trump));
+  }
+
   function redrawGame() {
-    let fc = frame;
-    let rid = 0;
     console.log('drawing frame', frame, 'of', maxFrames);
-    if (fc == 0) {
+    if (frame == 0) {
       // Player areas are empty
       return;
     }
-    fc--;
 
+    let fc = frame - 1;
+    let rid = 0;
     while (fc >= rounds[rid].getFrameCount()) {
       fc -= rounds[rid].getFrameCount();
       rid++;
     }
 
     drawRoundFrame(fc, rid);
+    drawTrump(rid);
   }
 
   function goBack() {
