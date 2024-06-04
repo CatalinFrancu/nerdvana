@@ -1,18 +1,71 @@
+:root {
+  --area-height: 180px;
+  --area-width: 270px;
+  --board-padding: 10px;
+  --card-height: 100px;
+  --card-width: 71.4219px;
+}
+
 #board {
   background-color: #82E0AA;
   min-height: 768px;
   position: relative;
 }
 
-.deck {
-  display: none;
-  height: 100px;
+.deck img {
+  height: var(--card-height);
+  left: calc(50% - var(--card-width) / 2);
   position: absolute;
+  top: calc(50% - var(--card-height) / 2);
+}
+
+.deck img:nth-child(2) {
+  left: calc(50% - var(--card-width) / 2 + 2px);
+}
+
+.deck img:nth-child(3) {
+  left: calc(50% - var(--card-width) / 2 + 4px);
+}
+
+.deck img:nth-child(4) {
+  left: calc(50% - var(--card-width) / 2 + 6px);
 }
 
 .player-area {
-  min-width: 270px;
+  min-width: var(--area-width);
   position: absolute;
+}
+
+.player-area.h-left {
+  left: var(--board-padding);
+}
+
+.player-area.h-center-left {
+  left: calc(33% - var(--area-width) / 2);
+}
+
+.player-area.h-center {
+  left: calc(50% - var(--area-width) / 2);
+}
+
+.player-area.h-center-right {
+  left: calc(67% - var(--area-width) / 2);
+}
+
+.player-area.h-right {
+  right: var(--board-padding);
+}
+
+.player-area.v-top {
+  top: var(--board-padding);
+}
+
+.player-area.v-center {
+  top: calc(50% - var(--area-height) / 2);
+}
+
+.player-area.v-bottom {
+  bottom: var(--board-padding);
 }
 
 .player-area .card-body {
@@ -60,6 +113,47 @@
 .player-area .card-holder img:nth-child(8) {
   position: absolute;
   left: 126px;
+}
+
+.drop-area {
+  height: var(--card-height);
+  position: absolute;
+}
+
+.drop-area.h-right-of-left {
+  left: calc(2 * var(--board-padding) + var(--area-width));
+}
+
+.drop-area.h-center-left {
+  left: calc(37% - var(--card-width) / 2);
+}
+
+.drop-area.h-center {
+  left: calc(50% - var(--card-width) / 2);
+}
+
+.drop-area.h-center-right {
+  left: calc(63% - var(--card-width) / 2);
+}
+
+.drop-area.h-left-of-right {
+  right: calc(2 * var(--board-padding) + var(--area-width));
+}
+
+.drop-area.h-center-of-right {
+  right: calc(var(--board-padding) + var(--area-width) / 2 - var(--card-width) / 2);
+}
+
+.drop-area.v-below-top {
+  top: calc(2 * var(--board-padding) + var(--area-height));
+}
+
+.drop-area.v-center {
+  top: calc(50% - var(--card-height) / 2);
+}
+
+.drop-area.v-above-bottom {
+  bottom: calc(2 * var(--board-padding) + var(--area-height));
 }
 
 #score-table thead th:not(:first-child) {

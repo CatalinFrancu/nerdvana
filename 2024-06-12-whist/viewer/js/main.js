@@ -1,16 +1,79 @@
 $(function() {
-  const BOARD_BORDER = 20;
   const MAX_HAND_SIZE = 8;
-  const STREAK_FOR_BONUS = 5;
+  const CARD_NONE = -2;
+  const CARD_BACK = -1;
+
   const COLOR_CLASSES = [
-    'text-bg-secondary',
-    'text-bg-info',
+    'text-bg-light',
     'text-bg-success',
-    'text-bg-warning',
     'text-bg-danger',
   ];
 
+  const GEOMETRY = {
+    3: {
+      areas: [
+        'h-left v-center',
+        'h-right v-top',
+        'h-right v-bottom',
+      ],
+      drops: [
+        'h-right-of-left v-center',
+        'h-center-of-right v-below-top',
+        'h-center-of-right v-above-bottom',
+      ],
+    },
+    4: {
+      areas: [
+        'h-left v-center',
+        'h-center v-top',
+        'h-right v-center',
+        'h-center v-bottom',
+      ],
+      drops: [
+        'h-right-of-left v-center',
+        'h-center v-below-top',
+        'h-left-of-right v-center',
+        'h-center v-above-bottom',
+      ],
+    },
+    5: {
+      areas: [
+        'h-left v-center',
+        'h-center-left v-top',
+        'h-center-right v-top',
+        'h-right v-center',
+        'h-center v-bottom',
+      ],
+      drops: [
+        'h-right-of-left v-center',
+        'h-center-left v-below-top',
+        'h-center-right v-below-top',
+        'h-left-of-right v-center',
+        'h-center v-above-bottom',
+      ],
+    },
+    6: {
+      areas: [
+        'h-left v-center',
+        'h-center-left v-top',
+        'h-center-right v-top',
+        'h-right v-center',
+        'h-center-right v-bottom',
+        'h-center-left v-bottom',
+      ],
+      drops: [
+        'h-right-of-left v-center',
+        'h-center-left v-below-top',
+        'h-center-right v-below-top',
+        'h-left-of-right v-center',
+        'h-center-right v-above-bottom',
+        'h-center-left v-above-bottom',
+      ],
+    },
+  };
+
   let playerAreaStub = null;
+  let dropAreaStub = null;
   let gameFileLines = [];
   let players = [];
   let rounds = [];
@@ -51,8 +114,33 @@ $(function() {
     }
   }
 
+  // up = cărțile din mînă; down = cartea jucată pe masă
+  class Hand {
+    constructor(hand) {
+      this.up = hand;
+      this.down = CARD_NONE;
+    }
+
+    removeCard(card) {
+      console.log('Arunc cartea', card);
+      let index = this.up.indexOf(card);
+      if (index > -1) {
+        this.up.splice(index, 1);
+      } else {
+        assert(false, 'Cartea de jucat nu există în mînă.');
+      }
+    }
+
+    playCard(card) {
+      console.log('Joc cartea', card);
+      this.removeCard(card);
+      this.down = card;
+    }
+  }
+
   class Round {
-    constructor() {
+    constructor(id) {
+      this.id = id;
       this.hands = [];
       this.trump = null;
       this.bids = [];
@@ -74,15 +162,59 @@ $(function() {
 
     getBidClass(player) {
       let s = this.streaks[player];
-      if (s == -STREAK_FOR_BONUS) {
-        return 'text-bg-danger';
-      } else if (s < 0) {
-        return 'text-bg-warning';
-      } else if (s == STREAK_FOR_BONUS) {
-        return 'text-bg-success';
-      } else {
-        return 'text-bg-info';
+      return (s < 0) ? 'text-bg-danger' : 'text-bg-success';
+    }
+
+    getFirstPlayerForTrick(t) {
+      return t ? this.trickWinners[t - 1] : (this.id % players.length);
+    }
+
+    playTrick(t, result) {
+      let current = this.getFirstPlayerForTrick(t);
+      for (let i = 0; i < players.length; i++) {
+        result[current].removeCard(this.tricks[t][i]);
+        current = (current + 1) % players.length;
       }
+    }
+
+    collectTrick(result) {
+      for (let i = 0; i < players.length; i++) {
+        result[i].down = CARD_NONE;
+      }
+    }
+
+    getHandsAtFrame(frame) {
+      let result = [];
+      for (let i = 0; i < players.length; i++) {
+        result.push(new Hand([...this.hands[i]]));
+      }
+
+      if (frame >= players.length + 1) {
+        // sari peste licitații
+        frame -= players.length + 1;
+        let trick = 0;
+
+        while (frame >= players.length + 1) {
+          console.log('Joc levata', trick);
+          this.playTrick(trick++, result);
+          frame -= players.length + 1;
+        }
+        console.log('f\'', frame);
+
+        let current = this.getFirstPlayerForTrick(trick);
+        for (let i = 0; i <= Math.min(frame, players.length - 1); i++) {
+          console.log('Jucătorul', current, 'joacă cartea', i,
+                      'din levată, adică', this.tricks[trick][i]);
+          result[current].playCard(this.tricks[trick][i]);
+          current = (current + 1) % players.length;
+        }
+
+        if (frame == players.length) {
+          this.collectTrick(result);
+        }
+      }
+
+      return result;
     }
   }
 
@@ -90,10 +222,10 @@ $(function() {
 
   function init() {
     playerAreaStub = $('#player-area-stub').detach();
+    dropAreaStub = $('#drop-area-stub').detach();
     $('#file-field').on('change', fileUploaded);
     $('#button-back').on('click', goBack);
     $('#button-forward').on('click', goForward);
-    positionDeck();
   }
 
   function loadGameFile(contents) {
@@ -122,7 +254,7 @@ $(function() {
 
         case 'round_id':
           assert(rounds.length == val, 'ID-ul rundei nu crește secvențial');
-          rounds.push(new Round());
+          rounds.push(new Round(val));
           break;
 
         case 'first_bidder':
@@ -171,7 +303,6 @@ $(function() {
     });
 
     assert(num_players == players.length, 'num_players nu corespunde cu numele');
-    console.log(rounds);
   }
 
   function computeTotalScores() {
@@ -202,50 +333,16 @@ $(function() {
     });
   }
 
-  function positionPlayerArea(area, dir) {
-    let boardW = $('#board').width();
-    let boardH = $('#board').height();
-    let xcenter = boardW / 2;
-    let ycenter = boardH / 2;
-    let w = area.outerWidth();
-    let h = area.outerHeight();
-    let cs = Math.cos(dir);
-    let sn = Math.sin(dir);
-    let xcoef, ycoef;
-
-    if (cs > 0) {
-      xcoef = (boardW - BOARD_BORDER - w / 2 - xcenter) / cs;
-    } else if (cs < 0) {
-      xcoef = (xcenter - BOARD_BORDER - w / 2) / -cs;
-    } else {
-      xcoef = Infinity;
-    }
-
-    if (sn > 0) {
-      ycoef = (boardH - BOARD_BORDER - h / 2 - ycenter) / sn;
-    } else if (sn < 0) {
-      ycoef = (ycenter - BOARD_BORDER - h / 2) / -sn;
-    } else {
-      ycoef = Infinity;
-    }
-
-    let coef = Math.min(xcoef, ycoef);
-
-    area.css({
-      top: ycenter - coef * sn - h / 2,
-      left: xcenter + coef * cs - w / 2,
-    });
-  }
-
   function createPlayerAreas() {
-    let dir = -Math.PI;
+    players.forEach(function(p, ind) {
+      let a = playerAreaStub.clone();
+      a.find('.card-header').text(p.name);
+      a.appendTo('#board')
+      a.addClass(GEOMETRY[players.length].areas[ind]);
 
-    players.forEach(function(p) {
-      let c = playerAreaStub.clone();
-      c.find('.card-header').text(p.name);
-      c.appendTo('#board')
-      positionPlayerArea(c, dir);
-      dir -= 2 * Math.PI / players.length;
+      let d = dropAreaStub.clone();
+      d.appendTo('#board')
+      d.addClass(GEOMETRY[players.length].drops[ind]);
     });
   }
 
@@ -340,7 +437,7 @@ $(function() {
     let h = $('img.deck').outerHeight();
     let drift = 0;
 
-    $('img.deck').each(function() {
+    $('.deck img').each(function() {
       $(this).css({
         display: 'inline',
         top: ycenter - h / 2,
@@ -351,7 +448,9 @@ $(function() {
   }
 
   function getCardImg(card) {
-    if (card == -1) {
+    if (card == CARD_NONE) {
+      return '';
+    } else if (card == CARD_BACK) {
       return 'img/deck/back.svg';
     } else {
       let f = ('0' + card).slice(-2);
@@ -364,7 +463,7 @@ $(function() {
   }
 
   function drawTrump(rid) {
-    $('img.deck').last().attr('src', getCardImg(rounds[rid].trump));
+    $('.deck img').last().attr('src', getCardImg(rounds[rid].trump));
   }
 
   function setBidClass(elt, cssClass) {
@@ -381,7 +480,7 @@ $(function() {
       let row = $('#score-table tbody tr').eq(rid);
       let cell = row.find('td').eq(bidder);
       cell.find('span.bid').text(rounds[rid].bids[bidder]);
-      setBidClass(cell.find('span.bid'), 'text-bg-secondary');
+      setBidClass(cell.find('span.bid'), 'text-bg-light');
     }
   }
 
@@ -399,12 +498,15 @@ $(function() {
   function drawPlayerHands(hands) {
     for (let i = 0; i < players.length; i++) {
       let area = $('.player-area .card-holder').eq(i);
-      for (let j = 0; j < hands[i].length; j++) {
-        area.find('img').eq(j).attr('src', getCardImg(hands[i][j]));
+      for (let j = 0; j < hands[i].up.length; j++) {
+        area.find('img').eq(j).attr('src', getCardImg(hands[i].up[j]));
       }
-      for (let j = hands[i].length; j < MAX_HAND_SIZE; j++) {
+      for (let j = hands[i].up.length; j < MAX_HAND_SIZE; j++) {
         area.find('img').eq(j).attr('src', '');
       }
+
+      let dropArea = $('.drop-area').eq(i);
+      dropArea.attr('src', getCardImg(hands[i].down));
     }
   }
 
@@ -416,7 +518,7 @@ $(function() {
     let num_bids = Math.min(frame, players.length);
     drawRoundBids(rid, num_bids);
 
-    let hands = [...rounds[rid].hands];
+    let hands = rounds[rid].getHandsAtFrame(frame);
     drawPlayerHands(hands);
 
     if (frame == rounds[rid].getFrameCount() - 1) {
