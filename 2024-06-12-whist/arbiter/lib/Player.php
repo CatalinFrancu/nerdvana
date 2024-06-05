@@ -11,7 +11,7 @@ class Player {
   private int $bid;
 
   function __construct(string $binary, string $name) {
-    $this->binary = $binary;
+    $this->binary = realpath($binary);
     $this->name = $name;
     $this->score = 0;
     $this->streak = 0;
@@ -48,8 +48,7 @@ class Player {
   function collectBid(GameState $state, array $choices): int {
     Log::info('Aștept licitația de la %s, variante: %s.',
               [ $this->name, implode(', ', $choices) ]);
-    Interactor::interact($this->binary, $state, $choices);
-    $choice = $choices[array_rand($choices)];
+    $choice = Interactor::interact($this->binary, $state, $choices);
     Log::info('%s licitează %d.', [ $this->name, $choice ]);
     $this->bid = $choice;
     return $choice;
