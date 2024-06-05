@@ -72,10 +72,14 @@ Numai cînd `phase = 1`:
 # Numărul levatei curente, 0 ≤ trick_id < hand_size
 trick_id <int>
 ```
-Urmează `trick_id+1` înregistrări, toate conținînd cîte `num_players` cards, în afară de ultima (levata curentă), care poate fi incompletă. Levatele sînt date în ordinea în care au fost puse cărțile pe masă, așadar prima carte este a jucătorului care a cîștigat levata anterioară. Ultima levată poate avea `trick_size=0` dacă tu deschizi levata.
+
+Urmează `trick_id+1` înregistrări, toate conținînd cîte `num_players` cards, în afară de ultima (levata curentă), care poate fi incompletă. Levatele sînt date în ordinea în care au fost puse cărțile pe masă, așadar prima carte este a jucătorului care a cîștigat levata anterioară. Ultima levată poate avea `trick_size=0` dacă tu deschizi levata. După fiecare levată cu excepția ultimei, `winner` indică ID-ul jucătorului care a cîștigat levata. Desigur, informația `winner` este redundantă, căci poate fi dedusă din `trick`, dar arbitrul v-o oferă în caz că vă ajută.
 
 ```txt
 trick <trick_size> <card_0> ... <card_{num_cards-1}>
+winner <int>
+trick <trick_size> <card_0> ... <card_{num_cards-1}>
+winner <int>
 ...
 trick <trick_size> <card_0> ... <card_{num_cards-1}>
 ```
