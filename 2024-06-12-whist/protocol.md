@@ -44,7 +44,7 @@ round_id <int>
 hand_size <int>
 
 # Primul jucător la licitație, 0 ≤ first_bidder < num_players
-# Informație redundantă: first_bid = (player_id + round_id) % num_players.
+# Informație redundantă: first_bidder = round_id % num_players.
 first_bidder <int>
 
 # Ordinea ta în acest joc, 0 ≤ player_order < n.
