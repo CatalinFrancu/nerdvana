@@ -25,6 +25,15 @@ class Card {
     return $this->val % Deck::NUM_RANKS;
   }
 
+  function beats(Card $other, Card $trump): bool {
+    if ($other->getSuit() == $this->getSuit()) {
+      return ($this->getRank() > $other->getRank());
+    } else {
+      return !$trump->isNone() &&
+        ($this->getSuit() == $trump->getSuit());
+    }
+  }
+
   static function toString(array $cards): string {
     $msg = '';
     foreach ($cards as $c) {

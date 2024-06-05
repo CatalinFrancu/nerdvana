@@ -4,7 +4,7 @@ class Player {
   const int NO_BID = -1;
 
   private string $binary;
-  private string $name;
+  public string $name;
   private array $initialHand, $hand; // array[Card]
   private int $score;
   private int $streak;

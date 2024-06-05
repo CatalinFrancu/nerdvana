@@ -130,13 +130,15 @@ class Game {
         $p = ($i + $first) % $this->n;
         $state = $this->createPlayState($p);
         if (!$i) {
-          $card = $leader = $this->players[$p]->collectCard($state, Card::none(), Card::none());
+          $card = $leader = $this->players[$p]->collectCard($state, Card::none(), $this->trump);
           $this->tricks[$this->tid] = new Trick();
         } else {
           $card = $this->players[$p]->collectCard($state, $leader, $this->trump);
         }
         $this->tricks[$this->tid]->cards[] = $card;
       }
+      $first = $this->tricks[$this->tid]->computeWinner($first, $this->trump);
+      Log::info('%s cîștigă levata.', [ $this->players[$first]->name ]);
     }
   }
 
