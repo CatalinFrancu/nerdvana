@@ -115,14 +115,15 @@ $(function() {
   }
 
   // up = cărțile din mînă; down = cartea jucată pe masă
-  class Hand {
-    constructor(hand) {
+  class PlayerState {
+    constructor(hand, bid) {
       this.up = hand;
       this.down = CARD_NONE;
+      this.taken = 0;
+      this.bid = bid;
     }
 
     removeCard(card) {
-      console.log('Arunc cartea', card);
       let index = this.up.indexOf(card);
       if (index > -1) {
         this.up.splice(index, 1);
@@ -132,9 +133,12 @@ $(function() {
     }
 
     playCard(card) {
-      console.log('Joc cartea', card);
       this.removeCard(card);
       this.down = card;
+    }
+
+    takeTrick() {
+      this.taken++;
     }
   }
 
@@ -169,24 +173,26 @@ $(function() {
       return t ? this.trickWinners[t - 1] : (this.id % players.length);
     }
 
-    playTrick(t, result) {
+    playTrick(t, states) {
       let current = this.getFirstPlayerForTrick(t);
       for (let i = 0; i < players.length; i++) {
-        result[current].removeCard(this.tricks[t][i]);
+        states[current].removeCard(this.tricks[t][i]);
         current = (current + 1) % players.length;
       }
+      states[this.trickWinners[t]].takeTrick();
     }
 
-    collectTrick(result) {
+    collectTrick(winner, states) {
       for (let i = 0; i < players.length; i++) {
-        result[i].down = CARD_NONE;
+        states[i].down = CARD_NONE;
       }
+      states[winner].takeTrick();
     }
 
-    getHandsAtFrame(frame) {
-      let result = [];
+    getStatesAtFrame(frame) {
+      let states = [];
       for (let i = 0; i < players.length; i++) {
-        result.push(new Hand([...this.hands[i]]));
+        states.push(new PlayerState([...this.hands[i]], this.bids[i]));
       }
 
       if (frame >= players.length + 1) {
@@ -195,26 +201,22 @@ $(function() {
         let trick = 0;
 
         while (frame >= players.length + 1) {
-          console.log('Joc levata', trick);
-          this.playTrick(trick++, result);
+          this.playTrick(trick++, states);
           frame -= players.length + 1;
         }
-        console.log('f\'', frame);
 
         let current = this.getFirstPlayerForTrick(trick);
         for (let i = 0; i <= Math.min(frame, players.length - 1); i++) {
-          console.log('Jucătorul', current, 'joacă cartea', i,
-                      'din levată, adică', this.tricks[trick][i]);
-          result[current].playCard(this.tricks[trick][i]);
+          states[current].playCard(this.tricks[trick][i]);
           current = (current + 1) % players.length;
         }
 
         if (frame == players.length) {
-          this.collectTrick(result);
+          this.collectTrick(this.trickWinners[trick], states);
         }
       }
 
-      return result;
+      return states;
     }
   }
 
@@ -495,31 +497,32 @@ $(function() {
     }
   }
 
-  function drawPlayerHands(hands) {
+  function drawPlayerStates(states) {
     for (let i = 0; i < players.length; i++) {
-      let area = $('.player-area .card-holder').eq(i);
-      for (let j = 0; j < hands[i].up.length; j++) {
-        area.find('img').eq(j).attr('src', getCardImg(hands[i].up[j]));
+      let area = $('.player-area').eq(i);
+      area.find('.taken').text(states[i].taken);
+      area.find('.bid').text(states[i].bid);
+      for (let j = 0; j < states[i].up.length; j++) {
+        area.find('.card-holder img').eq(j).attr('src', getCardImg(states[i].up[j]));
       }
-      for (let j = hands[i].up.length; j < MAX_HAND_SIZE; j++) {
-        area.find('img').eq(j).attr('src', '');
+      for (let j = states[i].up.length; j < MAX_HAND_SIZE; j++) {
+        area.find('.card-holder img').eq(j).attr('src', '');
       }
 
       let dropArea = $('.drop-area').eq(i);
-      dropArea.attr('src', getCardImg(hands[i].down));
+      dropArea.attr('src', getCardImg(states[i].down));
+
     }
   }
 
   function drawRoundFrame(frame, rid) {
-    console.log('drawing frame', frame, 'of round', rid);
-
     drawTrump(rid);
 
     let num_bids = Math.min(frame, players.length);
     drawRoundBids(rid, num_bids);
 
-    let hands = rounds[rid].getHandsAtFrame(frame);
-    drawPlayerHands(hands);
+    let states = rounds[rid].getStatesAtFrame(frame);
+    drawPlayerStates(states);
 
     if (frame == rounds[rid].getFrameCount() - 1) {
       drawRoundScores(rid);
@@ -528,7 +531,6 @@ $(function() {
 
   function redrawGame() {
     eraseFrame();
-    console.log('drawing frame', frame, 'of', maxFrames);
     if (frame == 0) {
       // Player areas are empty
       return;
