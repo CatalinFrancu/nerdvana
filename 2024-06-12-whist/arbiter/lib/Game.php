@@ -18,8 +18,9 @@ class Game {
   ];
 
   private array $players = [];
+  private array $tricks = [];
   private int $n; // syntactic sugar pentru count($this->players)
-  private int $rid;
+  private int $rid, $tid; // runda și levata curentă
   private Card $trump;
 
   function __construct(Args $args) {
@@ -42,6 +43,7 @@ class Game {
     foreach ($this->players as $p) {
       $p->resetBid();
     }
+    $this->tricks = [];
   }
 
   function deal(): void {
@@ -87,14 +89,23 @@ class Game {
       $this->rid,
       $this->getHandSize(),
       $this->trump,
-      $this->players[$p]->getHand(),
+      $this->players[$p]->getInitialHand(),
       self::PHASE_BID,
       $this->getPlayerBids(),
     );
     return $state;
   }
 
+  function createPlayState(int $p): GameState {
+    $state = $this->createBidState($p);
+    $state->phase = self::PHASE_PLAY;
+    $state->trickId = $this->tid;
+    $state->tricks = $this->tricks;
+    return $state;
+  }
+
   function bid(int $first): void {
+    Log::info('== Licitații începînd cu jucătorul %d.', [ $first ]);
     $handSize = $this->getHandSize();
     $sum = 0;
     for ($i = 0; $i < $this->n; $i++) {
@@ -111,6 +122,24 @@ class Game {
     }
   }
 
+  function playTricks(int $first): void {
+    $hs = $this->getHandSize();
+    for ($this->tid = 0; $this->tid < $hs; $this->tid++) {
+      Log::info('== Levata %d/%d.', [ $this->tid + 1, $hs ]);
+      for ($i = 0; $i < $this->n; $i++) {
+        $p = ($i + $first) % $this->n;
+        $state = $this->createPlayState($p);
+        if (!$i) {
+          $card = $leader = $this->players[$p]->collectCard($state, Card::none(), Card::none());
+          $this->tricks[$this->tid] = new Trick();
+        } else {
+          $card = $this->players[$p]->collectCard($state, $leader, $this->trump);
+        }
+        $this->tricks[$this->tid]->cards[] = $card;
+      }
+    }
+  }
+
   function run(): void {
     $handSizes = self::HAND_SIZES[$this->n];
     for ($this->rid = 0; $this->rid < count($handSizes); $this->rid++) {
@@ -120,6 +149,7 @@ class Game {
       $this->deal();
       $first = $this->rid % $this->n;
       $this->bid($first);
+      $this->playTricks($first);
     }
   }
 

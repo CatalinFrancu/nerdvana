@@ -17,6 +17,14 @@ class Card {
     $this->val = $val;
   }
 
+  function getSuit() {
+    return intdiv($this->val, Deck::NUM_RANKS);
+  }
+
+  function getRank() {
+    return $this->val % Deck::NUM_RANKS;
+  }
+
   static function toString(array $cards): string {
     $msg = '';
     foreach ($cards as $c) {
@@ -30,16 +38,18 @@ class Card {
     if ($this->val == self::NONE) {
       return '---';
     }
-    $suit = intdiv($this->val, Deck::NUM_RANKS);
-    $rank = $this->val % DECK::NUM_RANKS;
     return sprintf('%s%s%s%s',
-                   self::COLORS[$suit],
-                   self::NAMES[$rank],
-                   self::SUITS[$suit],
+                   self::COLORS[$this->getSuit()],
+                   self::NAMES[$this->getRank()],
+                   self::SUITS[$this->getSuit()],
                    AnsiColors::DEFAULT);
   }
 
   static function none(): Card {
     return new Card(self::NONE);
+  }
+
+  function isNone(): bool {
+    return $this->val == self::NONE;
   }
 }

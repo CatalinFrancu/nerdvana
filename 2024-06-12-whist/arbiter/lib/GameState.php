@@ -14,6 +14,9 @@ class GameState {
   public int $phase;
   public array $bids;
 
+  public int $trickId;
+  public array $tricks;
+
   function __construct(
     int $numPlayers,
     int $playerId,
@@ -72,6 +75,19 @@ class GameState {
     $lines[] = 'initial_hand ' . $this->getInitialHand();
     $lines[] = 'phase ' . $this->phase;
     $lines[] = 'bids ' . implode(' ', $this->bids);
+
+    if ($this->phase == Game::PHASE_PLAY) {
+      $lines[] = 'trick_id ' .  $this->trickId;
+      foreach ($this->tricks as $t) {
+        $size = count($t->cards);
+        $values = Util::objectProperty($t->cards, 'val');
+        $l = 'trick ' . $size . ' ' . implode(' ', $values);
+        $lines[] = trim($l);
+        if ($t->hasWinner()) {
+          $lines[] = 'winner ' . $t->winner;
+        }
+      }
+    }
 
     $contents = implode("\n", $lines) . "\n";
     file_put_contents($filename, $contents);

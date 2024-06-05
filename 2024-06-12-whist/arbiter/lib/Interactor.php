@@ -44,6 +44,7 @@ class Interactor {
       $choice = $choices[array_rand($choices)];
       Log::warn('Am ales la întîmplare varianta %d dintre cele corecte.',
                 [ $choice ]);
+      exit(1);
     }
     return $choice;
   }
