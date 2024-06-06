@@ -6,7 +6,7 @@ Acest set de unelte vă permite să creați un program de whist și să îl vede
 
 Începeți prin a vă scrie propriul client conform specificațiilor din [protocol.md](protocol.md).
 
-În subdirectorul `client` am creat și un exemplu de client, [RandomClient.php](client/RandomClient.php). Este minimalist. Licitează și joacă corect, dar între variantele legale alege absolut aleatoriu. 
+În subdirectorul `client` am creat și un exemplu de client, [RandomClient.php](client/random/RandomClient.php). Este minimalist. Licitează și joacă corect, dar între variantele legale alege absolut aleatoriu. 
 
 ## Arbitrul
 
@@ -30,7 +30,7 @@ Dacă merge, veți vedea un mesaj cu detalii de folosire: `Apel: arbiter.php -b 
 Opțional, încercați să-l rulați cu `RandomClient.php` ca să confirmați că totul funcționează:
 
 ```bash
-php arbiter.php -b ../client/RandomClient.php -n juc0 -b ../client/RandomClient.php -n juc1 -b ../client/RandomClient.php -n juc2
+php arbiter.php -b ../client/random/RandomClient.php -n juc0 -b ../client/random/RandomClient.php -n juc1 -b ../client/random/RandomClient.php -n juc2
 ```
 
 Acum rulați arbitrul cu calea spre clientul vostru. Puteți crea trei instanțe ale aceluiași client, căci este nevoie de minimum trei jucători.
