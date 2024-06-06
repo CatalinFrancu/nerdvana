@@ -3,6 +3,7 @@
 class Interactor {
   const string INPUT_FILE = 'input.txt';
   const string OUTPUT_FILE = 'output.txt';
+  const int TIMEOUT = 2; // secunde
 
   static function readOutputFile(array $choices): int {
     $contents = @file_get_contents(self::OUTPUT_FILE);
@@ -37,9 +38,10 @@ class Interactor {
     @unlink(self::OUTPUT_FILE);
     $state->writeToFile(self::INPUT_FILE);
 
+    $cmd = sprintf('ulimit -t %d && %s', self::TIMEOUT, $binary);
     $output = null;
     $resultCode = null;
-    exec($binary, $output, $resultCode);
+    exec($cmd, $output, $resultCode);
     if ($resultCode !== 0) {
       Log::warn('Clientul s-a terminat cu codul %d.', [ $resultCode ]);
     }
