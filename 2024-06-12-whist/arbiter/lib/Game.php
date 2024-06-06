@@ -22,6 +22,7 @@ class Game {
   private int $n; // syntactic sugar pentru count($this->players)
   private int $rid, $tid; // runda și levata curentă
   private Card $trump;
+  private SaveGame $save;
 
   function __construct(Args $args) {
     for ($i = 0; $i < $args->getNumPlayers(); $i++) {
@@ -35,6 +36,10 @@ class Game {
     }
   }
 
+  function getFirstBidder(): int {
+    return $this->rid % $this->n;
+  }
+
   function getHandSize(): int {
     return self::HAND_SIZES[$this->n][$this->rid];
   }
@@ -44,16 +49,21 @@ class Game {
       $p->resetBid();
     }
     $this->tricks = [];
+    $this->save->addRoundInfo($this->rid, $this->getFirstBidder(), $this->getHandSize());
   }
 
   function deal(): void {
     $deck = new Deck($this->n);
     Log::default('Am generat pachetul %s.', [ $deck ]);
     foreach ($this->players as $p) {
-      $p->setHand($deck->dealHand($this->getHandSize()));
+      $hand = $deck->dealHand($this->getHandSize());
+      $p->setHand($hand);
+      $this->save->addHand($hand);
     }
     $this->trump = $deck->dealTrump();
+    $this->save->addTrump($this->trump);
     Log::default('Atu: %s.', [ $this->trump ]);
+
   }
 
   function getPlayerScores(): array {
@@ -104,7 +114,8 @@ class Game {
     return $state;
   }
 
-  function bid(int $first): void {
+  function bid(): void {
+    $first = $this->getFirstBidder();
     Log::info('== Licitații începînd cu jucătorul %d.', [ $first ]);
     $handSize = $this->getHandSize();
     $sum = 0;
@@ -120,10 +131,12 @@ class Game {
       $b = $this->players[$p]->collectBid($state, $validBids);
       $sum += $b;
     }
+    $this->save->addBids($this->getPlayerBids());
   }
 
-  function playTricks(int $first): void {
+  function playTricks(): void {
     $hs = $this->getHandSize();
+    $first = $this->getFirstBidder();
     for ($this->tid = 0; $this->tid < $hs; $this->tid++) {
       Log::info('== Levata %d/%d.', [ $this->tid + 1, $hs ]);
       for ($i = 0; $i < $this->n; $i++) {
@@ -132,27 +145,57 @@ class Game {
         if (!$i) {
           $card = $leader = $this->players[$p]->collectCard($state, Card::none(), $this->trump);
           $this->tricks[$this->tid] = new Trick();
+          $t = &$this->tricks[$this->tid];
         } else {
           $card = $this->players[$p]->collectCard($state, $leader, $this->trump);
         }
-        $this->tricks[$this->tid]->cards[] = $card;
+        $t->cards[] = $card;
       }
-      $first = $this->tricks[$this->tid]->computeWinner($first, $this->trump);
+      $first = $t->computeWinner($first, $this->trump);
+      $this->save->addTrick($t);
       Log::info('%s cîștigă levata.', [ $this->players[$first]->name ]);
     }
   }
 
+  function finalizeRound(): void {
+    $tricksWon = array_fill(0, $this->n, 0);
+    foreach ($this->tricks as $t) {
+      $tricksWon[$t->winner]++;
+    }
+
+    $outcomes = [];
+    $points = [];
+    $bids = $this->getPlayerBids();
+    $streaks = $this->getPlayerStreaks();
+    for ($i = 0; $i < $this->n; $i++) {
+      $madeIt = (int)($tricksWon[$i] == $bids[$i]);
+      $outcomes[] = $madeIt;
+      $streaks[$i] = Util::updateStreak($streaks[$i], $madeIt);
+      $points[] = Util::getPoints($bids[$i], $tricksWon[$i], $streaks[$i]);
+      $this->players[$i]->setStreak($streaks[$i]);
+    }
+
+    $this->save->addOutcomes($outcomes);
+    $this->save->addPoints($points);
+    $this->save->addStreaks($streaks);
+  }
+
   function run(): void {
+    $this->save = new SaveGame('game.txt');
+    $this->save->addPlayers($this->players);
+
     $handSizes = self::HAND_SIZES[$this->n];
     for ($this->rid = 0; $this->rid < count($handSizes); $this->rid++) {
       Log::info('==== Încep runda %d/%d de mărime %d.',
                 [ $this->rid + 1, count($handSizes), $this->getHandSize() ]);
       $this->resetRound();
       $this->deal();
-      $first = $this->rid % $this->n;
-      $this->bid($first);
-      $this->playTricks($first);
+      $this->bid();
+      $this->playTricks();
+      $this->finalizeRound();
     }
+
+    $this->save->write();
   }
 
 }

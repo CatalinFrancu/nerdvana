@@ -42,6 +42,14 @@ class Player {
     return $this->streak;
   }
 
+  function setStreak(int $streak): void {
+    if (abs($streak) == Util::BONUS_STREAK) {
+      $this->streak = 0;
+    } else {
+      $this->streak = $streak;
+    }
+  }
+
   function getBid(): int {
     return $this->bid;
   }
