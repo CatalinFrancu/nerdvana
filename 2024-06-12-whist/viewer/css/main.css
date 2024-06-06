@@ -156,6 +156,15 @@
   bottom: calc(2 * var(--board-padding) + var(--area-height));
 }
 
+#controls {
+  font-family: 'Noto Sans Symbols 2';
+}
+
+.scrollable {
+  max-height: 100vh;
+  overflow-y: scroll;
+}
+
 #score-table thead th:not(:first-child) {
   transform: rotate(180deg);
   writing-mode: vertical-lr;

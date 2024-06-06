@@ -14,7 +14,7 @@
 
   <body>
     <div class="container-fluid my-4">
-      <div class="row align-items-center my-5">
+      <div class="row">
         <!-- Masa de joc -->
         <div class="col-9">
           <div id="board">
@@ -47,13 +47,15 @@
             </div>
           </div>
           <div class="d-flex justify-content-center mt-3" id="controls">
-            <button class="btn btn-secondary mx-2" id="button-back">«</button>
-            <button class="btn btn-secondary mx-2" id="button-forward">»</button>
+            <button class="btn btn-secondary mx-2" id="button-first">⏮</button>
+            <button class="btn btn-secondary mx-2" id="button-back">⏪</button>
+            <button class="btn btn-secondary mx-2" id="button-forward">⏩</button>
+            <button class="btn btn-secondary mx-2" id="button-last">⏭</button>
           </div>
         </div>
-        <div class="col-3">
+        <div class="col-3 scrollable">
           <!-- Tabelul de scor -->
-          <table class="table" id="score-table">
+          <table class="table table-sm" id="score-table">
             <thead>
               <tr>
                 <th scope="col">#</th>

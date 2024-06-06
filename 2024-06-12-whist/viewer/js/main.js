@@ -226,8 +226,10 @@ $(function() {
     playerAreaStub = $('#player-area-stub').detach();
     dropAreaStub = $('#drop-area-stub').detach();
     $('#file-field').on('change', fileUploaded);
+    $('#button-first').on('click', goFirst);
     $('#button-back').on('click', goBack);
     $('#button-forward').on('click', goForward);
+    $('#button-last').on('click', goLast);
   }
 
   function loadGameFile(contents) {
@@ -388,11 +390,17 @@ $(function() {
     }
   }
 
+  function drawGroupBorders() {
+    let sel = '#score-table tbody tr:nth-child(' + players.length + 'n)';
+    $(sel).css({ borderBottomColor: 'black'});
+  }
+
   function createScoreTable() {
     adjustHeadRow();
     adjustFirstRow();
     createRemainingRows();
     fillInTableData();
+    drawGroupBorders();
   }
 
   function computeFrames() {
@@ -549,6 +557,11 @@ $(function() {
     drawRoundFrame(fc, rid);
   }
 
+  function goFirst() {
+    frame = 0;
+    redrawGame();
+  }
+
   function goBack() {
     if (frame > 0) {
       frame--;
@@ -561,5 +574,10 @@ $(function() {
       frame++;
       redrawGame();
     }
+  }
+
+  function goLast() {
+    frame = maxFrames - 1;
+    redrawGame();
   }
 });
