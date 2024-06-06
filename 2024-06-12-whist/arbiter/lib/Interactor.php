@@ -36,7 +36,13 @@ class Interactor {
     @unlink(self::INPUT_FILE);
     @unlink(self::OUTPUT_FILE);
     $state->writeToFile(self::INPUT_FILE);
-    exec($binary);
+
+    $output = null;
+    $resultCode = null;
+    exec($binary, $output, $resultCode);
+    if ($resultCode !== 0) {
+      Log::warn('Clientul s-a terminat cu codul %d.', [ $resultCode ]);
+    }
 
     try {
       $choice = self::readOutputFile($choices);
@@ -44,7 +50,6 @@ class Interactor {
       $choice = $choices[array_rand($choices)];
       Log::warn('Am ales la întîmplare varianta %d dintre cele corecte.',
                 [ $choice ]);
-      exit(1);
     }
     return $choice;
   }
