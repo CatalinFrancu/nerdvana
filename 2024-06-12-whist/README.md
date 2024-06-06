@@ -15,7 +15,7 @@ Acest set de unelte vă permite să creați un program de whist și să îl vede
 
 ## Instrucțiuni de instalare
 
-Aceste instrucțiuni sînt pentru Linux. Cred că arbitrul poate fi făcut să ruleze și sub Windows cu [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) și [PHP]([url](https://ubuntu.com/server/docs/how-to-install-and-configure-php)) (probabil pachetele `php` și `php-cli`). Dacă cineva reușește să-l facă să meargă, trimiteți-mi și mie detalii, vă rog!
+Aceste instrucțiuni sînt pentru Linux. Cred că arbitrul poate fi făcut să ruleze și sub Windows cu [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) și [PHP](https://ubuntu.com/server/docs/how-to-install-and-configure-php) (probabil pachetele `php` și `php-cli`). Dacă cineva reușește să-l facă să meargă, trimiteți-mi și mie detalii, vă rog!
 
 Clonați acest repo:
 
