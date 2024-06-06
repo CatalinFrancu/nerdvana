@@ -6,7 +6,7 @@ Acest set de unelte vă permite să creați un program de whist și să îl vede
 
 Începeți prin a vă scrie propriul client conform specificațiilor din [protocol.md](protocol.md).
 
-În subdirectorul `client` am creat și un exemplu de client, [RandomClient.php](client/RandomClient.php). Este minimalist. Licitează și joacă absolut aleatoriu. Respectă regulile jocului: nu licitează valori ilegale dacă este ultimul la mutare și nu face decît mutări legale.
+În subdirectorul `client` am creat și un exemplu de client, [RandomClient.php](client/RandomClient.php). Este minimalist. Licitează și joacă corect, dar între variantele legale alege absolut aleatoriu. 
 
 ## Arbitrul
 
