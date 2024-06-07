@@ -18,6 +18,13 @@ Clonați acest repo:
 git clone https://github.com/CatalinFrancu/nerdvana/
 ```
 
+Pe viitor, avînd în vedere că eu continui să lucrez la cod, puteți obține ultima versiune a codului cu comanda `git pull` executată din interiorul repo-ului:
+
+```bash
+cd nerdvana
+git pull
+```
+
 Rulați arbitrul, fără argumente ca să vă asigurați că merge:
 
 ```bash
@@ -36,6 +43,10 @@ php arbiter.php -b ../client/random/RandomClient.php -n juc0 -b ../client/random
 Acum rulați arbitrul cu calea spre clientul vostru. Puteți crea trei instanțe ale aceluiași client, căci este nevoie de minimum trei jucători.
 
 Dacă totul merge, veți vedea gonind mesajele de debug. La final, arbitrul creează fișierul `game.txt` pe care îl puteți folosi ca să vizualizați jocul grafic.
+
+### Opțiuni de configurare pentru arbitru
+
+Puteți modifica valorile constantelor din `Config.php`. Fiecare constantă este documentată. De exemplu, puteți reduce nivelul de zgomot reducînd valoarea lui `LOG_LEVEL`.
 
 ## Replayerul
 
