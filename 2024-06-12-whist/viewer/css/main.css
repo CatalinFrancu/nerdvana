@@ -6,6 +6,10 @@
   --card-width: 71.4219px;
 }
 
+#game-area {
+  display: none;
+}
+
 #board {
   background-color: #82E0AA;
   min-height: 768px;

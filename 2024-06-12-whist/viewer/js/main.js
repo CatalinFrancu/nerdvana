@@ -415,6 +415,11 @@ $(function() {
     }
   }
 
+  function showGame() {
+    $('#game-area').css({display: 'flex'});
+    $('#file-loader').hide();
+  }
+
   function initGame(contents) {
     loadGameFile(contents);
     processGameLines();
@@ -423,6 +428,7 @@ $(function() {
     createPlayerAreas();
     createScoreTable();
     computeFrames();
+    showGame();
   }
 
   // Vezi https://stackoverflow.com/a/39515846/6022817.
