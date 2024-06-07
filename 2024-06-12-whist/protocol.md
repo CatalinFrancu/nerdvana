@@ -98,3 +98,51 @@ trick <trick_size> <card_0> ... <card_{num_cards-1}>
   * 4 jucători: 1 1 1 1, 2 3 4 5, 6 7 8 8, 8 8 8 8, 8 8 7 6, 5 4 3 2, 1 1 1 1
   * 5 jucători: 1 1 1 1 1, 2 3 4 5 6, 7 8 8 8 8, 8 8 8 8 7, 6 5 4 3 2, 1 1 1 1 1
   * 6 jucători: 1 1 1 1 1 1, 2 3 4 5 6 7, 8 8 8 8 8 8, 8 8 8 8 8 8, 7 6 5 4 3 2, 1 1 1 1 1 1
+
+# Exemple
+
+O partidă de trei persoane, un joc de 8 cărți, levata a 3-a. Jucătorul #0 a deschis cu K♣, iar acum este rîndul jucătorului #1, care poate răspunde cu A♣ sau cu Q♣.
+
+```txt
+num_players 3
+player_id 1
+scores 10 20 30
+streaks -2 -1 -1
+round_id 11
+hand_size 8
+first_bidder 2
+player_order 2
+trump -1
+initial_hand 12 37 20 51 49 8 10 7
+phase 1
+bids 6 1 6
+trick_id 2
+trick 3 38 33 37
+winner 2
+trick 3 23 24 20
+winner 0
+trick 1 50
+```
+
+O partidă de 4 persoane, un joc de 5 cărți, levata a 3-a. Atuul este 9♠, jucătorul #1 a deschis cu Q♦, iar acum este rîndul jucătorului #2, care poate răspunde cu K♦ sau cu 8♦.
+
+```txt
+num_players 4
+player_id 2
+scores 0 0 0 0
+streaks -2 -2 -3 2
+round_id 7
+hand_size 5
+first_bidder 3
+player_order 3
+trump 20
+initial_hand 7 37 19 18 32
+phase 1
+bids 0 2 4 2
+trick_id 2
+trick 4 44 45 24 19
+winner 1
+trick 4 12 7 5 10
+winner 1
+trick 1 36
+```
