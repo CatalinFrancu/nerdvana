@@ -154,6 +154,7 @@ $(function() {
       this.points = [];
       this.scores = [];
       this.streaks = [];
+      this.startFrame = 0;
     }
 
     getFrameCount() {
@@ -230,6 +231,8 @@ $(function() {
     $('#button-back').on('click', goBack);
     $('#button-forward').on('click', goForward);
     $('#button-last').on('click', goLast);
+    $('#score-table tbody').on('click', 'tr', goToRound);
+    $(document).on('keydown', keyHandler);
   }
 
   function loadGameFile(contents) {
@@ -404,9 +407,10 @@ $(function() {
   }
 
   function computeFrames() {
-    frame = 0;
+    let frame = 0;
     maxFrames = 1; // scena inițială
     for (let i = 0; i < rounds.length; i++) {
+      rounds[i].startFrame = maxFrames;
       maxFrames += rounds[i].getFrameCount();
     }
   }
@@ -579,5 +583,50 @@ $(function() {
   function goLast() {
     frame = maxFrames - 1;
     redrawGame();
+  }
+
+  function goToRound() {
+    let i = $(this).index();
+    frame = rounds[i].startFrame;
+    redrawGame();
+  }
+
+  function goToNextRound() {
+    let i = 0;
+    while ((i < rounds.length) && (rounds[i].startFrame <= frame)) {
+      i++;
+    }
+    if (i < rounds.length) {
+      frame = rounds[i].startFrame;
+      redrawGame();
+    }
+  }
+
+  function goToPrevRound() {
+    let i = rounds.length - 1;
+    while ((i >= 0) && (rounds[i].startFrame >= frame)) {
+      i--
+    }
+    if (i >= 0) {
+      frame = rounds[i].startFrame;
+      redrawGame();
+    }
+  }
+
+  function keyHandler(e) {
+    let captured = true;
+    switch (e.which) {
+      case 37: goBack(); break;        // left arrow
+      case 39: goForward(); break;     // right arrow
+      case 38: goToPrevRound(); break; // up arrow
+      case 40: goToNextRound(); break; // down arrow
+      case 36: goFirst(); break;       // home arrow
+      case 35: goLast(); break;        // end arrow
+      default: captured = false;
+    }
+    if (captured) {
+      // let other keys work as expected (enter, tab etc.)
+      e.preventDefault();
+    }
   }
 });

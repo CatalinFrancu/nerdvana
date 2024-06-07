@@ -170,6 +170,10 @@
   writing-mode: vertical-lr;
 }
 
+#score-table tbody tr {
+  cursor: pointer;
+}
+
 #score-table tbody td {
-  border-left: 1px solid #777;
+  border-left: 1px solid var(--bs-table-border-color);
 }
