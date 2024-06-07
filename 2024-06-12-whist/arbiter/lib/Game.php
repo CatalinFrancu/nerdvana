@@ -54,7 +54,7 @@ class Game {
 
   function deal(): void {
     $deck = new Deck($this->n);
-    Log::default('Am generat pachetul %s.', [ $deck ]);
+    Log::info('Am generat pachetul %s.', [ $deck ]);
     foreach ($this->players as $p) {
       $hand = $deck->dealHand($this->getHandSize());
       $p->setHand($hand);
@@ -62,7 +62,7 @@ class Game {
     }
     $this->trump = $deck->dealTrump();
     $this->save->addTrump($this->trump);
-    Log::default('Atu: %s.', [ $this->trump ]);
+    Log::info('Atu: %s.', [ $this->trump ]);
 
   }
 

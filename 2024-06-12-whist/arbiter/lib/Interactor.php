@@ -32,12 +32,12 @@ class Interactor {
 
   static function interact(string $binary, GameState $state, array $choices): int {
     $dir = dirname($binary);
-    // Log::default('Apelez %s în directorul %s.', [ $binary, $dir ]);
     chdir($dir);
     @unlink(self::INPUT_FILE);
     @unlink(self::OUTPUT_FILE);
     $state->writeToFile(self::INPUT_FILE);
 
+    Log::debug('Apelez %s în directorul %s.', [ $binary, $dir ]);
     $cmd = sprintf('ulimit -t %d && %s', self::TIMEOUT, $binary);
     $output = null;
     $resultCode = null;

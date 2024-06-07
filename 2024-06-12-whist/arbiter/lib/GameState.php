@@ -91,5 +91,6 @@ class GameState {
 
     $contents = implode("\n", $lines) . "\n";
     file_put_contents($filename, $contents);
+    Log::debug("Am scris în %s conținutul:\n%s", [ $filename, $contents ]);
   }
 }

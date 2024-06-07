@@ -22,8 +22,8 @@ class Player {
   function setHand(array $hand): void {
     $this->hand = $hand;
     $this->initialHand = $hand;
-    Log::default('%s a primit mîna %s.',
-                 [ $this->name, Card::toString($this->hand) ]);
+    Log::info('%s a primit mîna %s.',
+              [ $this->name, Card::toString($this->hand) ]);
   }
 
   function getInitialHand(): array {

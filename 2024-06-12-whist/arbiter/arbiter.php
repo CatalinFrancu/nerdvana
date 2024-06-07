@@ -8,6 +8,8 @@ spl_autoload_register(function($className) {
   }
 });
 
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'Config.php';
+
 main();
 
 function main() {
