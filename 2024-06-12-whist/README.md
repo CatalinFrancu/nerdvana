@@ -10,7 +10,40 @@ Acest set de unelte vă permite să creați un program de whist și să îl vede
 
 ## Arbitrul
 
-Aceste instrucțiuni sînt pentru Linux. Cred că arbitrul poate fi făcut să ruleze și sub Windows cu [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) și [PHP](https://ubuntu.com/server/docs/how-to-install-and-configure-php) (probabil pachetele `php` și `php-cli`). Dacă cineva reușește să-l facă să meargă, trimiteți-mi și mie detalii, vă rog!
+### Pași specifici pentru Windows
+
+Instalați [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) și Ubuntu 24.04. Din terminal, rulați:
+
+```bash
+wsl --install Ubuntu 24.04
+```
+
+Va cere reboot, apoi va finaliza instalarea. Alegeți un nume de utilizator și o parolă. Apoi vă veți afla într-un prompt de Linux.
+
+Aduceți la zi sistemul și instalați PHP:
+
+```bash
+sudo apt update
+sudo apt upgrade
+sudo apt install php
+```
+
+Testați că PHP merge:
+
+```bash
+php --version
+```
+
+Puteți vedea sistemul de fișiere Windows din Linux:
+
+```bash
+ls /mnt/c/
+```
+
+De asemenea, puteți vedea sistemul de fișiere Linux din Windows. Din File Explorer, navigați la Linux > Ubuntu-24.04 > /home/<username>/nerdvana etc.
+
+
+### Pași comuni pentru Linux și Windows
 
 Clonați acest repo:
 
