@@ -15,7 +15,7 @@ Acest set de unelte vă permite să creați un program de whist și să îl vede
 Instalați [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) și Ubuntu 24.04. Din terminal, rulați:
 
 ```bash
-wsl --install Ubuntu 24.04
+wsl --install Ubuntu-24.04
 ```
 
 Va cere reboot, apoi va finaliza instalarea. Alegeți un nume de utilizator și o parolă. Apoi vă veți afla într-un prompt de Linux.
