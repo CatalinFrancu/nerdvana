@@ -353,8 +353,8 @@ $(function() {
     });
   }
 
-  function adjustHeadRow() {
-    let head = $('#score-table thead tr');
+  function adjustHeaderRow(sel) {
+    let head = $(sel);
     head.find('th').slice(players.length + 1).remove();
     while (head.find('th').length < players.length + 1) {
       head.find('th').last().clone().appendTo(head);
@@ -383,8 +383,10 @@ $(function() {
 
   function fillInTableData() {
     let head = $('#score-table thead tr');
+    let footer = $('#score-table tfoot tr');
     for (let i = 0; i < players.length; i++) {
       head.find('th').eq(i + 1).text(players[i].name);
+      footer.find('th').eq(i + 1).text(players[i].name);
     }
 
     let colHeads = $('#score-table tbody tr th');
@@ -399,7 +401,8 @@ $(function() {
   }
 
   function createScoreTable() {
-    adjustHeadRow();
+    adjustHeaderRow('#score-table thead tr');
+    adjustHeaderRow('#score-table tfoot tr');
     adjustFirstRow();
     createRemainingRows();
     fillInTableData();

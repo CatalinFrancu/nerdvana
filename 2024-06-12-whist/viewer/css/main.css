@@ -169,7 +169,8 @@
   overflow-y: scroll;
 }
 
-#score-table thead th:not(:first-child) {
+#score-table thead th:not(:first-child),
+#score-table tfoot th:not(:first-child) {
   transform: rotate(180deg);
   writing-mode: vertical-lr;
 }
@@ -182,6 +183,6 @@
   cursor: pointer;
 }
 
-#score-table tbody td {
+#score-table td, #score-table th {
   border-left: 1px solid var(--bs-table-border-color);
 }
