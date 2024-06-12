@@ -1,15 +1,17 @@
 <?php
 
 class Args {
+  private bool $randomize;
   private array $binaries;
   private array $names;
 
   function parse(): void {
-    $opts = getopt('b:n:');
+    $opts = getopt('b:n:r');
     if (empty($opts)) {
       $this->usage();
       exit(1);
     }
+    $this->randomize = isset($opts['r']);
     $this->binaries = $opts['b'] ?? [];
     $this->names = $opts['n'] ?? [];
     $this->validate();
@@ -17,8 +19,9 @@ class Args {
 
   private function usage(): void {
     $scriptName = $_SERVER['SCRIPT_FILENAME'];
-    print "Apel: $scriptName -b <cale> -n <nume> [...]\n";
+    print "Apel: $scriptName [-r] -b <cale> -n <nume> [...]\n";
     print "\n";
+    print "    -r       :  Randomizează ordinea clienților.\n";
     print "    -b <cale>:  Fișierul binar executabil al unui client.\n";
     print "    -n <nume>:  Numele clientului.\n";
     print "\n";
@@ -38,7 +41,11 @@ class Args {
     return count($this->binaries);
   }
 
-  function getPlayer(int $i):array {
+  function getPlayer(int $i): array {
     return [ $this->binaries[$i], $this->names[$i] ];
+  }
+
+  function getRandomize(): bool {
+    return $this->randomize;
   }
 }

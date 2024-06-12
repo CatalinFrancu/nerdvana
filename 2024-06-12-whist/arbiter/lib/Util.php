@@ -36,4 +36,12 @@ class Util {
       : (($streak == -self::BONUS_STREAK) ? -self::BONUS_POINTS : 0);
     return $trickPoints + $bonusPoints;
   }
+
+  static function genPermutation(int $n, bool $randomize): array {
+    $p = range(0, $n - 1);
+    if ($randomize) {
+      shuffle($p);
+    }
+    return $p;
+  }
 }

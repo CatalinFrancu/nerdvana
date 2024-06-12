@@ -25,11 +25,12 @@ class Game {
   private SaveGame $save;
 
   function __construct(Args $args) {
-    for ($i = 0; $i < $args->getNumPlayers(); $i++) {
-      list($binary, $name) = $args->getPlayer($i);
+    $this->n = $args->getNumPlayers();
+    $perm = Util::genPermutation($this->n, $args->getRandomize());
+    for ($i = 0; $i < $this->n; $i++) {
+      list($binary, $name) = $args->getPlayer($perm[$i]);
       $this->players[] = new Player($binary, $name);
     }
-    $this->n = count($this->players);
     if (($this->n < self::MIN_PLAYERS) || ($this->n > self::MAX_PLAYERS)) {
       Log::fatal('Jocul de whist necesită între %d și %d jucători.',
                  [ self::MIN_PLAYERS, self::MAX_PLAYERS ]);
@@ -182,7 +183,10 @@ class Game {
   }
 
   function finalizeGame(): void {
-    Log::debug('Scoruri finale: ' . implode(' ', $this->getPlayerScores()));
+    for ($i = 0; $i < $this->n; $i++) {
+      Log::debug("Scor final: %s %d",
+                 [ $this->players[$i]->name, $this->players[$i]->getScore() ]);
+    }
   }
 
   function run(): void {
