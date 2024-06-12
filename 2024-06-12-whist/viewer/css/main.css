@@ -165,13 +165,17 @@
 }
 
 .scrollable {
-  max-height: 100vh;
+  max-height: 95vh;
   overflow-y: scroll;
 }
 
 #score-table thead th:not(:first-child) {
   transform: rotate(180deg);
   writing-mode: vertical-lr;
+}
+
+#score-table thead th {
+  border-bottom: 3px solid black;
 }
 
 #score-table tbody tr {
