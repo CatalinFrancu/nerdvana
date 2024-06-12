@@ -173,11 +173,16 @@ class Game {
       $streaks[$i] = Util::updateStreak($streaks[$i], $madeIt);
       $points[] = Util::getPoints($bids[$i], $tricksWon[$i], $streaks[$i]);
       $this->players[$i]->setStreak($streaks[$i]);
+      $this->players[$i]->addScore($points[$i]);
     }
 
     $this->save->addOutcomes($outcomes);
     $this->save->addPoints($points);
     $this->save->addStreaks($streaks);
+  }
+
+  function finalizeGame(): void {
+    Log::debug('Scoruri finale: ' . implode(' ', $this->getPlayerScores()));
   }
 
   function run(): void {
@@ -196,6 +201,7 @@ class Game {
     }
 
     $this->save->write();
+    $this->finalizeGame();
   }
 
 }

@@ -38,6 +38,10 @@ class Player {
     return $this->score;
   }
 
+  function addScore(int $points) {
+    $this->score += $points;
+  }
+
   function getStreak(): int {
     return $this->streak;
   }
