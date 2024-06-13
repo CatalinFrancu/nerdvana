@@ -1,14 +1,13 @@
 #include "Game.h"
+#include "Piece.h"
 #include <string>
 
 bool Game::setType(std::string desc) {
   if (desc == "Blokus Duo") {
-    type = T_DUO;
-    restart();
+    restart(Board::T_DUO);
     return true;
   } else if (desc == "Blokus") {
-    type = T_CLASSIC;
-    restart();
+    restart(Board::T_CLASSIC);
     return true;
   } else {
     return false;
@@ -16,4 +15,10 @@ bool Game::setType(std::string desc) {
 }
 
 void Game::restart() {
+  restart(board.type);
+}
+
+void Game::restart(int boardType) {
+  board.init(boardType);
+  Piece::precomputePieces(board.getSize());
 }

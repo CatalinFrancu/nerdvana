@@ -8,13 +8,23 @@ project(
 #include(GNUInstallDirs)
 
 set(SOURCES
-    src/Command.h
+    src/Board.cpp
+    src/Board.h
     src/Command.cpp
-    src/Game.h
+    src/Command.h
     src/Game.cpp
+    src/Game.h
+    src/globals.cpp
+    src/globals.h
     src/main.cpp
-    src/Response.h
+    src/MoveList.cpp
+    src/MoveList.h
+    src/Piece.cpp
+    src/Piece.h
     src/Response.cpp
+    src/Response.h
+    src/StrUtil.cpp
+    src/StrUtil.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

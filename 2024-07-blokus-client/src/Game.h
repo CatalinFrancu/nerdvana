@@ -1,14 +1,13 @@
 #pragma once
 
+#include "Board.h"
 #include <string>
 
 class Game {
 public:
-  const int T_DUO = 0;
-  const int T_CLASSIC = 1;
-
-  int type;
+  Board board;
 
   bool setType(std::string desc);
   void restart();
+  void restart(int boardType);
 };
