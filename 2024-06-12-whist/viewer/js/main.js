@@ -273,7 +273,11 @@ $(function() {
           break;
 
         case 'hand':
-          rounds[rounds.length - 1].hands.push(line.getNumbers());
+          let hand = line.getNumbers();
+          hand.sort(function(a, b) {
+            return a - b;
+          });
+          rounds[rounds.length - 1].hands.push(hand);
           break;
 
         case 'trump':

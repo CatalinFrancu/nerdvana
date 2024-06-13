@@ -28,12 +28,14 @@ function print_totals() {
 }
 
 function main() {
+  echo "Comanda: $CMD"
   for i in `seq 1 $NUM_GAMES`; do
     echo ==== Rulez partida $i din $NUM_GAMES
     # Șterge culorile ANSI, păstrează doar caracterele printabile
     OUTPUT=$($CMD | grep "Scor final:" | sed -e 's/\x1b\[[0-9;]*m//g' | cut -d ' ' -f 3,4)
     echo "$OUTPUT"
     process_output "$OUTPUT"
+    mv game.txt game${i}.txt
   done
 
   print_totals
