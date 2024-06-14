@@ -24,6 +24,10 @@ void Command::readFromStdin() {
   } else if (cmd == "genmove") {
     type = T_GENMOVE;
     intArg = stoi(s) - 1; // we use 0-based player IDs
+  } else if (cmd == "play") {
+    type = T_PLAY;
+    intArg = stoi(getToken(s)) - 1;
+    strArg = s;
   } else if (cmd == "quit") {
     type = T_QUIT;
     strArg = "";

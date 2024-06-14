@@ -9,7 +9,8 @@ public:
   static const int T_CLEAR_BOARD = 2;
   static const int T_CPUTIME = 3;
   static const int T_GENMOVE = 4;
-  static const int T_QUIT = 5;
+  static const int T_PLAY = 5;
+  static const int T_QUIT = 6;
 
   int type;
   std::string strArg;

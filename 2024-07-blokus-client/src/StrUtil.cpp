@@ -29,3 +29,21 @@ std::string StrUtil::moveToString(bitset& mask, int size) {
   }
   return result;
 }
+
+bitset StrUtil::stringToMove(std::string& move, int size) {
+  bitset mask(0);
+  int p = 0, len = move.length();
+  while (p < len) {
+    int file = move[p++] - 'a';
+    int rank = 0;
+    while (std::isdigit(move[p])) {
+      rank = rank * 10 + (move[p++] - '0');
+    }
+    rank--; // 0-based
+    mask[rank * size + file] = true;
+    if (p < len) {
+      p++; // skip the comma
+    }
+  }
+  return mask;
+}

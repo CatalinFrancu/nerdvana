@@ -31,8 +31,15 @@ int main() {
         break;
 
       case Command::T_GENMOVE:
-        move = game.genMoveFor(cmd.intArg);
+        move = game.genMove(cmd.intArg);
+        // game.board.print();
         Response::success(move);
+        break;
+
+      case Command::T_PLAY:
+        game.makeMove(cmd.intArg, cmd.strArg);
+        // game.board.print();
+        Response::success("");
         break;
 
       case Command::T_UNKNOWN:

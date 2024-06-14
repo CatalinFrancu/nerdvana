@@ -25,10 +25,16 @@ void Game::restart(int boardType) {
   Piece::precomputePieces(board.getSize());
 }
 
-std::string Game::genMoveFor(int player) {
+std::string Game::genMove(int player) {
   MoveList list;
   board.genMoves(player, list);
   assert(list.size);
   board.makeMove(player, list.moves[0], list.pieceIndex[0]);
   return StrUtil::moveToString(list.moves[0], board.getSize());
+}
+
+void Game::makeMove(int player, std::string move) {
+  bitset mask = StrUtil::stringToMove(move, board.getSize());
+  int piece = board.getPieceFromMask(mask);
+  board.makeMove(player, mask, piece);
 }

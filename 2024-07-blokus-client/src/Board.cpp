@@ -1,3 +1,4 @@
+#include "assert.h"
 #include "Board.h"
 #include "globals.h"
 #include "MoveList.h"
@@ -130,7 +131,57 @@ void Board::tryMove(int piece, bitset& mask, bitset& unavailable,
   }
 }
 
-void Board::makeMove(int player, bitset mask, int piece) {
+void Board::makeMove(int player, bitset& mask, int piece) {
   occ[player] |= mask;
   inHand[player] ^= (1 << piece);
+}
+
+int Board::getPieceFromMask(bitset mask) {
+  // Shift the mask towards the LSB
+  while ((mask & firstRank).none()) {
+    mask >>= getSize();
+  }
+  while ((mask & firstFile).none()) {
+    mask >>= 1;
+  }
+
+  for (int p = 0; p < NUM_PIECES; p++) {
+    for (int rot = 0; rot < numRotations[p]; rot++) {
+      if (pieces[p][rot] == mask) {
+        return p;
+      }
+    }
+  }
+  assert(false);
+}
+
+void Board::print() {
+  int size = getSize();
+  for (int rank = size - 1; rank >= 0; rank--) {
+    printf("%2d ", rank + 1);
+    for (int file = 0; file < size; file++) {
+      int bit = rank * size + file;
+      printBit(bit);
+    }
+    printf("\n");
+  }
+
+  printf("   ");
+  for (int file = 0; file < size; file++) {
+    printf(" %c", file + 'a');
+  }
+  printf("\n");
+}
+
+void Board::printBit(int bit) {
+  int p = 0;
+  while ((p < getNumPlayers()) && !occ[p][bit]) {
+    p++;
+  }
+
+  if (p == getNumPlayers()) {
+    printf("  ");
+  } else {
+    printf("%s  %s", ANSI_COLORS[p], DEFAULT_COLOR);
+  }
 }

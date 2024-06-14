@@ -14,6 +14,11 @@ public:
   static const int NUM_PLAYERS[];
   static const int STARTING_POSITIONS[][MAX_PLAYERS];
 
+  static constexpr char ANSI_COLORS[MAX_PLAYERS][7] = {
+    "\e[106m", "\e[103m", "\e[101m", "\e[102m",
+  };
+  static constexpr char DEFAULT_COLOR[7] = "\e[49m";
+
   unsigned char type;   // 2-player Duo or 4-player Classic
 
   // border masks to be used during the move generation
@@ -29,7 +34,10 @@ public:
   int getNumPlayers();
   void init(int type);
   void genMoves(int player, MoveList& dest);
-  void makeMove(int player, bitset mask, int piece);
+  void makeMove(int player, bitset& mask, int piece);
+  int getPieceFromMask(bitset mask);
+  void print();
+  void printBit(int bit);
 
 private:
   void initBorderMasks();

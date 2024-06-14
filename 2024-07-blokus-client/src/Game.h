@@ -11,7 +11,9 @@ public:
   void restart();
   void restart(int boardType);
 
-  // Make and return a move for player. The player is assumed to still be in
-  // the game.
-  std::string genMoveFor(int player);
+  // Find, make and return a move for player. The player is assumed to still
+  // be in the game.
+  std::string genMove(int player);
+
+  void makeMove(int player, std::string move);
 };
