@@ -29,8 +29,9 @@ std::string Game::genMove(int player) {
   MoveList list;
   board.genMoves(player, list);
   assert(list.size);
-  board.makeMove(player, list.moves[0], list.pieceIndex[0]);
-  return StrUtil::moveToString(list.moves[0], board.getSize());
+  int m = board.chooseMove(player, list);
+  board.makeMove(player, list.moves[m], list.pieceIndex[m]);
+  return StrUtil::moveToString(list.moves[m], board.getSize());
 }
 
 void Game::makeMove(int player, std::string move) {

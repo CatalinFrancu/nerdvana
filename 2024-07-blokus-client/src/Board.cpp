@@ -131,6 +131,15 @@ void Board::tryMove(int piece, bitset& mask, bitset& unavailable,
   }
 }
 
+int Board::chooseMove(int player, MoveList& list) {
+  int i = 0;
+  while ((i < list.size) &&
+         (PIECE_SIZES[list.pieceIndex[i]] == PIECE_SIZES[list.pieceIndex[0]])) {
+    i++;
+  }
+  return rand() % i;
+}
+
 void Board::makeMove(int player, bitset& mask, int piece) {
   occ[player] |= mask;
   inHand[player] ^= (1 << piece);

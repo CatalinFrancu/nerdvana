@@ -34,6 +34,7 @@ public:
   int getNumPlayers();
   void init(int type);
   void genMoves(int player, MoveList& dest);
+  int chooseMove(int player, MoveList& list);
   void makeMove(int player, bitset& mask, int piece);
   int getPieceFromMask(bitset mask);
   void print();
