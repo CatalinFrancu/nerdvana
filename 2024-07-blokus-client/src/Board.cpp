@@ -5,8 +5,8 @@
 const int Board::SIZES[Board::NUM_TYPES] = { 14, 20 };
 const int Board::NUM_PLAYERS[Board::NUM_TYPES] = { 2, 4 };
 const int Board::STARTING_POSITIONS[Board::NUM_TYPES][Board::MAX_PLAYERS] = {
-  { 380, 399, 19, 0 },
   { 130, 65 },
+  { 380, 399, 19, 0 },
 };
 
 bitset Board::firstRank;
@@ -24,8 +24,6 @@ int Board::getNumPlayers() {
 
 void Board::init(int type) {
   this->type = type;
-  active = (1 << getNumPlayers()) - 1; // everybody
-  toMove = 0;
   initBorderMasks();
   initPlayerMasks();
 }
@@ -47,55 +45,25 @@ void Board::initPlayerMasks() {
   }
 }
 
-void Board::genMoves(MoveList& dest) {
-  dest.size = 0;
-  while (active && !dest.size) {
-    genMovesForActivePlayer(dest);
-    if (!dest.size) {
-      deactivateActivePlayer();
-      advancePlayer();
-    }
-  }
-}
+void Board::genMoves(int player, MoveList& dest) {
+  bitset unavailable;
+  bitset stones;
+  makeLandscape(player, unavailable, stones);
 
-void Board::genMovesForActivePlayer(MoveList& dest) {
-  int hand = inHand[toMove];
+  dest.size = 0;
+  int hand = inHand[player];
   while (hand) {
-    int p = __builtin_ctz(hand);
-    for (int rot = 0; rot < numRotations[p]; rot++) {
-      genMovesWithPiece(p, rot, dest);
+    int piece = __builtin_ctz(hand);
+    for (int rot = 0; rot < numRotations[piece]; rot++) {
+      genMovesWithPiece(player, piece, rot, unavailable, stones, dest);
     }
     hand &= hand - 1;
   }
 }
 
-void Board::genMovesWithPiece(int p, int rot, MoveList& dest) {
-  bitset& orig = pieces[p][rot];
-
-  bool rankOverflow = false;
-  int rank = 0;
-  while (!rankOverflow) {
-    bitset mask = orig << (rank * getSize());
-
-    bool fileOverflow = false;
-    int file = 0;
-    while (!fileOverflow) {
-      mask <<= 1;
-
-      tryMove(p, mask, dest);
-
-      file++;
-      fileOverflow = (mask & lastFile).any();
-    }
-
-    rank++;
-    rankOverflow = (mask & lastRank).any();
-  }
-}
-
-void Board::tryMove(int p, bitset& mask, MoveList& dest) {
-  bitset unavailable = 0;
-  bitset& me = occ[toMove];
+void Board::makeLandscape(int player, bitset& unavailable, bitset& stones) {
+  unavailable.reset();
+  bitset& me = occ[player];
   int size = getSize();
   int np = getNumPlayers();
 
@@ -111,25 +79,58 @@ void Board::tryMove(int p, bitset& mask, MoveList& dest) {
   unavailable |= (me & ~lastFile) << 1;
 
   // The piece must touch a stepping stone.
-  bitset stones =
-    ((me & ~firstRank & ~firstFile) >> (size + 1)) |
-    ((me & ~firstRank & ~lastFile) >> (size - 1)) |
-    ((me & ~lastRank & ~firstFile) << (size - 1)) |
-    ((me & ~lastRank & ~lastFile) << (size + 1));
+  if (me.any()) {
+    stones =
+      ((me & ~firstRank & ~firstFile) >> (size + 1)) |
+      ((me & ~firstRank & ~lastFile) >> (size - 1)) |
+      ((me & ~lastRank & ~firstFile) << (size - 1)) |
+      ((me & ~lastRank & ~lastFile) << (size + 1));
+  } else {
+    stones = getStartingPos(player);
+  }
+}
 
+bitset Board::getStartingPos(int player) {
+  bitset result(0);
+  int pos = STARTING_POSITIONS[type][player];
+  result[pos] = true;
+  return result;
+}
+
+void Board::genMovesWithPiece(int player, int piece, int rot, bitset& unavailable,
+                              bitset& stones, MoveList& dest) {
+  bitset& orig = pieces[piece][rot];
+
+  bool rankOverflow = false;
+  int rank = 0;
+  while (!rankOverflow) {
+    bitset mask = orig << (rank * getSize());
+    tryMove(piece, mask, unavailable, stones, dest);
+
+    bool fileOverflow = false;
+    int file = 0;
+    while (!fileOverflow) {
+      mask <<= 1;
+
+      tryMove(piece, mask, unavailable, stones, dest);
+
+      file++;
+      fileOverflow = (mask & lastFile).any();
+    }
+
+    rank++;
+    rankOverflow = (mask & lastRank).any();
+  }
+}
+
+void Board::tryMove(int piece, bitset& mask, bitset& unavailable,
+                    bitset& stones, MoveList& dest) {
   if ((mask & stones).any() && (mask & unavailable).none()) {
-    dest.add(mask, p);
+    dest.add(mask, piece);
   }
 }
 
-void Board::deactivateActivePlayer() {
-  active ^= (1 << toMove);
-}
-
-void Board::advancePlayer() {
-  if (active) {
-    do {
-      toMove = (toMove + 1) % getNumPlayers();
-    } while (!(active & (1 << toMove)));
-  }
+void Board::makeMove(int player, bitset mask, int piece) {
+  occ[player] |= mask;
+  inHand[player] ^= (1 << piece);
 }

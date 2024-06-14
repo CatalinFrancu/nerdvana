@@ -15,8 +15,6 @@ public:
   static const int STARTING_POSITIONS[][MAX_PLAYERS];
 
   unsigned char type;   // 2-player Duo or 4-player Classic
-  unsigned char active; // 4-bit mask of players that are still active
-  unsigned char toMove; // side to move, [0...numPlayers)
 
   // border masks to be used during the move generation
   static bitset firstRank, lastRank, firstFile, lastFile;
@@ -30,14 +28,16 @@ public:
   int getSize();
   int getNumPlayers();
   void init(int type);
-  void genMoves(MoveList& dest);
+  void genMoves(int player, MoveList& dest);
+  void makeMove(int player, bitset mask, int piece);
 
 private:
   void initBorderMasks();
   void initPlayerMasks();
-  void genMovesForActivePlayer(MoveList& dest);
-  void genMovesWithPiece(int p, int rot, MoveList& dest);
-  void tryMove(int p, bitset& mask, MoveList& dest);
-  void deactivateActivePlayer();
-  void advancePlayer();
+  void makeLandscape(int player, bitset& unavailable, bitset& stones);
+  bitset getStartingPos(int player);
+  void genMovesWithPiece(int player, int piece, int rot, bitset& unavailable,
+                         bitset& stones, MoveList& dest);
+  void tryMove(int piece, bitset& mask, bitset& unavailable,
+               bitset& stones, MoveList& dest);
 };

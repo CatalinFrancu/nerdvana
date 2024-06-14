@@ -8,10 +8,12 @@ public:
   static const int T_SET_GAME = 1;
   static const int T_CLEAR_BOARD = 2;
   static const int T_CPUTIME = 3;
-  static const int T_QUIT = 4;
+  static const int T_GENMOVE = 4;
+  static const int T_QUIT = 5;
 
   int type;
-  std::string arg;
+  std::string strArg;
+  int intArg;
 
   Command();
   void readFromStdin();

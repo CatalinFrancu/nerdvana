@@ -14,19 +14,22 @@ void Command::readFromStdin() {
 
   if (cmd == "set_game") {
     type = T_SET_GAME;
-    arg = s;
+    strArg = s;
   } else if (cmd == "clear_board") {
     type = T_CLEAR_BOARD;
-    arg = "";
+    strArg = "";
   } else if (cmd == "cputime") {
     type = T_CPUTIME;
-    arg = "";
+    strArg = "";
+  } else if (cmd == "genmove") {
+    type = T_GENMOVE;
+    intArg = stoi(s) - 1; // we use 0-based player IDs
   } else if (cmd == "quit") {
     type = T_QUIT;
-    arg = "";
+    strArg = "";
   } else {
     type = T_UNKNOWN;
-    arg = cmd;
+    strArg = cmd;
   }
 }
 

@@ -1,20 +1,22 @@
 #include "Command.h"
 #include "Game.h"
 #include "Response.h"
+#include <string>
 
 int main() {
 
   Command cmd;
   Game game;
+  std::string move;
 
   while (cmd.type != Command::T_QUIT) {
     cmd.readFromStdin();
     switch (cmd.type) {
       case Command::T_SET_GAME:
-        if (game.setType(cmd.arg)) {
+        if (game.setType(cmd.strArg)) {
           Response::success("");
         } else {
-          Response::fail("Unknown game type [" + cmd.arg + "].");
+          Response::fail("Unknown game type [" + cmd.strArg + "].");
         }
         break;
 
@@ -28,8 +30,13 @@ int main() {
         Response::success("0.0");
         break;
 
+      case Command::T_GENMOVE:
+        move = game.genMoveFor(cmd.intArg);
+        Response::success(move);
+        break;
+
       case Command::T_UNKNOWN:
-        Response::fail("Unknown command [" + cmd.arg + "].");
+        Response::fail("Unknown command [" + cmd.strArg + "].");
         break;
     }
   }
