@@ -22,4 +22,5 @@ public:
 private:
   std::string getToken(std::string& s);
   std::string trim(std::string s);
+  int getPlayerFromCode(char code);
 };

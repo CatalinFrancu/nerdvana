@@ -1,3 +1,4 @@
+#include "assert.h"
 #include "Command.h"
 #include <iostream>
 #include <string>
@@ -23,10 +24,10 @@ void Command::readFromStdin() {
     strArg = "";
   } else if (cmd == "genmove") {
     type = T_GENMOVE;
-    intArg = stoi(s) - 1; // we use 0-based player IDs
+    intArg = getPlayerFromCode(s[0]); // we use 0-based player IDs
   } else if (cmd == "play") {
     type = T_PLAY;
-    intArg = stoi(getToken(s)) - 1;
+    intArg = getPlayerFromCode(getToken(s)[0]);
     strArg = s;
   } else if (cmd == "quit") {
     type = T_QUIT;
@@ -58,4 +59,16 @@ std::string Command::trim(std::string s) {
     r--;
   }
   return s.substr(l, r - l);
+}
+
+int Command::getPlayerFromCode(char code) {
+  switch (code) {
+    case '1': return 0;
+    case '2': return 1;
+    case '3': return 2;
+    case '4': return 3;
+    case 'b': return 0;
+    case 'w': return 1;
+    default: assert(0);
+  }
 }
