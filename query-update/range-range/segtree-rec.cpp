@@ -1,6 +1,6 @@
 // Complexity: O(Q log N)
 //
-// Method: segment tree with lazy updates
+// Method: segment tree with lazy updates, implemented recursively.
 // Invariant: s[node] + lazy[node] * size is the real sum.
 #include "common.h"
 
@@ -86,7 +86,7 @@ int main() {
   st_build();
   process_ops();
 
-  report_time("segment tree");
+  report_time("segment tree, recursive");
   write_data();
 
   return 0;

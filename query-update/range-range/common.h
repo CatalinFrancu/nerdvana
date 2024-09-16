@@ -89,5 +89,5 @@ void mark_time() {
 
 void report_time(const char* msg) {
   long long time2 = get_time();
-  fprintf(stderr, "%s: %lld milliseconds\n", msg, time2 - time1);
+  fprintf(stderr, "%-35s %4lld milliseconds\n", msg, time2 - time1);
 }
