@@ -59,6 +59,34 @@ int prog_sum_iterative_2(int a, int n) {
   return sum;
 }
 
+int bin_exp(int b, int e) {
+  int result = 1;
+
+  while (e) {
+    if (e & 1) {
+      result = (long long)result * b % MOD;
+    }
+    b = (long long)b * b % MOD;
+    e >>= 1;
+  }
+
+  return result;
+}
+
+int prog_sum_recursive_slow(int a, int n) {
+  if (n == 1) {
+    return 1;
+  }
+
+  if (n & 1) {
+    int rec = prog_sum_recursive_slow(a, n - 1);
+    return (1 + (long long) a * rec) % MOD;
+  } else {
+    long long mult = 1 + bin_exp(a, n / 2);
+    return mult * prog_sum_recursive_slow(a, n / 2) % MOD;
+  }
+}
+
 struct prog {
   long long term; // stores a^n for some n
   long long sum;  // stores 1 + a + ... + a^{n-1} for the same n
@@ -90,6 +118,7 @@ int main() {
       int naive = prog_sum_naive(a, n);
       assert(naive == prog_sum_iterative(a, n));
       assert(naive == prog_sum_iterative_2(a, n));
+      assert(naive == prog_sum_recursive_slow(a, n));
       assert(naive == prog_sum_recursive(a, n).sum);
     }
   }
