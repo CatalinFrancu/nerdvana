@@ -81,7 +81,7 @@ int main() {
 // depending on d's number of prime factors (aka the Mobius function).
 //
 // Let us now tally the same counts not by number, but by divisor. Divisor d
-// will come up for every multipleof d. First it will count 0 previous
+// will come up for every multiple of d. First it will count 0 previous
 // numbers, then 1, then 2 and so on, always with the same sign. Overall,
 // divisor d will contribute k * (k-1) / 2 * mobius[d], where k is the number
-// of mutiples of d among the n input numbers.
+// of multiples of d among the n input numbers.
