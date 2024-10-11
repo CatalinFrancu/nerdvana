@@ -18,7 +18,7 @@ int parse_command_line(int argc, char** argv) {
 void compute_mobius(int n) {
   u[1] = 1;
   for (int i = 1; i <= n; i++) {
-    if (u[1]) {
+    if (u[i]) { // optional speed optimization
       for (int j = 2 * i; j <= n; j += i) {
         u[j] -= u[i];
       }
