@@ -12,8 +12,9 @@ int phi[MAX_N + 1];
 long long answer[MAX_N + 1];
 
 void compute_all_phi() {
-  for (int i = 0; i <= MAX_N; i++)
+  for (int i = 0; i <= MAX_N; i++) {
     phi[i] = i;
+  }
 
   for (int i = 2; i <= MAX_N; i++) {
     if (phi[i] == i) {
