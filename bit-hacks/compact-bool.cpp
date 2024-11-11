@@ -1,6 +1,6 @@
 // Prepare an array of <position, value>. At each pass, shift the positions by
 // one. Write down the previous values. At the end of the algorithm, compare
-// the naive approach with the compact approach.
+// the naive approach with the packed approach.
 #include <bitset>
 #include <stdio.h>
 #include <stdlib.h>

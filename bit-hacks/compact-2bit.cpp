@@ -1,32 +1,55 @@
+// Prepare an array of <position, value>. At each pass, shift the positions by
+// one. Write down the previous values. At the end of the algorithm, compare
+// the naive approach with the packed approach.
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
-#include <time.h>
 
 const int ARRAY_SIZE = 1'000'000;
 const int NUM_CHANGES = 100'000;
 const int NUM_PASSES = 10'000;
 
-typedef unsigned char u8;
-
-typedef struct {
+struct change {
   int pos;
-  u8 val, prevVal;
-} change;
+  char val, prev_val;
+};
+
+struct packed_array {
+  unsigned v[ARRAY_SIZE / 16];
+
+  void set(int pos, int val) {
+    int word = pos / 16;
+    int offset = pos % 16 * 2;
+    v[word] = (v[word] & ~(3 << offset)) | (val << offset);
+  }
+
+  int get(int pos) {
+    int word = pos / 16;
+    int offset = pos % 16 * 2;
+    return (v[word] >> offset) & 3;
+  }
+};
 
 change c[NUM_CHANGES];
-u8 v[ARRAY_SIZE];
-unsigned compact[ARRAY_SIZE / 16];
+char v[ARRAY_SIZE];
+packed_array packed;
 long long t0;
 
-void markTime() {
+void init_rng() {
+  struct timeval time;
+  gettimeofday(&time, NULL);
+  int seed = time.tv_sec * 1'000'000 + time.tv_usec;
+  srand(seed);
+}
+
+void mark_time() {
   timeval tv;
 
   gettimeofday (&tv, NULL);
   t0 = 1000LL * tv.tv_sec + tv.tv_usec / 1000;
 }
 
-void reportTime(const char* msg) {
+void report_time(const char* msg) {
   timeval tv;
 
   gettimeofday (&tv, NULL);
@@ -39,69 +62,55 @@ void reportTime(const char* msg) {
          ops, ops / millis / 1000);
 }
 
-void genLocations() {
+void gen_locations() {
   for (int i = 0; i < NUM_CHANGES; i++) {
     c[i].pos = rand() % (ARRAY_SIZE - NUM_PASSES);
-    c[i].val = rand() % 2;
+    c[i].val = rand() % 4;
   }
 }
 
-void compactSet(int pos, int val) {
-  unsigned& c = compact[pos >> 4];
-  int shift = 2 * (pos & 15);
-  unsigned mask = 3 << shift;
-
-  c = (c & ~mask) | (val << shift);
-}
-
-int compactGet(int pos) {
-  unsigned& c = compact[pos >> 4];
-  int shift = 2 * (pos & 15);
-  return (c >> shift) & 3;
-}
-
-void runCompact() {
+void run_packed() {
   for (int pass = 0; pass < NUM_PASSES; pass++) {
     for (int i = 0; i < NUM_CHANGES; i++) {
       int pos = c[i].pos + pass;
-      c[i].prevVal = compactGet(pos);
-      compactSet(pos, c[i].val);
+      c[i].prev_val = packed.get(pos);
+      packed.set(pos, c[i].val);
     }
   }
 }
 
-void runNaive() {
+void run_naive() {
   for (int pass = 0; pass < NUM_PASSES; pass++) {
     for (int i = 0; i < NUM_CHANGES; i++) {
       int pos = c[i].pos + pass;
-      c[i].prevVal = v[pos];
+      c[i].prev_val = v[pos];
       v[pos] = c[i].val;
     }
   }
 }
 
-void verify() {
+void verify_packed() {
   for (int i = 0; i < ARRAY_SIZE; i++) {
-    if (v[i] != compactGet(i)) {
-      printf("Error: position %d, naive is %d, compact is %d.\n",
-             i, v[i], compactGet(i));
+    if (v[i] != packed.get(i)) {
+      printf("Error: position %d, naive is %d, packed is %d.\n",
+             i, v[i], packed.get(i));
       exit(1);
     }
   }
 }
 
 int main(void) {
-  srand(time(NULL));
-  genLocations();
+  init_rng();
+  gen_locations();
 
-  markTime();
-  runNaive();
-  reportTime("naive");
+  mark_time();
+  run_naive();
+  report_time("naive");
 
-  markTime();
-  runCompact();
-  reportTime("2-bit");
-  verify();
+  mark_time();
+  run_packed();
+  report_time("packed array, 32 bit");
+  verify_packed();
 
   return 0;
 }
