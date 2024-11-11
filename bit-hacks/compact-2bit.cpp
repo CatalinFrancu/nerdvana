@@ -16,7 +16,7 @@ typedef struct {
 
 change c[NUM_CHANGES];
 u8 v[ARRAY_SIZE];
-u8 compact[ARRAY_SIZE / 4];
+unsigned compact[ARRAY_SIZE / 16];
 long long t0;
 
 void markTime() {
@@ -46,17 +46,17 @@ void genLocations() {
   }
 }
 
-void compactSet(int pos, u8 val) {
-  u8& c = compact[pos >> 2];
-  int shift = 2 * (pos & 3);
-  u8 mask = 3 << shift;
+void compactSet(int pos, int val) {
+  unsigned& c = compact[pos >> 4];
+  int shift = 2 * (pos & 15);
+  unsigned mask = 3 << shift;
 
   c = (c & ~mask) | (val << shift);
 }
 
-u8 compactGet(int pos) {
-  u8& c = compact[pos >> 2];
-  int shift = 2 * (pos & 3);
+int compactGet(int pos) {
+  unsigned& c = compact[pos >> 4];
+  int shift = 2 * (pos & 15);
   return (c >> shift) & 3;
 }
 
