@@ -16,9 +16,9 @@ const int mult32[32] = {
 };
 
 unsigned v[N];
-int witness[N], c[N];
-int lookup[1 << 8];
-int lookupBig[1 << 16];
+char witness[N], c[N];
+char lookup[1 << 8];
+char lookupBig[1 << 16];
 long long t0;
 
 void markTime() {
