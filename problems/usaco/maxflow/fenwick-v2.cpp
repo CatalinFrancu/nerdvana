@@ -1,3 +1,6 @@
+// An improvement over v1. Store two new linked lists in every node u, one for
+// paths beginning at u and one for paths ending at u. This simplifies the
+// implementation considerably.
 #include <algorithm>
 #include <stdio.h>
 
