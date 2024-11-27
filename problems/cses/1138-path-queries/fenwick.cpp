@@ -1,7 +1,6 @@
 #include <stdio.h>
 
 const int MAX_NODES = 200'000;
-const int NIL = -1;
 
 struct list {
   int val, next;
@@ -50,7 +49,7 @@ fenwick_tree fen;
 int num_nodes, num_queries;
 
 void add_neighbor(int u, int v) {
-  static int ptr = 0;
+  static int ptr = 1;
   adj[ptr] = { v, n[u].ptr };
   n[u].ptr = ptr++;
 }
@@ -59,7 +58,6 @@ void read_input_data() {
   scanf("%d %d", &num_nodes, &num_queries);
   for (int u = 1; u <= num_nodes; u++) {
     scanf("%d", &n[u].val);
-    n[u].ptr = NIL;
   }
 
   for (int i = 0; i < num_nodes - 1; i++) {
@@ -70,15 +68,15 @@ void read_input_data() {
   }
 }
 
-void compute_ranges(int u) {
+void flatten(int u) {
   static int time = 0;
 
   n[u].time_in = ++time;
 
-  for (int ptr = n[u].ptr; ptr != NIL; ptr = adj[ptr].next) {
+  for (int ptr = n[u].ptr; ptr; ptr = adj[ptr].next) {
     int v = adj[ptr].val;
     if (!n[v].time_in) {
-      compute_ranges(v);
+      flatten(v);
     }
   }
 
@@ -113,7 +111,7 @@ void process_queries() {
 
 int main() {
   read_input_data();
-  compute_ranges(1);
+  flatten(1);
   build_fenwick_tree();
   process_queries();
 
