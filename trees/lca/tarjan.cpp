@@ -31,7 +31,7 @@ struct cell {
 
 struct node {
   int ptr, qptr; // adjacency list and query list
-  int parent;
+  bool visited;
 };
 
 struct query {
@@ -74,13 +74,13 @@ void read_input_data() {
   }
 }
 
-void offline_lca(int u, int parent) {
-  nd[u].parent = parent;
+void offline_lca(int u) {
+  nd[u].visited = true;
 
   for (int ptr = nd[u].ptr; ptr; ptr = list[ptr].next) {
     int v = list[ptr].val;
-    if (v != parent) {
-      offline_lca(v, u);
+    if (!nd[v].visited) {
+      offline_lca(v);
       dsf.unite(u, v);
     }
   }
@@ -88,7 +88,7 @@ void offline_lca(int u, int parent) {
   for (int ptr = nd[u].qptr; ptr; ptr = qlist[ptr].next) {
     int i = qlist[ptr].val;
     int v = (q[i].u == u) ? q[i].v : q[i].u;
-    if (nd[v].parent) {
+    if (nd[v].visited) {
       q[i].lca = dsf.find(v);
     }
   }
@@ -103,7 +103,7 @@ void answer_queries() {
 int main() {
   read_input_data();
   dsf.init(n);
-  offline_lca(1, 0);
+  offline_lca(1);
   answer_queries();
 
   return 0;
