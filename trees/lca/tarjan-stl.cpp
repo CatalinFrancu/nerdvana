@@ -1,5 +1,6 @@
 // Answer LCA queries using Tarjan's offline algorithm.
 #include <stdio.h>
+#include <vector>
 
 const int MAX_NODES = 500'000;
 const int MAX_QUERIES = 500'000;
@@ -25,12 +26,8 @@ struct disjoint_set_forest {
   }
 };
 
-struct cell {
-  int val, next;
-};
-
 struct node {
-  int ptr, qptr; // adjacency list and query list
+  std::vector<int> adj, queries;
   int parent;
 };
 
@@ -38,55 +35,39 @@ struct query {
   int u, v, lca;
 };
 
-cell list[2 * MAX_NODES];
-cell qlist[2 * MAX_QUERIES];
 node nd[MAX_NODES + 1];
 query q[MAX_QUERIES];
-disjoint_set_forest dsf;
+disjoint_set_forest  dsf;
 int n, num_queries;
-
-void add_edge(int u, int v) {
-  static int pos = 1;
-  list[pos] = { v, nd[u].ptr };
-  nd[u].ptr = pos++;
-}
-
-void add_query(int ind, int u) {
-  static int pos = 1;
-  qlist[pos] = { ind, nd[u].qptr };
-  nd[u].qptr = pos++;
-}
 
 void read_input_data() {
   scanf("%d", &n);
   for (int i = 0; i < n - 1; i++) {
     int u, v;
     scanf("%d %d", &u, &v);
-    add_edge(u, v);
-    add_edge(v, u);
+    nd[u].adj.push_back(v);
+    nd[v].adj.push_back(u);
   }
 
   scanf("%d", &num_queries);
   for (int i = 0; i < num_queries; i++) {
     scanf("%d %d", &q[i].u, &q[i].v);
-    add_query(i, q[i].u);
-    add_query(i, q[i].v);
+    nd[q[i].u].queries.push_back(i);
+    nd[q[i].v].queries.push_back(i);
   }
 }
 
 void offline_lca(int u, int parent) {
   nd[u].parent = parent;
 
-  for (int ptr = nd[u].ptr; ptr; ptr = list[ptr].next) {
-    int v = list[ptr].val;
+  for (int v: nd[u].adj) {
     if (v != parent) {
       offline_lca(v, u);
       dsf.unite(u, v);
     }
   }
 
-  for (int ptr = nd[u].qptr; ptr; ptr = qlist[ptr].next) {
-    int i = qlist[ptr].val;
+  for (int i: nd[u].queries) {
     int v = (q[i].u == u) ? q[i].v : q[i].u;
     if (nd[v].parent) {
       q[i].lca = dsf.find(v);
