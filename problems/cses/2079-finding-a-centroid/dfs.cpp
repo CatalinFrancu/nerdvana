@@ -12,19 +12,19 @@ struct node {
 };
 
 cell list[2 * MAX_NODES];
-node n[MAX_NODES + 1];
-int num_nodes;
+node nd[MAX_NODES + 1];
+int n;
 
 void add_child(int u, int v) {
   static int pos = 1;
-  list[pos] = { v, n[u].adj };
-  n[u].adj = pos++;
+  list[pos] = { v, nd[u].adj };
+  nd[u].adj = pos++;
 }
 
 void read_input_data() {
-  scanf("%d", &num_nodes);
+  scanf("%d", &n);
 
-  for (int i = 1; i < num_nodes; i++) {
+  for (int i = 1; i < n; i++) {
     int u, v;
     scanf("%d %d", &u, &v);
     add_child(u, v);
@@ -33,21 +33,21 @@ void read_input_data() {
 }
 
 void size_dfs(int u) {
-  n[u].size = 1;
+  nd[u].size = 1;
 
-  for (int ptr = n[u].adj; ptr; ptr = list[ptr].next) {
+  for (int ptr = nd[u].adj; ptr; ptr = list[ptr].next) {
     int v = list[ptr].v;
-    if (!n[v].size) {
+    if (!nd[v].size) {
       size_dfs(v);
-      n[u].size += n[v].size;
+      nd[u].size += nd[v].size;
     }
   }
 }
 
 int get_heavy_child(int u, int parent) {
-  for (int ptr = n[u].adj; ptr; ptr = list[ptr].next) {
+  for (int ptr = nd[u].adj; ptr; ptr = list[ptr].next) {
     int v = list[ptr].v;
-    if ((v != parent) && (n[v].size > num_nodes / 2)) {
+    if ((v != parent) && (nd[v].size > n / 2)) {
       return v;
     }
   }
