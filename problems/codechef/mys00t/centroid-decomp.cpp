@@ -13,25 +13,25 @@ struct node {
 };
 
 cell list[2 * MAX_NODES];
-node n[MAX_NODES + 1];
-int num_nodes, list_ptr;
+node nd[MAX_NODES + 1];
+int n, list_ptr;
 
 void add_child(int u, int v) {
-  list[list_ptr] = { v, n[u].adj };
-  n[u].adj = list_ptr++;
+  list[list_ptr] = { v, nd[u].adj };
+  nd[u].adj = list_ptr++;
 }
 
 void read_tree() {
-  scanf("%d", &num_nodes);
+  scanf("%d", &n);
 
   // wipe adjacency lists
-  for (int u = 1; u <= num_nodes; u++) {
-    n[u].adj = 0;
-    n[u].dead = false;
+  for (int u = 1; u <= n; u++) {
+    nd[u].adj = 0;
+    nd[u].dead = false;
   }
   list_ptr = 1;
 
-  for (int i = 1; i < num_nodes; i++) {
+  for (int i = 1; i < n; i++) {
     int u, v;
     scanf("%d %d", &u, &v);
     add_child(u, v);
@@ -40,21 +40,21 @@ void read_tree() {
 }
 
 void size_dfs(int u, int parent) {
-  n[u].size = 1;
+  nd[u].size = 1;
 
-  for (int ptr = n[u].adj; ptr; ptr = list[ptr].next) {
+  for (int ptr = nd[u].adj; ptr; ptr = list[ptr].next) {
     int v = list[ptr].v;
-    if ((v != parent) && !n[v].dead) {
+    if ((v != parent) && !nd[v].dead) {
       size_dfs(v, u);
-      n[u].size += n[v].size;
+      nd[u].size += nd[v].size;
     }
   }
 }
 
 int get_heavy_child(int u, int parent, int limit) {
-  for (int ptr = n[u].adj; ptr; ptr = list[ptr].next) {
+  for (int ptr = nd[u].adj; ptr; ptr = list[ptr].next) {
     int v = list[ptr].v;
-    if ((v != parent) && !n[v].dead && (n[v].size > limit)) {
+    if ((v != parent) && !nd[v].dead && (nd[v].size > limit)) {
       return v;
     }
   }
@@ -62,7 +62,7 @@ int get_heavy_child(int u, int parent, int limit) {
 }
 
 int find_centroid(int u) {
-  int size_limit = n[u].size / 2;
+  int size_limit = nd[u].size / 2;
   int parent = 0;
   int child;
 
@@ -84,7 +84,7 @@ void solve(int u) {
     printf("1 %d\n", u);
     fflush(stdout);
 
-    n[u].dead = true;
+    nd[u].dead = true;
     prev = u;
     scanf("%d", &u);
   }
