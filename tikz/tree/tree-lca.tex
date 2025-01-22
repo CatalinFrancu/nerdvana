@@ -3,6 +3,9 @@
 \usepackage{forest}
 \usetikzlibrary{matrix}
 
+\tikzstyle{endpoint}=[ fill=red!20 ]
+\tikzstyle{spanned}=[ fill=blue!20 ]
+
 \begin{document}
 
 \begin{tikzpicture}
@@ -24,14 +27,14 @@
       child {node {4}}
       child {node {9}}
     }
-    child {node {5}
-      child {node {11}
-        child {node {2}}
-        child {node {14}}
-        child {node {6}}
+    child {node[spanned] {5}
+      child {node[spanned] {11}
+        child {node[endpoint] {2}}
+        child {node[spanned] {14}}
+        child {node[spanned] {6}}
       }
-      child {node {3}
-        child {node {13}
+      child {node[spanned] {3}
+        child {node[endpoint] {13}
           child {node {10}}
         }
         child {node {8}}
@@ -59,8 +62,11 @@
       column sep=-\pgflinewidth,
       row sep=-\pgflinewidth
     ] {
-      1 & 7 & 4 & 7 & 9 & 7 & 1 & 5 & 11 & 2 & 11 & 14 & 11 & 6 & 11 & 5 & 3 &
-      13 & 10 & 13 & 3 & 8 & 3 & 5 & 1 & 12 & 1\\
+      1 & 7 & 4 & 7 & 9 & 7 & 1 & 5 & 11 & \node[endpoint]{2}; &
+      \node[spanned]{11}; & \node[spanned]{14}; & \node[spanned]{11}; &
+      \node[spanned]{6}; & \node[spanned]{11}; & \node[spanned]{5}; &
+      \node[spanned]{3}; & \node[endpoint]{13}; & 10 & 13 & 3 & 8 & 3 & 5 & 1
+      & 12 & 1\\
     };
 
     % Third row: depths
@@ -72,9 +78,11 @@
       column sep=-\pgflinewidth,
       row sep=-\pgflinewidth
     ] {
-      0 & 1 & 2 & 1 & 2 & 1 & 0 & 1 & 2 & 3 & 2 & 3 & 2 & 3 & 2 & 1 & 2 & 3 &
-      4 & 3 & 2 & 3 & 2 & 1 & 0 & 1 & 0\\
-    };
+      0 & 1 & 2 & 1 & 2 & 1 & 0 & 1 & 2 & \node[endpoint]{3}; &
+      \node[spanned]{2}; & \node[spanned]{3}; & \node[spanned]{2}; &
+      \node[spanned]{3}; & \node[spanned]{2}; & \node[spanned]{1}; &
+      \node[spanned]{2}; & \node[endpoint]{3}; & 4 & 3 & 2 & 3 & 2 & 1 & 0 & 1
+      & 0\\ };
   \end{scope}
 \end{tikzpicture}
 
