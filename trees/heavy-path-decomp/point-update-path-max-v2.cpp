@@ -14,7 +14,7 @@ struct node {
   int parent;
   int heavy;  // the child with the largest subtree
   int head;   // the top of our path
-  int pos;    // DFS time
+  int tin;    // DFS time
 };
 
 node nd[MAX_NODES + 1];
@@ -34,7 +34,7 @@ struct segment_tree {
   void init(int n) {
     this->n = next_power_of_2(n);
     for (int u = 1; u <= n; u++) {
-      v[nd[u].pos + this->n] = nd[u].val;
+      v[nd[u].tin + this->n] = nd[u].val;
     }
     for (int pos = this->n - 1; pos; pos--) {
       v[pos] = max(v[2 * pos], v[2 * pos + 1]);
@@ -123,7 +123,7 @@ void decompose_dfs(int u, int head) {
   static int time = 0;
 
   nd[u].head = head;
-  nd[u].pos = time++;
+  nd[u].tin = time++;
 
   if (nd[u].heavy) {
     decompose_dfs(nd[u].heavy, head);
@@ -144,7 +144,7 @@ int query(int u, int v) {
     if (nd[nd[v].head].depth > nd[nd[u].head].depth) {
       int tmp = u; u = v; v = tmp;
     }
-    result = max(result, segtree.rmq(nd[nd[u].head].pos, nd[u].pos));
+    result = max(result, segtree.rmq(nd[nd[u].head].tin, nd[u].tin));
     // Jumping to the head's *parent* puts us on a new path.
     u = nd[nd[u].head].parent;
   }
@@ -153,7 +153,7 @@ int query(int u, int v) {
   if (nd[u].depth > nd[v].depth) {
     int tmp = u; u = v; v = tmp;
   }
-  result = max(result, segtree.rmq(nd[u].pos, nd[v].pos));
+  result = max(result, segtree.rmq(nd[u].tin, nd[v].tin));
 
   return result;
 }
@@ -165,7 +165,7 @@ void process_queries() {
     if (t) {
       fprintf(fout, "%d\n", query(x, y));
     } else {
-      segtree.update(nd[x].pos, y);
+      segtree.update(nd[x].tin, y);
     }
   }
 }
