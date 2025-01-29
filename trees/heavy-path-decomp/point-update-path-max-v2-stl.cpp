@@ -1,14 +1,11 @@
-// Same as v1, but uses a single segment tree.
+// Same as v2, but uses STL vectors for adjacency lists.
 #include <stdio.h>
+#include <vector>
 
 const int MAX_NODES = 1 << 17;
 
-struct cell {
-  int v, next;
-};
-
 struct node {
-  int adj;
+  std::vector<int> adj;
   int val;
   int depth;
   int parent;
@@ -23,10 +20,6 @@ int next_power_of_2(int x) {
   return 1 << (32 - __builtin_clz(x - 1));
 }
 
-int max(int x, int y) {
-  return (x > y) ? x : y;
-}
-
 struct segment_tree {
   int v[2 * MAX_NODES];
   int n;
@@ -37,7 +30,7 @@ struct segment_tree {
       v[nd[u].pos + this->n] = nd[u].val;
     }
     for (int pos = this->n - 1; pos; pos--) {
-      v[pos] = max(v[2 * pos], v[2 * pos + 1]);
+      v[pos] = std::max(v[2 * pos], v[2 * pos + 1]);
     }
   }
 
@@ -45,7 +38,7 @@ struct segment_tree {
     pos += n;
     v[pos] = val;
     for (pos /= 2; pos; pos /= 2) {
-      v[pos] = max(v[2 * pos], v[2 * pos + 1]);
+      v[pos] = std::max(v[2 * pos], v[2 * pos + 1]);
     }
   }
 
@@ -57,12 +50,12 @@ struct segment_tree {
 
     while (l <= r)  {
       if (l & 1) {
-        result = max(result, v[l++]);
+        result = std::max(result, v[l++]);
       }
       l >>= 1;
 
       if (!(r & 1)) {
-        result = max(result, v[r--]);
+        result = std::max(result, v[r--]);
       }
       r >>= 1;
     }
@@ -71,16 +64,9 @@ struct segment_tree {
   }
 };
 
-cell list[2 * MAX_NODES];
 segment_tree segtree;
 int n, num_queries;
 FILE *fin, *fout;
-
-void add_edge(int u, int v) {
-  static int pos = 1;
-  list[pos] = { v, nd[u].adj };
-  nd[u].adj = pos++;
-}
 
 void read_data() {
   fscanf(fin, "%d %d", &n, &num_queries);
@@ -91,8 +77,8 @@ void read_data() {
   for (int i = 0; i < n - 1; i++) {
     int u, v;
     fscanf(fin, "%d %d", &u, &v);
-    add_edge(u, v);
-    add_edge(v, u);
+    nd[u].adj.push_back(v);
+    nd[v].adj.push_back(u);
   }
 }
 
@@ -100,8 +86,7 @@ void read_data() {
 int heavy_dfs(int u) {
   int my_size = 1, max_child_size = 0;
 
-  for (int ptr = nd[u].adj; ptr; ptr = list[ptr].next) {
-    int v = list[ptr].v;
+  for (int v: nd[u].adj) {
     if (v != nd[u].parent) {
 
       nd[v].parent = u;
@@ -129,8 +114,7 @@ void decompose_dfs(int u, int head) {
     decompose_dfs(nd[u].heavy, head);
   }
 
-  for (int ptr = nd[u].adj; ptr; ptr = list[ptr].next) {
-    int v = list[ptr].v;
+  for (int v: nd[u].adj) {
     if (v != nd[u].parent && v != nd[u].heavy) {
       decompose_dfs(v, v); // start a new path
     }
@@ -144,7 +128,7 @@ int query(int u, int v) {
     if (nd[nd[v].head].depth > nd[nd[u].head].depth) {
       int tmp = u; u = v; v = tmp;
     }
-    result = max(result, segtree.rmq(nd[nd[u].head].pos, nd[u].pos));
+    result = std::max(result, segtree.rmq(nd[nd[u].head].pos, nd[u].pos));
     // Jumping to the head's *parent* puts us on a new path.
     u = nd[nd[u].head].parent;
   }
@@ -153,7 +137,7 @@ int query(int u, int v) {
   if (nd[u].depth > nd[v].depth) {
     int tmp = u; u = v; v = tmp;
   }
-  result = max(result, segtree.rmq(nd[u].pos, nd[v].pos));
+  result = std::max(result, segtree.rmq(nd[u].pos, nd[v].pos));
 
   return result;
 }
