@@ -8,6 +8,7 @@ function main(array $argv): void {
   $fileName = getFileName($argv);
   $doc = prepareDoc($fileName);
   $tests = getTests($doc);
+  filterTruncatedTests($tests);
   writeTests($tests);
 }
 
@@ -55,6 +56,10 @@ function getTests(DOMDocument $doc): array {
     ];
   }
 
+  // reindex from 1
+  array_unshift($results, 'ignored');
+  unset($results[0]);
+
   return $results;
 }
 
@@ -63,11 +68,16 @@ function canonicalize(string $s): string {
   return $s;
 }
 
-function writeTests(array $tests): void {
-  // reindex from 1
-  array_unshift($tests, 'ignored');
-  unset($tests[0]);
+function filterTruncatedTests(array& $tests): void {
+  foreach ($tests as $i => $test) {
+    if (str_contains($test[0], '...') || str_contains($test[1], '...')) {
+      print "Skipping test #{$i} because it is truncated.\n";
+      unset($tests[$i]);
+    }
+  }
+}
 
+function writeTests(array $tests): void {
   @mkdir('test');
 
   foreach ($tests as $testNo => $test) {
