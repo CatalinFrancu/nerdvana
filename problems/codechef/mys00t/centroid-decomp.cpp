@@ -1,49 +1,38 @@
 #include <stdio.h>
+#include <vector>
 
 const int MAX_NODES = 200'000;
 
-struct cell {
-  int v, next;
-};
-
 struct node {
-  int adj;
+  std::vector<int> adj;
   int size;
   bool dead;
 };
 
-cell list[2 * MAX_NODES];
 node nd[MAX_NODES + 1];
-int n, list_ptr;
-
-void add_child(int u, int v) {
-  list[list_ptr] = { v, nd[u].adj };
-  nd[u].adj = list_ptr++;
-}
+int n;
 
 void read_tree() {
   scanf("%d", &n);
 
   // wipe adjacency lists
   for (int u = 1; u <= n; u++) {
-    nd[u].adj = 0;
+    nd[u].adj.clear();
     nd[u].dead = false;
   }
-  list_ptr = 1;
 
   for (int i = 1; i < n; i++) {
     int u, v;
     scanf("%d %d", &u, &v);
-    add_child(u, v);
-    add_child(v, u);
+    nd[u].adj.push_back(v);
+    nd[v].adj.push_back(u);
   }
 }
 
 void size_dfs(int u, int parent) {
   nd[u].size = 1;
 
-  for (int ptr = nd[u].adj; ptr; ptr = list[ptr].next) {
-    int v = list[ptr].v;
+  for (int v: nd[u].adj) {
     if ((v != parent) && !nd[v].dead) {
       size_dfs(v, u);
       nd[u].size += nd[v].size;
@@ -51,24 +40,11 @@ void size_dfs(int u, int parent) {
   }
 }
 
-int get_heavy_child(int u, int parent, int limit) {
-  for (int ptr = nd[u].adj; ptr; ptr = list[ptr].next) {
-    int v = list[ptr].v;
-    if ((v != parent) && !nd[v].dead && (nd[v].size > limit)) {
-      return v;
+int find_centroid(int u, int limit) {
+  for (int v: nd[u].adj) {
+    if ((nd[v].size < nd[u].size) && (nd[v].size > limit)) {
+      return find_centroid(v, limit);
     }
-  }
-  return 0;
-}
-
-int find_centroid(int u) {
-  int size_limit = nd[u].size / 2;
-  int parent = 0;
-  int child;
-
-  while ((child = get_heavy_child(u, parent, size_limit)) != 0) {
-    parent = u;
-    u = child;
   }
 
   return u;
@@ -79,7 +55,7 @@ void solve(int u) {
 
   while (u != -1) {
     size_dfs(u, 0);
-    u = find_centroid(u);
+    u = find_centroid(u, nd[u].size / 2);
 
     printf("1 %d\n", u);
     fflush(stdout);
