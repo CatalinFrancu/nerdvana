@@ -1,25 +1,15 @@
 #include <stdio.h>
+#include <vector>
 
 const int MAX_NODES = 200'000;
 
-struct cell {
-  int v, next;
-};
-
 struct node {
-  int adj;
+  std::vector<int> adj;
   int size;
 };
 
-cell list[2 * MAX_NODES];
 node nd[MAX_NODES + 1];
 int n;
-
-void add_child(int u, int v) {
-  static int pos = 1;
-  list[pos] = { v, nd[u].adj };
-  nd[u].adj = pos++;
-}
 
 void read_input_data() {
   scanf("%d", &n);
@@ -27,16 +17,15 @@ void read_input_data() {
   for (int i = 1; i < n; i++) {
     int u, v;
     scanf("%d %d", &u, &v);
-    add_child(u, v);
-    add_child(v, u);
+    nd[u].adj.push_back(v);
+    nd[v].adj.push_back(u);
   }
 }
 
 void size_dfs(int u) {
   nd[u].size = 1;
 
-  for (int ptr = nd[u].adj; ptr; ptr = list[ptr].next) {
-    int v = list[ptr].v;
+  for (int v: nd[u].adj) {
     if (!nd[v].size) {
       size_dfs(v);
       nd[u].size += nd[v].size;
@@ -44,31 +33,21 @@ void size_dfs(int u) {
   }
 }
 
-int get_heavy_child(int u, int parent) {
-  for (int ptr = nd[u].adj; ptr; ptr = list[ptr].next) {
-    int v = list[ptr].v;
-    if ((v != parent) && (nd[v].size > n / 2)) {
-      return v;
+int find_centroid(int u) {
+  for (int v: nd[u].adj) {
+    if ((nd[v].size < nd[u].size) && (nd[v].size > n / 2)) {
+      return find_centroid(v);
     }
   }
-  return 0;
-}
 
-void find_centroid() {
-  int u = 1, parent = 0, child;
-
-  while ((child = get_heavy_child(u, parent)) != 0) {
-    parent = u;
-    u = child;
-  }
-
-  printf("%d\n", u);
+  return u;
 }
 
 int main() {
   read_input_data();
   size_dfs(1);
-  find_centroid();
+  int c = find_centroid(1);
+  printf("%d\n", c);
 
   return 0;
 }
