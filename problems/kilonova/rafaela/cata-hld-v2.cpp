@@ -16,7 +16,6 @@ struct node {
   int heavy;      // fiul cu cel mai mare subarbore
   int head;       // începutul lanțului nostru
   int pos;        // momentul descoperirii în dfs
-  int init_pop;   // populația inițială
   std::multiset<int> set;
 };
 
@@ -42,10 +41,6 @@ struct fenwick_tree {
   void range_add(int l, int r, int val) {
     add(l, val);
     add(r + 1, -val);
-  }
-
-  void point_add(int pos, int val) {
-    range_add(pos, pos, val);
   }
 
   int get(int pos) {
@@ -78,11 +73,6 @@ void read_tree() {
     add_edge(u, v);
     add_edge(v, u);
   }
-
-  for (int u = 1; u <= n; u++) {
-    fscanf(fin, "%d", &nd[u].init_pop);
-    total_pop += nd[u].init_pop;
-  }
 }
 
 int heavy_dfs(int u) {
@@ -95,7 +85,6 @@ int heavy_dfs(int u) {
       nd[v].parent = u;
       int child_size = heavy_dfs(v);
       my_size += child_size;
-      nd[u].init_pop += nd[v].init_pop;
       if (child_size > max_child_size) {
         max_child_size = child_size;
         nd[u].heavy = v;
@@ -112,7 +101,6 @@ void decompose_dfs(int u, int head) {
 
   nd[u].head = head;
   nd[u].pos = time++;
-  fen.point_add(nd[u].pos, nd[u].init_pop);
 
   if (nd[u].heavy) {
     decompose_dfs(nd[u].heavy, head);
@@ -163,6 +151,14 @@ int query(int u) {
   return max_flow;
 }
 
+void read_initial_pop() {
+  int pop;
+  for (int u = 1; u <= n; u++) {
+    fscanf(fin, "%d", &pop);
+    update(u, pop);
+  }
+}
+
 void process_ops() {
   char type;
   int u, delta;
@@ -187,6 +183,7 @@ int main() {
   fen.init(n);
   heavy_dfs(1);
   decompose_dfs(1, 1);
+  read_initial_pop();
   process_ops();
 
   fclose(fin);
