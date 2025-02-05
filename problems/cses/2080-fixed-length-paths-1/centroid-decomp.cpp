@@ -11,10 +11,11 @@ struct node {
 
 node nd[MAX_NODES + 1];
 int freq[MAX_NODES];
-int n, length;
+int length;
 long long answer;
 
 void read_input_data() {
+  int n;
   scanf("%d %d", &n, &length);
 
   for (int i = 1; i < n; i++) {
