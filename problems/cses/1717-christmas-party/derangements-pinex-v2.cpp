@@ -14,7 +14,7 @@ int count_derangements(int n) {
     n_fact_over_i_fact = n_fact_over_i_fact * i % MOD;
   }
 
-  return sum;
+  return (sum + MOD) % MOD;
 }
 
 int main() {
