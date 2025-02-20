@@ -1,7 +1,5 @@
 <?php
 
-// TODO: Filter out tests with truncated input / output.
-
 main($argv);
 
 function main(array $argv): void {
