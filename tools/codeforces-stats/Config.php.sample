@@ -1,0 +1,27 @@
+<?php
+
+class Config {
+
+  const CODEFORCES_URL = 'https://codeforces.com/api/';
+  const SUBMISSION_URL = 'https://codeforces.com/contest/%s/submission/%d';
+
+  // Your Codeforces API key and secret obtained from https://codeforces.com/settings/api
+  const CODEFORCES_KEY = 'your_api_key';
+  const CODEFORCES_SECRET = 'your_api_secret';
+
+  // Tasks to monitor. The name is for display purposes only.
+  const CODEFORCES_TASKS = [
+    [ 'contest' => '12', 'index' => 'D', 'name' => 'Ball' ],
+    // ...
+  ];
+
+  // Users to monitor. For every user we'll create a file under data/ using
+  // the key below. The value is the actual Codeforces username.
+  const USERS = [
+    'catalin_francu' => [ 'codeforces' => 'catalin.francu' ],
+    // ...
+  ];
+
+  // Path relative to the .php files. %s will be replaced by the above key.
+  const SAVE_PATH = 'data/%s.json';
+}
