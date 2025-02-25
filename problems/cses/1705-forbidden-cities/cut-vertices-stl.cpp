@@ -25,19 +25,16 @@
 // Regardless of the results, C clears its notifications before recursing on
 // the next DFS child.
 #include <stdio.h>
+#include <vector>
 
 const int MAX_NODES = 100'000;
 const int MAX_EDGES = 200'000;
 const int MAX_QUERIES = 100'000;
 
-struct cell {
-  int val, next;
-};
-
 struct node {
-  int adj;           // my adjacency list
-  int queries;       // queries in which I am an endpoint
-  int notifications; // queries in which I am the center
+  std::vector<int> adj;           // my adjacency list
+  std::vector<int> queries;       // queries in which I am an endpoint
+  std::vector<int> notifications; // queries in which I am the center
   int tin, tout;
   int low;
   bool notify_me;
@@ -49,29 +46,8 @@ struct query {
 };
 
 node nd[MAX_NODES + 1];
-cell edge_buf[2 * MAX_EDGES + 1];
-cell query_buf[2 * MAX_QUERIES + 1];
-cell notif_buf[2 * MAX_QUERIES + 1];
 query q[MAX_QUERIES + 1];
 int n, num_queries;
-
-void add_edge(int u, int v) {
-  static int pos = 1;
-  edge_buf[pos] = { v, nd[u].adj };
-  nd[u].adj = pos++;
-}
-
-void add_query(int u, int qindex) {
-  static int pos = 1;
-  query_buf[pos] = { qindex, nd[u].queries };
-  nd[u].queries = pos++;
-}
-
-void add_notification(int u, int qindex) {
-  static int pos = 1;
-  notif_buf[pos] = { qindex, nd[u].notifications };
-  nd[u].notifications = pos++;
-}
 
 void read_data() {
   int num_edges, u, v;
@@ -79,14 +55,14 @@ void read_data() {
 
   while (num_edges--) {
     scanf("%d %d", &u, &v);
-    add_edge(u, v);
-    add_edge(v, u);
+    nd[u].adj.push_back(v);
+    nd[v].adj.push_back(u);
   }
 
   for (int i = 1; i <= num_queries; i++) {
     scanf("%d %d %d", &q[i].a, &q[i].b, &q[i].c);
-    add_query(q[i].a, i);
-    add_query(q[i].b, i);
+    nd[q[i].a].queries.push_back(i);
+    nd[q[i].b].queries.push_back(i);
   }
 }
 
@@ -99,18 +75,16 @@ bool is_ancestor(int u, int v) {
 }
 
 void send_notifications(int u) {
-  for (int ptr = nd[u].queries; ptr; ptr = query_buf[ptr].next) {
-    int ind = query_buf[ptr].val;
+  for (int ind: nd[u].queries) {
     int c = q[ind].c;
     if (nd[c].notify_me) {
-      add_notification(c, ind);
+      nd[c].notifications.push_back(ind);
     }
   }
 }
 
 void receive_notifications(int u, int child) {
-  for (int ptr = nd[u].notifications; ptr; ptr = notif_buf[ptr].next) {
-    int ind = notif_buf[ptr].val;
+  for (int ind: nd[u].notifications) {
     if (is_ancestor(child, q[ind].a) ^ is_ancestor(child, q[ind].b)) {
       q[ind].red_flag = true;
     }
@@ -118,7 +92,7 @@ void receive_notifications(int u, int child) {
 }
 
 void clear_notifications(int u) {
-  nd[u].notifications = 0;
+  nd[u].notifications.clear();
 }
 
 void dfs(int u, int parent) {
@@ -126,8 +100,7 @@ void dfs(int u, int parent) {
   nd[u].tin = nd[u].low = ++time;
   nd[u].notify_me = true;
 
-  for (int ptr = nd[u].adj; ptr; ptr = edge_buf[ptr].next) {
-    int v = edge_buf[ptr].val;
+  for (int v: nd[u].adj) {
     if (!nd[v].tin) {
       dfs(v, u);
       nd[u].low = min(nd[u].low, nd[v].low);
