@@ -51,4 +51,17 @@ class Submission {
   function getContest(): string {
     return substr($this->taskId, 0, -1);
   }
+
+  function toString(): string {
+    $url = sprintf(Config::SUBMISSION_URL, $this->getContest(), $this->id);
+    $s = sprintf("task %s | timestamp %d | verdict %s | passed tests %d | time %d | memory %d | url %s",
+                 $this->taskId,
+                 $this->timestamp,
+                 $this->verdict,
+                 $this->passedTestCount,
+                 $this->time,
+                 $this->memory,
+                 $url);
+    return $s;
+  }
 }

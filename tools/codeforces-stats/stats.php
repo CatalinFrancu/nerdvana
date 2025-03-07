@@ -7,6 +7,7 @@ require_once 'Config.php';
 
 require_once 'Args.php';
 require_once 'CodeforcesRequest.php';
+require_once 'Reporter.php';
 require_once 'StatsCollector.php';
 require_once 'Submission.php';
 require_once 'Task.php';
@@ -21,6 +22,7 @@ function main(): void {
     $collector = new StatsCollector();
     $collector->run();
   } else {
-    var_dump('report');
+    $reporter = new Reporter();
+    $reporter->run();
   }
 }

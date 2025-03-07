@@ -12,7 +12,7 @@ class StatsCollector {
     }
   }
 
-  function run() {
+  function run(): void {
     $this->tasks = Task::loadFromConfig();
     $this->buildTaskIds();
     $this->users = User::loadFromConfig();

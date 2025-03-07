@@ -43,7 +43,7 @@ class User {
         $this->lastSavedTimestamp = $sub->timestamp;
         $this->submissions[] = $sub;
       }
-      printf("Loaded %d submissions.\n", count($this->submissions));
+      // printf("Loaded %d submissions.\n", count($this->submissions));
     }
   }
 
@@ -64,15 +64,7 @@ class User {
     if (count($subs)) {
       foreach ($subs as $sub) {
         $this->submissions[] = $sub;
-        $url = sprintf(Config::SUBMISSION_URL, $sub->getContest(), $sub->id);
-        printf("    task %s | timestamp %d | verdict %s | passed tests %d | time %d | memory %d | url %s\n",
-               $sub->taskId,
-               $sub->timestamp,
-               $sub->verdict,
-               $sub->passedTestCount,
-               $sub->time,
-               $sub->memory,
-               $url);
+        printf("    %s\n", $sub->toString());
       }
       $this->saveData();
     }
