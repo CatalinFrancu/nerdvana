@@ -46,7 +46,7 @@ function getTests(DOMDocument $doc): array {
   foreach ($testNodes as $testNode) {
     $inQuery = 'div[@class="file input-view"]/div[@class="text"]/pre[@class="input"]';
     $in = $xpath->query($inQuery, $testNode)->item(0);
-    $outQuery = 'div[@class="file output-view"]/div[@class="text"]/pre[@class="output"]';
+    $outQuery = 'div[@class="file answer-view"]/div[@class="text"]/pre[@class="answer"]';
     $out = $xpath->query($outQuery, $testNode)->item(0);
     $results[] = [
       canonicalize($in->nodeValue),
