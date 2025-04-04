@@ -16,7 +16,7 @@ class Submission {
     $s->id = $json->id;
     $s->taskId = $json->problem->contestId . $json->problem->index;
     $s->timestamp = $json->creationTimeSeconds;
-    $s->verdict = $json->verdict;
+    $s->verdict = $json->verdict ?? "In queue";
     $s->passedTestCount = $json->passedTestCount;
     $s->time = $json->timeConsumedMillis;
     $s->memory = $json->memoryConsumedBytes;
