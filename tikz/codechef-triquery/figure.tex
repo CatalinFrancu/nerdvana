@@ -1,0 +1,31 @@
+% compile with: pdflatex -shell-escape filename.tex
+\documentclass[convert=pdf2svg]{standalone}
+\usepackage{tikz}
+
+\tikzset{
+  zone/.style = {font=\Large, minimum size=44pt},
+}
+
+\begin{document}
+\begin{tikzpicture}
+
+  \draw[semithick] (0, 0) -- (5, 0);
+  \draw[semithick] (0, 0) -- (0, 5);
+  \draw[semithick] (-1.5, 4) -- (4, -1.5);
+  \draw[semithick] (-1.5, 1.5) -- (1.5, -1.5);
+
+  \node at (-0.3, -0.3) {$(x,y)$};
+  \node at (-0.2, 1.5) {$d$};
+  \node at (1.5, -0.2) {$d$};
+
+  \node[zone] at (-0.75, 4.25) {$A$};
+  \node[zone] at (2.5, 2.5) {$B$};
+  \node[zone] at (4.25, -0.75) {$C$};
+
+  \node[zone] at (-0.75, 2.25) {$D$};
+  \node[zone] at (0.75, 0.75) {$E$};
+  \node[zone] at (2.25, -0.75) {$F$};
+
+\end{tikzpicture}
+
+\end{document}
