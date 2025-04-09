@@ -21,11 +21,11 @@ struct segment {
       // This segment is *not* under o if (x2,y2) falls onto o, i.e. if
       // (o.x1,o.y1), (o.x2,o.y2) and (x2,y2) are in clockwise order.
       return orientation(o.x1, o.y1, o.x2, o.y2, x2, y2) < 0;
-		} else {
+    } else {
       // This segment *is* under o if (o.x2,o.y2) falls onto this segment,
       // i.e. if (x1,y1), (x2,y2) and (o.x2,o.y2) are in clockwise order.
       return orientation(x1, y1, x2, y2, o.x2, o.y2) > 0;
-		}
+    }
   }
 };
 
