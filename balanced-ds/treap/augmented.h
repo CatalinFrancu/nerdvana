@@ -1,5 +1,3 @@
-const int NIL = 0;
-
 struct treap_node {
   int key, pri;
   int cnt;
