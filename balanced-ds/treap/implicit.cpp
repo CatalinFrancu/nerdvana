@@ -6,7 +6,6 @@
 
 const int MAX_NODES = 1'000;
 const int MAX_VAL = 1'000'000;
-const int NIL = 0;
 
 struct node {
   int val, pri;
@@ -15,16 +14,16 @@ struct node {
 };
 
 struct treap {
-  node v[10 * MAX_NODES + 2]; // no garbage collection
-  int n;
+  node v[10 * MAX_NODES + 1]; // no garbage collection
+  int n, root;
 
   node make_node(int val, int pri) {
-    return { .val = val, .pri = pri, .cnt = 1, .l = NIL, .r = NIL };
+    return { .val = val, .pri = pri, .cnt = 1, .l = 0, .r = 0 };
   }
 
   void init() {
-    v[1] = make_node(MAX_VAL, RAND_MAX);
-    n = 2;
+    n = 1; // mark node 0 as used since we use 0 to mean NULL
+    root = 0;
   }
 
   void update_cnt(int t) {
@@ -32,8 +31,8 @@ struct treap {
   }
 
   void split(int t, int pos, int& l, int& r) {
-    if (t == NIL) {
-      l = r = NIL;
+    if (!t) {
+      l = r = 0;
     } else if (pos <= v[v[t].l].cnt) {
       split(v[t].l, pos, l, v[t].l);
       r = t;
@@ -46,9 +45,9 @@ struct treap {
   }
 
   void merge(int& t, int l, int r) {
-    if (l == NIL) {
+    if (!l) {
       t = r;
-    } else if (r == NIL) {
+    } else if (!r) {
       t = l;
     } else if (v[l].pri > v[r].pri) {
       merge(v[l].r, v[l].r, r);
@@ -61,7 +60,7 @@ struct treap {
   }
 
   void insert(int& t, int pos, int elem) {
-    if (t == NIL) {
+    if (!t) {
       t = elem;
     } else if (v[elem].pri > v[t].pri) {
       split(t, pos, v[elem].l, v[elem].r);
@@ -75,8 +74,8 @@ struct treap {
   }
 
   void insert(int pos, int val) {
-    v[n++] = make_node(val, rand());
-    insert(v[1].l, pos, n - 1);
+    v[n] = make_node(val, rand());
+    insert(root, pos, n++);
   }
 
   void erase(int& t, int pos) {
@@ -91,11 +90,11 @@ struct treap {
   }
 
   void erase(int pos) {
-    erase(v[1].l, pos);
+    erase(root, pos);
   }
 
   int get(int pos) {
-    int t = 1;
+    int t = root;
     while (pos != v[v[t].l].cnt) {
       if (pos < v[v[t].l].cnt) {
         t = v[t].l;
@@ -108,7 +107,7 @@ struct treap {
   }
 
   void print(int t) {
-    if (t == NIL) {
+    if (!t) {
       printf("NIL");
     } else {
       printf("(");
@@ -120,7 +119,7 @@ struct treap {
   }
 
   void print() {
-    print(v[1].l);
+    print(root);
     printf("\n");
   }
 };

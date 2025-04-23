@@ -4,8 +4,6 @@
 #include <sys/time.h>
 
 const int MAX_NODES = 300'000;
-const int INF = 2'000'000'000;
-const int NIL = 0;
 
 struct node {
   int key, pri;
@@ -14,16 +12,16 @@ struct node {
 };
 
 struct treap {
-  node v[MAX_NODES + 2];
-  int n;
+  node v[MAX_NODES + 1];
+  int n, root;
 
   node make_node(int key, int pri) {
-    return { .key = key, .pri = pri, .cnt = 1, .l = NIL, .r = NIL };
+    return { .key = key, .pri = pri, .cnt = 1, .l = 0, .r = 0 };
   }
 
   void init() {
-    v[1] = make_node(INF, INF);
-    n = 2;
+    n = 1; // mark node 0 as used since we use 0 to mean NULL
+    root = 0;
   }
 
   void update_cnt(int t) {
@@ -31,8 +29,8 @@ struct treap {
   }
 
   void split(int t, int key, int& l, int& r) {
-    if (t == NIL) {
-      l = r = NIL;
+    if (!t) {
+      l = r = 0;
     } else if (v[t].key <= key) {
       split(v[t].r, key, v[t].r, r);
       l = t;
@@ -45,9 +43,9 @@ struct treap {
   }
 
   void merge(int& t, int l, int r) {
-    if (l == NIL) {
+    if (!l) {
       t = r;
-    } else if (r == NIL) {
+    } else if (!r) {
       t = l;
     } else if (v[l].pri > v[r].pri) {
       merge(v[l].r, v[l].r, r);
@@ -60,7 +58,7 @@ struct treap {
   }
 
   void insert(int& t, int elem) {
-    if (t == NIL) {
+    if (!t) {
       t = elem;
     } else if (v[elem].pri > v[t].pri) {
       split(t, v[elem].key, v[elem].l, v[elem].r);
@@ -72,8 +70,8 @@ struct treap {
   }
 
   void insert(int key) {
-    v[n++] = make_node(key, rand());
-    insert(v[1].l, n - 1);
+    v[n] = make_node(key, rand());
+    insert(root, n++);
   }
 
   void erase(int& t, int key) {
@@ -86,25 +84,25 @@ struct treap {
   }
 
   void erase(int key) {
-    erase(v[1].l, key);
+    erase(root, key);
   }
 
   int search(int key) {
-    int t = 1;
-    while ((t != NIL) && (key != v[t].key)) {
+    int t = root;
+    while (t && (key != v[t].key)) {
       t = (key < v[t].key) ? v[t].l : v[t].r;
     }
     return t;
   }
 
   bool contains(int key) {
-    return search(key) != NIL;
+    return search(key) != 0;
   }
 
   int order_of(int key) {
     int result = 0;
-    int t = 1;
-    while (t != NIL) {
+    int t = root;
+    while (t) {
       if (key > v[t].key) {
         result += 1 + v[v[t].l].cnt;
         t = v[t].r;
@@ -117,7 +115,7 @@ struct treap {
   }
 
   int kth_element(int k) {
-    int t = 1;
+    int t = root;
     while (k != v[v[t].l].cnt) {
       if (k < v[v[t].l].cnt) {
         t = v[t].l;
@@ -146,7 +144,7 @@ int main() {
 
   for (int i = 0; i < MAX_NODES; i++) {
     do {
-      values[i] = rand() % INF;
+      values[i] = rand() % 1'000'000'000;
     } while (t.contains(values[i]));
     t.insert(values[i]);
   }

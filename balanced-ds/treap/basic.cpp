@@ -5,8 +5,6 @@
 #include <unordered_set>
 
 const int MAX_NODES = 300'000;
-const int INF = 2'000'000'000;
-const int NIL = -1;
 
 struct node {
   int key, pri;
@@ -15,16 +13,16 @@ struct node {
 
 struct treap {
   node v[MAX_NODES + 1];
-  int n;
+  int n, root;
 
   void init() {
-    v[0] = {.key = INF, .pri = INF, .l = NIL, .r = NIL };
-    n = 1;
+    n = 1; // mark node 0 as used since we use 0 to mean NULL
+    root = 0;
   }
 
   void split(int t, int key, int& l, int& r) {
-    if (t == NIL) {
-      l = r = NIL;
+    if (!t) {
+      l = r = 0;
     } else if (v[t].key <= key) {
       split(v[t].r, key, v[t].r, r);
       l = t;
@@ -35,7 +33,7 @@ struct treap {
   }
 
   void insert(int& t, int elem) {
-    if (t == NIL) {
+    if (!t) {
       t = elem;
     } else if (v[elem].pri > v[t].pri) {
       split(t, v[elem].key, v[elem].l, v[elem].r);
@@ -46,20 +44,20 @@ struct treap {
   }
 
   void insert(int key) {
-    v[n++] = { .key = key, .pri = rand(), .l = NIL, .r = NIL };
-    insert(v[0].l, n - 1);
+    v[n] = { .key = key, .pri = rand(), .l = 0, .r = 0 };
+    insert(root, n++);
   }
 
   int search(int key) {
-    int t = 0;
-    while ((t != NIL) && (key != v[t].key)) {
+    int t = root;
+    while (t && (key != v[t].key)) {
       t = (key < v[t].key) ? v[t].l : v[t].r;
     }
     return t;
   }
 
   bool contains(int key) {
-    return search(key) != NIL;
+    return search(key) != 0;
   }
 };
 
@@ -77,7 +75,7 @@ int main() {
   init_rng();
 
   for (int i = 0; i < MAX_NODES; i++) {
-    values[i] = rand() % INF;
+    values[i] = rand() % 1'000'000'000;
   }
 
   t.init();
