@@ -3,7 +3,7 @@
 
 const int MAX_NODES = 1'000;
 const int MAX_EDGES = 5'000;
-const int NONE = -1;
+const int NIL = -1;
 const int INFINITY = 1'000'000'001;
 
 struct edge {
@@ -38,23 +38,24 @@ struct queue {
 };
 
 edge e[2 * MAX_EDGES];
-node n[MAX_NODES + 1];
+node nd[MAX_NODES + 1];
 queue q;
-int num_nodes, num_edges;
+int n;
 
 void add_edge(short u, short v, int cap) {
   static int pos = 0;
 
-  e[pos] = { cap, v, n[u].adj };
-  n[u].adj = pos++;
+  e[pos] = { cap, v, nd[u].adj };
+  nd[u].adj = pos++;
 }
 
 void read_data() {
-  scanf("%d %d", &num_nodes, &num_edges);
-  for (int u = 1; u <= num_nodes; u++) {
-    n[u].adj = NONE;
+  int m;
+  scanf("%d %d", &n, &m);
+  for (int u = 1; u <= n; u++) {
+    nd[u].adj = NIL;
   }
-  for (int i = 0; i < num_edges; i++) {
+  while (m--) {
     int u, v, c;
     scanf("%d %d %d", &u, &v, &c);
     add_edge(u, v, c);
@@ -67,44 +68,44 @@ int min(int x, int y) {
 }
 
 bool bfs_reachable() {
-  for (int u = 1; u <= num_nodes; u++) {
-    n[u].parent = NONE;
+  for (int u = 1; u <= n; u++) {
+    nd[u].parent = NIL;
   }
   q.clear();
   q.enqueue(1);
 
-  while (!q.is_empty() && (n[num_nodes].parent == NONE)) {
+  while (!q.is_empty() && (nd[n].parent == NIL)) {
     int u = q.dequeue();
-    for (int pos = n[u].adj; pos != NONE; pos = e[pos].next) {
+    for (int pos = nd[u].adj; pos != NIL; pos = e[pos].next) {
       int v = e[pos].v;
       // Only consider positive capacities towards unexplored nodes.
-      if ((n[v].parent == NONE) && e[pos].cap) {
-        n[v].parent = u;
-        n[v].edge = pos;
+      if ((nd[v].parent == NIL) && e[pos].cap) {
+        nd[v].parent = u;
+        nd[v].edge = pos;
         q.enqueue(v);
       }
     }
   }
 
-  return (n[num_nodes].parent != NONE);
+  return (nd[n].parent != NIL);
 }
 
 int path_minimum() {
   int min_cap = INFINITY;
-  int u = num_nodes;
+  int u = n;
   while (u != 1) {
-    min_cap = min(min_cap, e[n[u].edge].cap);
-    u = n[u].parent;
+    min_cap = min(min_cap, e[nd[u].edge].cap);
+    u = nd[u].parent;
   }
   return min_cap;
 }
 
 void pump_on_path(int flow) {
-  int u = num_nodes;
+  int u = n;
   while (u != 1) {
-    e[n[u].edge].cap -= flow;
-    e[n[u].edge ^ 1].cap += flow;
-    u = n[u].parent;
+    e[nd[u].edge].cap -= flow;
+    e[nd[u].edge ^ 1].cap += flow;
+    u = nd[u].parent;
   }
 }
 

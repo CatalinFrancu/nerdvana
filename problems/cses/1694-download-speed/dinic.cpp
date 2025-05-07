@@ -4,7 +4,7 @@
 
 const int MAX_NODES = 500;
 const int MAX_EDGES = 1'000;
-const int NONE = -1;
+const int NIL = -1;
 const int INFINITY = 1'000'000'001;
 
 struct edge {
@@ -18,27 +18,28 @@ struct node {
   short dist;
 
   bool is_reachable() {
-    return dist != NONE;
+    return dist != NIL;
   }
 };
 
 edge e[2 * MAX_EDGES];
-node n[MAX_NODES + 1];
-int num_nodes, num_edges;
+node nd[MAX_NODES + 1];
+int n;
 
 void add_edge(short u, short v, int cap) {
   static int pos = 0;
 
-  e[pos] = { cap, v, n[u].adj };
-  n[u].adj = pos++;
+  e[pos] = { cap, v, nd[u].adj };
+  nd[u].adj = pos++;
 }
 
 void read_data() {
-  scanf("%d %d", &num_nodes, &num_edges);
-  for (int u = 1; u <= num_nodes; u++) {
-    n[u].adj = NONE;
+  int m;
+  scanf("%d %d", &n, &m);
+  for (int u = 1; u <= n; u++) {
+    nd[u].adj = NIL;
   }
-  for (int i = 0; i < num_edges; i++) {
+  while (m--) {
     int u, v, c;
     scanf("%d %d %d", &u, &v, &c);
     add_edge(u, v, c);
@@ -51,51 +52,51 @@ int min(int x, int y) {
 }
 
 bool bfs_reachable() {
-  for (int u = 1; u <= num_nodes; u++) {
-    n[u].dist = NONE;
+  for (int u = 1; u <= n; u++) {
+    nd[u].dist = NIL;
   }
-  n[1].dist = 0;
+  nd[1].dist = 0;
   std::queue<short> q;
   q.push(1);
 
-  while (!q.empty() && !n[num_nodes].is_reachable()) {
+  while (!q.empty() && !nd[n].is_reachable()) {
     int u = q.front();
     q.pop();
-    for (int pos = n[u].adj; pos != NONE; pos = e[pos].next) {
+    for (int pos = nd[u].adj; pos != NIL; pos = e[pos].next) {
       int v = e[pos].v;
-      if (!n[v].is_reachable() && e[pos].cap) {
-        n[v].dist = n[u].dist + 1;
+      if (!nd[v].is_reachable() && e[pos].cap) {
+        nd[v].dist = nd[u].dist + 1;
         q.push(v);
       }
     }
   }
 
-  return n[num_nodes].is_reachable();
+  return nd[n].is_reachable();
 }
 
 void reset_dfs_pointers() {
-  for (int u = 1; u <= num_nodes; u++) {
-    n[u].ptr = n[u].adj;
+  for (int u = 1; u <= n; u++) {
+    nd[u].ptr = nd[u].adj;
   }
 }
 
 int dfs(int u, int incoming_flow) {
-  if (u == num_nodes) {
+  if (u == n) {
     return incoming_flow;
   }
 
   int result = 0;
-  while (!result && (n[u].ptr != NONE)) {
-    int p = n[u].ptr;
+  while (!result && (nd[u].ptr != NIL)) {
+    int p = nd[u].ptr;
     int v = e[p].v, cap = e[p].cap;
-    if (cap && (n[v].dist == n[u].dist + 1)) {
+    if (cap && (nd[v].dist == nd[u].dist + 1)) {
       result = dfs(v, min(cap, incoming_flow));
       e[p].cap -= result;
       e[p ^ 1].cap += result;
     }
     // Stay on the same edge if still usable. This cuts the running time in 6.
     if (!result) {
-      n[u].ptr = e[p].next;
+      nd[u].ptr = e[p].next;
     }
   }
 
