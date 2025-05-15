@@ -59,7 +59,7 @@ bool bfs_reachable() {
   std::queue<short> q;
   q.push(1);
 
-  while (!q.empty() && !nd[n].is_reachable()) {
+  while (!q.empty()) {
     int u = q.front();
     q.pop();
     for (int pos = nd[u].adj; pos != NIL; pos = e[pos].next) {
