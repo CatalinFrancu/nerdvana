@@ -144,7 +144,9 @@ int main(void) {
     gen_c_strings();
     mark_time();
     std::sort(ord, ord + N, [](char* a, char* b) {
-      return strcmp(a, b) <= 0;
+      // std::sort requires a total order
+      int c = strcmp(a, b);
+      return (c < 0) || ((c == 0) && (a < b));
     });
     report_time("STL sort on C strings");
     validate_ord();
