@@ -5,11 +5,11 @@
 #include <string.h>
 #include <sys/time.h>
 
-#define TRIALS 10
-#define N 1'000'000
-#define DECAY 10
-#define SIGMA 6
-#define INFINITY 1'000'000
+const int TRIALS = 100;
+const int N = 1'000'000;
+const int DECAY = 100;
+const int SIGMA = 6;
+const int INFINITY = 1'000'000;
 
 typedef int vector[N + 1];
 
@@ -21,17 +21,12 @@ char s[N + 1];
 vector p, c, p2, c2, cnt;
 long long _time;
 
-int max(int x, int y) {
-  return (x > y) ? x : y;
+void init_rng() {
+  struct timeval time;
+  gettimeofday(&time, NULL);
+  int seed = time.tv_sec * 1'000'000 + time.tv_usec;
+  srand(seed);
 }
-
-int min(int x, int y) {
-  return (x < y) ? x : y;
-}
-
-/**
- * Gestiunea timpului
- **/
 
 long long get_time() {
   struct timeval time;
@@ -48,6 +43,25 @@ int report_time(const char* msg, int len) {
   fprintf(stderr, "%s: %lld ms; ultima lungime necesară: %d\n",
           msg, delta, len);
   return delta;
+}
+
+void gen_string() {
+  for (int i = 0; i < N; i++) {
+    int c = 0;
+    while (c < SIGMA - 1 && rand() % DECAY == 0) {
+      c++;
+    }
+    s[i] = 'a' + c;
+  }
+  s[N] = '\0';
+}
+
+int max(int x, int y) {
+  return (x > y) ? x : y;
+}
+
+int min(int x, int y) {
+  return (x < y) ? x : y;
 }
 
 int circ(int x, int n) {
@@ -179,30 +193,30 @@ void swap(int i, int j) {
   p[j] = tmp;
 }
 
-void tsort(int first, int last, int pos) {
-  if (last - first <= 1) {
+void tsort(int left, int right, int pos) {
+  if (right - left <= 1) {
     return;
   }
 
-  int i = first, left = first, right = last;
-  char pivot = s[p[first] + pos];
+  int i = left, lt = left, gt = right;
+  char pivot = s[p[left] + pos];
 
-  while (i < right) {
+  while (i < gt) {
     char x = s[p[i] + pos];
     if (x < pivot) {
-      swap(i++, left++);
+      swap(i++, lt++);
     } else if (x > pivot)  {
-      swap(i, --right);
+      swap(i, --gt);
     } else {
       i++;
     }
   }
 
-  tsort(first, left, pos);
-  if (s[p[left] + pos] != '\0') {
-    tsort(left, right, pos + 1);
+  tsort(left, lt, pos);
+  if (s[p[lt] + pos] != '\0') {
+    tsort(lt, gt, pos + 1);
   }
-  tsort(right, last, pos);
+  tsort(gt, right, pos);
 }
 
 void build_with_ternary_qsort() {
@@ -212,74 +226,67 @@ void build_with_ternary_qsort() {
   tsort(0, N, 0);
 }
 
-int main() {
+void verify_order() {
+  for (int i = 0; i < N - 1; i++) {
+    assert(strcmp(s + p[i], s + p[i + 1]) < 0);
+  }
+}
 
-  struct timeval time;
-  gettimeofday(&time, NULL);
-  srand(time.tv_usec);
+void benchmark_radix_sort(int& sum_t, int& min_t, int& max_t) {
+  mark_time();
+  int len = build_with_radix_sort();
+  int t = report_time("Construcție cu radix sort", len);
+  sum_t += t;
+  min_t = min(min_t, t);
+  max_t = max(max_t, t);
+
+  verify_order();
+}
+
+void benchmark_stl_sort(int& sum_t, int& min_t, int& max_t) {
+  mark_time();
+  int len = build_with_sort();
+  int t = report_time("Construcție cu STL sort", len);
+  sum_t += t;
+  min_t = min(min_t, t);
+  max_t = max(max_t, t);
+
+  verify_order();
+}
+
+void benchmark_ternary_qsort(int& sum_t, int& min_t, int& max_t) {
+  mark_time();
+  build_with_ternary_qsort();
+  int t = report_time("Construcție cu ternary qsort", 0);
+  sum_t += t;
+  min_t = min(min_t, t);
+  max_t = max(max_t, t);
+
+  verify_order();
+}
+
+int main() {
+  init_rng();
 
   int sum1 = 0, min1 = INFINITY, max1 = 0; // milisecunde
   int sum2 = 0, min2 = INFINITY, max2 = 0;
-  // int sum3 = 0, min3 = INFINITY, max3 = 0;
+  int sum3 = 0, min3 = INFINITY, max3 = 0;
+
   for (int trial = 1; trial <= TRIALS; trial++) {
     printf("Testul %d/%d\n", trial, TRIALS);
 
-    // Generează un șir de lungime N.
-    for (int i = 0; i < N; i++) {
-      int c = 0;
-      while (c < SIGMA - 1 && rand() % 1'000'000 < DECAY) {
-        c++;
-      }
-      s[i] = 'a' + c;
-    }
-    s[N] = '\0';
-
-    // Metoda 1
-    mark_time();
-    int len = build_with_radix_sort();
-    int t = report_time("Construcție cu radix sort", len);
-    sum1 += t;
-    min1 = min(min1, t);
-    max1 = max(max1, t);
-
-    // Verifică corectitudinea.
-    for (int i = 0; i < N; i++) {
-      assert(strcmp(s + p[i], s + p[i + 1]) < 0);
-    }
-
-    // Metoda 2
-    mark_time();
-    len = build_with_sort();
-    t = report_time("Construcție cu STL sort", len);
-    sum2 += t;
-    min2 = min(min2, t);
-    max2 = max(max2, t);
-
-    // Verifică corectitudinea.
-    for (int i = 0; i < N - 1; i++) {
-      assert(strcmp(s + p[i], s + p[i + 1]) < 0);
-    }
-
-    // // Metoda 3
-    // mark_time();
-    // build_with_ternary_qsort();
-    // t = report_time("Construcție cu ternary qsort", 0);
-    // sum3 += t;
-    // min3 = min(min3, t);
-    // max3 = max(max3, t);
-
-    // // Verifică corectitudinea.
-    // for (int i = 0; i < N - 1; i++) {
-    //   assert(strcmp(s + p[i], s + p[i + 1]) < 0);
-    // }
+    gen_string();
+    benchmark_radix_sort(sum1, min1, max1);
+    benchmark_stl_sort(sum2, min2, max2);
+    benchmark_ternary_qsort(sum3, min3, max3);
   }
 
   sum1 -= min1 + max1; // Ignoră extremele.
   sum2 -= min2 + max2;
-  // sum3 -= min3 + max3;
+  sum3 -= min3 + max3;
   printf("Timp mediu radix sort: %d ms\n", sum1 / (TRIALS - 2));
   printf("Timp mediu STL sort: %d ms\n", sum2 / (TRIALS - 2));
-  // printf("Timp mediu ternary qsort: %d ms\n", sum3 / (TRIALS - 2));
+  printf("Timp mediu ternary qsort: %d ms\n", sum3 / (TRIALS - 2));
 
   return 0;
 }
