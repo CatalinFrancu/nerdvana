@@ -96,9 +96,9 @@ void swap(int i, int j) {
   ord[j] = tmp;
 }
 
-// Sorts the strings ord[left] ... ord[right]), which are known to be equal up
-// to position pos-1. Changes ord[] during the partitioning step, but does not
-// change c[], which would be expensive.
+// Sorts the strings [ord[left] ... ord[right]), which are known to be equal
+// up to position pos-1. Changes ord[] during the partitioning step, but does
+// not change c[], which would be expensive.
 void tsort(int left, int right, int pos) {
   if (right - left <= 1) {
     return;
