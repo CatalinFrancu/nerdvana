@@ -11,14 +11,156 @@ const int DECAY = 100;
 const int SIGMA = 6;
 const int INFINITY = 1'000'000;
 
-typedef int vector[N + 1];
+struct sort_suffix_array {
+  const char* s;
+  int n, gap;
 
-struct entry {
-  int v1, v2, pos;
-} l[N];
+  // The suffix array. sa[i] = the i-th smallest substring
+  int sa[N + 1];
+  // ord[i] = sa^{-1}. ord[i] = the order of s[i...end] (with duplicates)
+  int ord[N + 1];
+  // cl[i] = the class of sa[i], with duplicates
+  int cl[N + 1];
 
+  void init(char* s, int n) {
+    this->s = s;
+    this->n = n;
+  }
+
+  bool cmp(int i, int j) {
+    if (ord[i] != ord[j]) {
+      return (ord[i] < ord[j]);
+    }
+
+    i += gap;
+    j += gap;
+
+    return (i < n && j < n)
+      ? (ord[i] < ord[j])
+      : (i > j);
+  }
+
+  void build() {
+    for (int i = 0; i < n; i++) {
+      sa[i] = i;
+      ord[i] = s[i];
+      cl[i] = 0;
+    }
+
+    gap = 1;
+    while (cl[n - 1] != n - 1) {
+      std::sort(sa, sa + n, [this](int i, int j) {
+        return cmp(i, j);
+      });
+      for (int i = 1; i < n; i++) {
+        cl[i] = cl[i - 1] + cmp(sa[i - 1], sa[i]);
+      }
+      for (int i = 1; i < n; i++) {
+        ord[sa[i]] = cl[i];
+      }
+      gap *= 2;
+    }
+  }
+
+  void verify() {
+    for (int i = 0; i < n- 1; i++) {
+      assert(strcmp(s + sa[i], s + sa[i + 1]) <= 0);
+    }
+  }
+};
+
+struct radix_suffix_array {
+  const char* s;
+  int p[N + 1], c[N + 1], p2[N + 1], c2[N + 1];
+  int cnt[256];
+  int n, num_classes;
+
+  void init(char* s, int n) {
+    this->s = s;
+    this->n = n;
+  }
+
+  int circ(int x, int n) {
+    return (x >= n) ? (x - n) : x;
+  }
+
+  void build_single_letters() {
+    // Letter frequencies and partial sums.
+    memset(cnt, 0, sizeof(int) * 256);
+    for (int i = 0; i < n; i++) {
+      cnt[(int)s[i]]++;
+    }
+    for (int i = 1; i <= 'z'; i++) {
+      cnt[i] += cnt[i - 1];
+    }
+    // Now cnt[x] is the number of letters <= x.
+
+    // Make p store the order of length 1 substrings.
+    for (int i = 0; i < n; i++) {
+      p[--cnt[(int)s[i]]] = i;
+    }
+
+    // Compute character classes in the order given by p.
+    c[p[0]] = 0;
+    for (int i = 1; i < n; i++) {
+      c[p[i]] = c[p[i - 1]] + (s[p[i]] != s[p[i - 1]]);
+    }
+    num_classes = 1 + c[p[n - 1]];
+  }
+
+  void build_prefix_len(int len) {
+    // Class frequencies and partial sums.
+    memset(cnt, 0, sizeof(int) * num_classes);
+    for (int i = 0; i < n; i++) {
+      cnt[c[i]]++;
+    }
+    for (int i = 1; i < num_classes; i++) {
+      cnt[i] += cnt[i - 1];
+    }
+    // Now cnt[x] is the frequency of classes <= x.
+
+    // Redistribuite values in p[] in classes of sizes given by cnt, in the
+    // order given by p2[].
+    for (int i = 0; i < n; i++) {
+      p2[i] = circ(p[i] - len + n, n);
+    }
+    for (int i = n - 1; i >= 0; i--) {
+      p[--cnt[c[p2[i]]]] = p2[i];
+    }
+
+    // Recompute the new classes in c2, then move them in c.
+    c2[p[0]] = 0;
+    for (int i = 1; i < n; i++) {
+      bool diff =  (c[p[i]] != c[p[i - 1]]) ||
+        (c[circ(p[i] + len, n)] != c[circ(p[i - 1] + len, n)]);
+      c2[p[i]] = c2[p[i - 1]] + diff;
+    }
+    num_classes = 1 + c2[p[n - 1]];
+    memcpy(c, c2, sizeof(int) * n);
+  }
+
+  void build() {
+    build_single_letters();
+
+    // Prefix doubling step.
+    int len = 1;
+    while (num_classes < n) {
+      build_prefix_len(len);
+      len <<= 1;
+    }
+  }
+
+  void verify() {
+    for (int i = 0; i < n; i++) {
+      assert(strcmp(s + p[i], s + p[i + 1]) <= 0);
+    }
+  }
+};
+
+sort_suffix_array sort_suf;
+radix_suffix_array radix_suf;
 char s[N + 1];
-vector p, c, p2, c2, cnt;
+int p[N + 1];
 long long _time;
 
 void init_rng() {
@@ -31,17 +173,17 @@ void init_rng() {
 long long get_time() {
   struct timeval time;
   gettimeofday(&time, NULL);
-  return 1000ll * time.tv_sec + time.tv_usec / 1000;
+  long long v = 1000ll * time.tv_sec + time.tv_usec / 1000;
+  return v;
 }
 
 void mark_time() {
   _time = get_time();
 }
 
-int report_time(const char* msg, int len) {
+int report_time(const char* msg) {
   long long delta = get_time() - _time;
-  fprintf(stderr, "%s: %lld ms; ultima lungime necesară: %d\n",
-          msg, delta, len);
+  fprintf(stderr, "%s: %lld ms\n", msg, delta);
   return delta;
 }
 
@@ -54,137 +196,6 @@ void gen_string() {
     s[i] = 'a' + c;
   }
   s[N] = '\0';
-}
-
-int max(int x, int y) {
-  return (x > y) ? x : y;
-}
-
-int min(int x, int y) {
-  return (x < y) ? x : y;
-}
-
-int circ(int x, int n) {
-  return (x >= n) ? (x - n) : x;
-}
-
-int build_with_radix_sort() {
-  int n = N + 1; // include și terminatorul \0
-
-  /**
-   * Pasul inițial: calculăm p[] și c[] pentru caractere invididuale
-   **/
-
-  // Calculează frecvențele caracterelor și sumele parțiale.
-  memset(cnt, 0, sizeof(int) * 256);
-  for (int i = 0; i < n; i++) {
-    cnt[(int)s[i]]++;
-  }
-  for (int i = 1; i < 'a' + SIGMA; i++) {
-    cnt[i] += cnt[i - 1];
-  }
-  // Acum cnt[x] este numărul de caractere <= x.
-
-  // Fă-l pe p să rețină o ordine a subșirurilor de lungime 1.
-  for (int i = 0; i < n; i++) {
-    p[--cnt[(int)s[i]]] = i;
-  }
-
-  // Calculează clasele caracterelor în ordinea dată de p.
-  int num_classes = 1;
-  c[p[0]] = 0;
-  for (int i = 1; i < n; i++) {
-    if (s[p[i]] != s[p[i - 1]]) {
-      num_classes++;
-    }
-    c[p[i]] = num_classes - 1;
-  }
-
-  /**
-   * Dublarea prefixului cît timp mai există coliziuni.
-   */
-
-  int len = 1;
-  while (num_classes < n) {
-    // Calculează frecvențele claselor și sumele parțiale.
-    memset(cnt, 0, sizeof(int) * num_classes);
-    for (int i = 0; i < n; i++) {
-      cnt[c[i]]++;
-    }
-    for (int i = 1; i < num_classes; i++) {
-      cnt[i] += cnt[i - 1];
-    }
-    // Acum cnt[x] este numărul de poziții de clasă <= x.
-
-    // Redistribuie valorile din p[], în clase de mărimea cnt[], în ordinea
-    // dată de p2[].
-    for (int i = 0; i < n; i++) {
-      p2[i] = circ(p[i] - len + n, n);
-    }
-    for (int i = n - 1; i >= 0; i--) {
-      p[--cnt[c[p2[i]]]] = p2[i];
-    }
-
-    // Recalculează noile clase în c2, apoi mută-le în c.
-    num_classes = 1;
-    c2[p[0]] = 0;
-    for (int i = 1; i < n; i++) {
-      if (c[p[i]] != c[p[i - 1]] ||
-          c[circ(p[i] + len, n)] != c[circ(p[i - 1] + len, n)]) {
-        num_classes++;
-      }
-      c2[p[i]] = num_classes - 1;
-    }
-    memcpy(c, c2, sizeof(int) * n);
-    len <<= 1;
-  }
-
-  return len / 2;
-}
-
-// https://www.infoarena.ro/siruri-de-sufixe
-int build_with_sort() {
-  int n = N;
-
-  for (int i = 0; i < n; i++) {
-    p2[i] = s[i];
-  }
-
-  bool collision = true;
-  int len = 1;
-  while (collision) {
-    for (int i = 0; i < n; ++i) {
-      l[i].v1 = p2[i];
-      l[i].v2 = (i + len < n) ? p2[i + len] : -1;
-      l[i].pos = i;
-    }
-
-    std::sort(l, l + n, [](entry &a, entry &b) {
-      return (a.v1 < b.v1) || ((a.v1 == b.v1) && (a.v2 < b.v2));
-    });
-
-    p2[l[0].pos] = 0;
-    collision = false;
-    for (int i = 1; i < n; i++) {
-      if (l[i].v1 == l[i - 1].v1 && l[i].v2 == l[i - 1].v2) {
-        p2[l[i].pos] = p2[l[i - 1].pos];
-        collision = true;
-      } else {
-        p2[l[i].pos] = i;
-      }
-    }
-
-    len <<= 1;
-  }
-
-  // p2[i]=x înseamnă că prefixul care începe la poziția i este al x-lea
-  // lexicografic. Noi vrem inversul: p[x]=i înseamnă că al x-lea prefix este
-  // cel care începe la i.
-  for (int i = 0; i < n; i++) {
-    p[p2[i]] = i;
-  }
-
-  return len / 2;
 }
 
 void swap(int i, int j) {
@@ -226,43 +237,47 @@ void build_with_ternary_qsort() {
   tsort(0, N, 0);
 }
 
-void verify_order() {
-  for (int i = 0; i < N - 1; i++) {
-    assert(strcmp(s + p[i], s + p[i + 1]) < 0);
-  }
+int max(int x, int y) {
+  return (x > y) ? x : y;
+}
+
+int min(int x, int y) {
+  return (x < y) ? x : y;
 }
 
 void benchmark_radix_sort(int& sum_t, int& min_t, int& max_t) {
   mark_time();
-  int len = build_with_radix_sort();
-  int t = report_time("Construcție cu radix sort", len);
+  radix_suf.init(s, N + 1);
+  radix_suf.build();
+  int t = report_time("Construcție cu radix sort");
+  radix_suf.verify();
   sum_t += t;
   min_t = min(min_t, t);
   max_t = max(max_t, t);
-
-  verify_order();
 }
 
 void benchmark_stl_sort(int& sum_t, int& min_t, int& max_t) {
   mark_time();
-  int len = build_with_sort();
-  int t = report_time("Construcție cu STL sort", len);
+  sort_suf.init(s, N + 1);
+  sort_suf.build();
+  int t = report_time("Construcție cu STL sort");
+  sort_suf.verify();
   sum_t += t;
   min_t = min(min_t, t);
   max_t = max(max_t, t);
-
-  verify_order();
 }
 
 void benchmark_ternary_qsort(int& sum_t, int& min_t, int& max_t) {
   mark_time();
   build_with_ternary_qsort();
-  int t = report_time("Construcție cu ternary qsort", 0);
+  int t = report_time("Construcție cu ternary qsort");
   sum_t += t;
   min_t = min(min_t, t);
   max_t = max(max_t, t);
 
-  verify_order();
+  for (int i = 0; i < N - 1; i++) {
+    assert(strcmp(s + p[i], s + p[i + 1]) < 0);
+  }
 }
 
 int main() {
