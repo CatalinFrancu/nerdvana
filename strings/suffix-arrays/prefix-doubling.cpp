@@ -13,7 +13,7 @@ const int INFINITY = 1'000'000;
 
 struct sort_suffix_array {
   const char* s;
-  int n, gap;
+  int n, len;
 
   // The suffix array. sa[i] = the i-th smallest substring
   int sa[N + 1];
@@ -32,8 +32,8 @@ struct sort_suffix_array {
       return (ord[i] < ord[j]);
     }
 
-    i += gap;
-    j += gap;
+    i += len;
+    j += len;
 
     return (i < n && j < n)
       ? (ord[i] < ord[j])
@@ -47,7 +47,7 @@ struct sort_suffix_array {
       cl[i] = 0;
     }
 
-    gap = 1;
+    len = 1;
     while (cl[n - 1] != n - 1) {
       std::sort(sa, sa + n, [this](int i, int j) {
         return cmp(i, j);
@@ -58,7 +58,7 @@ struct sort_suffix_array {
       for (int i = 1; i < n; i++) {
         ord[sa[i]] = cl[i];
       }
-      gap *= 2;
+      len *= 2;
     }
   }
 
