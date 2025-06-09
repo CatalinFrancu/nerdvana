@@ -190,7 +190,7 @@ int report_time(const char* msg) {
 void gen_string() {
   for (int i = 0; i < N; i++) {
     int c = 0;
-    while (c < SIGMA - 1 && rand() % DECAY == 0) {
+    while ((c < SIGMA - 1) && (rand() % DECAY == 0)) {
       c++;
     }
     s[i] = 'a' + c;
