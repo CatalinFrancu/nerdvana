@@ -6,7 +6,8 @@
 const int MAX_BUCKETS = 1024;
 const int P2_BUCKET_SIZE = 512;
 const int P2_BUCKET_BITS = 9;
-const int MAX_N = 0x80000;  // 2^19, power of two for segment trees
+const int MAX_N = 500'000;
+const int MAX_SEGTREE_NODES = 1 << 20;
 const int MAX_Q = 500'000;
 
 const int OP_UPDATE = 1;
@@ -16,7 +17,7 @@ typedef struct {
   int t, x, y;
 } query;
 
-long long v[MAX_N + 1];
+long long v[MAX_N];
 query q[MAX_Q];
 long long answer[MAX_Q];
 int n, num_queries, num_answers;
@@ -26,7 +27,7 @@ long long time1;
 
 void read_data() {
   scanf("%d %d ", &n, &num_queries);
-  for (int i = 1; i <= n; i++) {
+  for (int i = 0; i < n; i++) {
     scanf("%lld", &v[i]);
   }
 

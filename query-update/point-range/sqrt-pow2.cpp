@@ -49,10 +49,9 @@ void point_add(int pos, int val) {
 void process_ops() {
   for (int i = 0; i < num_queries; i++) {
     if (q[i].t == OP_UPDATE) {
-      point_add(q[i].x, q[i].y);
+      point_add(q[i].x - 1, q[i].y);
     } else {
-      q[i].y++; // use the [x, y) interval, 1-based
-      answer[num_answers++] = range_sum(q[i].x, q[i].y);
+      answer[num_answers++] = range_sum(q[i].x - 1, q[i].y);
     }
   }
 }
