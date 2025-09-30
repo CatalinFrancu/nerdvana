@@ -43,6 +43,14 @@ void write_data() {
 
 //////////////// various tools
 
+int min(int x, int y) {
+  return (x < y) ? x : y;
+}
+
+int max(int x, int y) {
+  return (x > y) ? x : y;
+}
+
 void copy_array(long long* dest, long long* src, int count) {
   for (int i = 0; i < count; i++) {
     dest[i] = src[i];
@@ -57,12 +65,8 @@ long long array_sum(long long* v, int l, int r) {
   return sum;
 }
 
-int next_power_of_2(int n) {
-  while (n & (n - 1)) {
-    n += (n & -n);
-  }
-
-  return n;
+int next_power_of_2(int x) {
+  return 1 << (32 - __builtin_clz(x - 1));
 }
 
 //////////////// time management

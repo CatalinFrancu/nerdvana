@@ -51,12 +51,8 @@ void copy_array(int* dest, int* src, int count) {
   }
 }
 
-int next_power_of_2(int n) {
-  while (n & (n - 1)) {
-    n += n & -n;
-  }
-
-  return n;
+int next_power_of_2(int x) {
+  return 1 << (32 - __builtin_clz(x - 1));
 }
 
 //////////////// time management

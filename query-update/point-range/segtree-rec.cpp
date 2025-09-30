@@ -1,64 +1,72 @@
 // Complexity: O(Q log N)
 //
-// Method: segment tree
+// Method: segment tree, recursive implementation
 #include "common.h"
 
-long long s[2 * MAX_N];
-int orig_n;
+struct segment_tree {
+  long long s[2 * MAX_N];
+  int n;
 
-void augment_n() {
-  orig_n = n;
-  n = next_power_of_2(n);
-}
-
-inline int min(int x, int y) {
-  return (x < y) ? x : y;
-}
-
-inline int max(int x, int y) {
-  return (x > y) ? x : y;
-}
-
-void st_build() {
-  for (int i = n - 1; i >= 1; i--) {
-    s[i] = s[2 * i] + s[2 * i + 1];
-  }
-}
-
-long long st_query(int node, int pl, int pr, int l, int r) {
-  if (l >= r) {
-    return 0;
-  } else if ((l == pl) && (r == pr)) {
-    return s[node];
-  } else {
-    int mid = (pl + pr) >> 1;
-
-    return
-      st_query(node * 2, pl, mid, l, min(r, mid)) +
-      st_query(node * 2 + 1, mid, pr, max(l, mid), r);
-  }
-}
-
-void st_update(int node, int pl, int pr, int pos, int delta) {
-  if (pr - pl == 1) {
-    s[node] += delta;
-  } else {
-    int mid = (pl + pr) >> 1;
-    if (pos < mid) {
-      st_update(2 * node, pl, mid, pos, delta);
-    } else {
-      st_update(2 * node + 1, mid, pr, pos, delta);
+  void init(long long* v, int _n) {
+    n = next_power_of_2(_n);
+    for (int i = 0; i < _n; i++) {
+      s[n + i] = v[i];
     }
-    s[node] = s[2 * node] + s[2 * node + 1];
+    build();
   }
-}
+
+  void build() {
+    for (int i = n - 1; i >= 1; i--) {
+      s[i] = s[2 * i] + s[2 * i + 1];
+    }
+  }
+
+  // [l, r) semi-closed interval
+  long long _query(int node, int pl, int pr, int l, int r) {
+    if (l >= r) {
+      return 0;
+    } else if ((l == pl) && (r == pr)) {
+      return s[node];
+    } else {
+      int mid = (pl + pr) >> 1;
+
+      return
+        _query(node * 2, pl, mid, l, min(r, mid)) +
+        _query(node * 2 + 1, mid, pr, max(l, mid), r);
+    }
+  }
+
+  long long query(int l, int r) { // 1-based
+    return _query(1, 0, n, l, r);
+  }
+
+  void _update(int node, int pl, int pr, int pos, int delta) {
+    if (pr - pl == 1) {
+      s[node] += delta;
+    } else {
+      int mid = (pl + pr) >> 1;
+      if (pos < mid) {
+        _update(2 * node, pl, mid, pos, delta);
+      } else {
+        _update(2 * node + 1, mid, pr, pos, delta);
+      }
+      s[node] = s[2 * node] + s[2 * node + 1];
+    }
+  }
+
+  void update(int pos, int delta) {
+    _update(1, 0, n, pos, delta);
+  }
+};
+
+segment_tree st;
 
 void process_ops() {
   for (int i = 0; i < num_queries; i++) {
     if (q[i].t == OP_UPDATE) {
-      st_update(1, 0, n, q[i].x - 1, q[i].y);
+      st.update(q[i].x - 1, q[i].y);
     } else {
-      answer[num_answers++] = st_query(1, 0, n, q[i].x - 1, q[i].y);
+      answer[num_answers++] = st.query(q[i].x - 1, q[i].y);
     }
   }
 }
@@ -68,9 +76,7 @@ int main() {
   read_data();
   mark_time();
 
-  augment_n();
-  copy_array(s + n, v + 1, orig_n);
-  st_build();
+  st.init(v + 1, n);
   process_ops();
 
   report_time("segment tree, recursive");
