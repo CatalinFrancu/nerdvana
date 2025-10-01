@@ -13,11 +13,7 @@ const int MAX_N = 32'768;
 const int MAX_Q = 200'000;
 
 int next_power_of_2(int n) {
-  while (n & (n - 1)) {
-    n += (n & -n);
-  }
-
-  return n;
+  return 1 << (32 - __builtin_clz(n - 1));
 }
 
 struct segment_tree {
