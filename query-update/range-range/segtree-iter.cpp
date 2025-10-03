@@ -4,8 +4,8 @@
 // Invariant: s[node] + lazy[node] * size is the real sum.
 #include "common.h"
 
-long long s[2 * MAX_N];
-long long lazy[2 * MAX_N]; // quantity to add to every element spanned
+long long s[MAX_SEGTREE_NODES];
+long long lazy[MAX_SEGTREE_NODES]; // quantity to add to every element spanned
 int orig_n, bits;
 
 void augment_n() {

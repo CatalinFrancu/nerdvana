@@ -36,7 +36,7 @@ struct segment_tree {
     }
   }
 
-  long long query(int l, int r) { // 1-based
+  long long query(int l, int r) {
     return _query(1, 0, n, l, r);
   }
 
