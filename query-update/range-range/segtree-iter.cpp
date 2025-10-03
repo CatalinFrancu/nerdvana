@@ -4,41 +4,45 @@
 // Invariant: s[node] + lazy[node] * size is the real sum.
 #include "common.h"
 
+struct segment_tree_node {
+  long long s;
+  long long lazy; // quantity to add to every element spanned
+};
+
 struct segment_tree {
-  long long s[MAX_SEGTREE_NODES];
-  long long lazy[MAX_SEGTREE_NODES]; // quantity to add to every element spanned
+  segment_tree_node v[MAX_SEGTREE_NODES];
   int bits;
 
-  void init(long long* v, int _n) {
+  void init(long long* src, int _n) {
     n = next_power_of_2(_n);
     bits = 31 - __builtin_clz(n);
     for (int i = 0; i < _n; i++) {
-      s[n + i] = v[i];
+      v[n + i].s = src[i];
     }
     build();
   }
 
   void build() {
     for (int i = n - 1; i >= 1; i--) {
-      s[i] = s[2 * i] + s[2 * i + 1];
+      v[i].s = v[2 * i].s + v[2 * i + 1].s;
     }
   }
 
   void push_path(int node) {
     for (int b = bits, size = n; b; b--, size >>= 1) {
       int x = node >> b;
-      s[x] += lazy[x] * size;
-      lazy[2 * x] += lazy[x];
-      lazy[2 * x + 1] += lazy[x];
-      lazy[x] = 0;
+      v[x].s += v[x].lazy * size;
+      v[2 * x].lazy += v[x].lazy;
+      v[2 * x + 1].lazy += v[x].lazy;
+      v[x].lazy = 0;
     }
   }
 
   void pull_path(int node) {
     for (int x = node / 2, size = 1; x; x /= 2, size <<= 1) {
-      s[x] =
-        s[2 * x] + lazy[2 * x] * size +
-        s[2 * x + 1] + lazy[2 * x + 1] * size;
+      v[x].s =
+        v[2 * x].s + v[2 * x].lazy * size +
+        v[2 * x + 1].s + v[2 * x + 1].lazy * size;
     }
   }
 
@@ -53,13 +57,13 @@ struct segment_tree {
 
     while (l <= r)  {
       if (l & 1) {
-        sum += s[l] + lazy[l] * size;
+        sum += v[l].s + v[l].lazy * size;
         l++;
       }
       l >>= 1;
 
       if (!(r & 1)) {
-        sum += s[r] + lazy[r] * size;
+        sum += v[r].s + v[r].lazy * size;
         r--;
       }
       r >>= 1;
@@ -78,12 +82,12 @@ struct segment_tree {
 
     while (l <= r)  {
       if (l & 1) {
-        lazy[l++] += delta;
+        v[l++].lazy += delta;
       }
       l >>= 1;
 
       if (!(r & 1)) {
-        lazy[r--] += delta;
+        v[r--].lazy += delta;
       }
       r >>= 1;
     }
