@@ -33,7 +33,7 @@ struct fenwick_tree {
     } while (pos <= n);
   }
 
-  long long sum(int pos) {
+  long long prefix_sum(int pos) {
     long long s = 0;
     while (pos) {
       s += v[pos];
@@ -58,12 +58,12 @@ struct fenwick_tree_2 {
     w.add(r + 1, -val);
   }
 
-  long long sum(int pos) {
-    return w.sum(pos) * pos + v.sum(pos);
+  long long prefix_sum(int pos) {
+    return w.prefix_sum(pos) * pos + v.prefix_sum(pos);
   }
 
   long long range_sum(int l, int r) {
-    return sum(r) - sum(l - 1);
+    return prefix_sum(r) - prefix_sum(l - 1);
   }
 };
 
