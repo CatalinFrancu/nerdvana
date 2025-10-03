@@ -47,12 +47,6 @@ void write_data() {
 
 //////////////// various tools
 
-void copy_array(long long* dest, long long* src, int count) {
-  for (int i = 0; i < count; i++) {
-    dest[i] = src[i];
-  }
-}
-
 long long array_sum(long long* v, int l, int r) {
   long long sum = 0;
   while (l < r) {
