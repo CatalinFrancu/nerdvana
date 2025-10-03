@@ -12,43 +12,47 @@ inline int max(int x, int y) {
   return (x > y) ? x : y;
 }
 
+struct segment_tree_node {
+  long long s;
+  long long lazy; // quantity to add to every element spanned
+};
+
 struct segment_tree {
-  long long s[MAX_SEGTREE_NODES];
-  long long lazy[MAX_SEGTREE_NODES]; // quantity to add to every element spanned
+  segment_tree_node v[MAX_SEGTREE_NODES];
   int n;
 
-  void init(long long* v, int _n) {
+  void init(long long* src, int _n) {
     n = next_power_of_2(_n);
     for (int i = 0; i < _n; i++) {
-      s[n + i] = v[i];
+      v[n + i].s = src[i];
     }
     build();
   }
 
   void build() {
     for (int i = n - 1; i >= 1; i--) {
-      s[i] = s[2 * i] + s[2 * i + 1];
+      v[i].s = v[2 * i].s + v[2 * i + 1].s;
     }
   }
 
   void push(int node, int size) {
-    s[node] += lazy[node] * size;
-    lazy[2 * node] += lazy[node];
-    lazy[2 * node + 1] += lazy[node];
-    lazy[node] = 0;
+    v[node].s += v[node].lazy * size;
+    v[2 * node].lazy += v[node].lazy;
+    v[2 * node + 1].lazy += v[node].lazy;
+    v[node].lazy = 0;
   }
 
   void pull(int node, int size) {
-    s[node] =
-      s[2 * node] + lazy[2 * node] * size / 2 +
-      s[2 * node + 1] + lazy[2 * node + 1] * size / 2;
+    v[node].s =
+      v[2 * node].s + v[2 * node].lazy * size / 2 +
+      v[2 * node + 1].s + v[2 * node + 1].lazy * size / 2;
   }
 
   long long _query(int node, int pl, int pr, int l, int r) {
     if (l >= r) {
       return 0;
     } else if ((l == pl) && (r == pr)) {
-      return s[node] + lazy[node] * (r - l);
+      return v[node].s + v[node].lazy * (r - l);
     } else {
       push(node, pr - pl);
       int mid = (pl + pr) >> 1;
@@ -66,7 +70,7 @@ struct segment_tree {
     if (l >= r) {
       return;
     } else if ((l == pl) && (r == pr)) {
-      lazy[node] += delta;
+      v[node].lazy += delta;
     } else {
 
       push(node, pr - pl);

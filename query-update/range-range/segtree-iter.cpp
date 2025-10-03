@@ -11,7 +11,7 @@ struct segment_tree_node {
 
 struct segment_tree {
   segment_tree_node v[MAX_SEGTREE_NODES];
-  int bits;
+  int n, bits;
 
   void init(long long* src, int _n) {
     n = next_power_of_2(_n);
