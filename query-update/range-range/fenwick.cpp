@@ -3,57 +3,78 @@
 // Method: Fenwick trees with range updates
 #include "common.h"
 
-// v is the base tree, w is the second level
-long long w[MAX_N + 1];
+struct fenwick_tree {
+  long long v[MAX_N + 2];
+  int n;
 
-// Transforms a regular array into a Fenwick tree
-// https://stackoverflow.com/a/31070683/6022817
-void fenwick_build() {
-  for (int i = 1; i <= n; i++) {
-    int j = i + (i & -i);
-    if (j <= n) {
-      v[j] += v[i];
+  void from_array(long long* src, int _n) {
+    n = _n;
+    for (int i = 1; i <= n; i++) {
+      v[i] = src[i - 1];
+    }
+    build();
+  }
+
+  // Transforms a regular array into a Fenwick tree
+  // https://stackoverflow.com/a/31070683/6022817
+  void build() {
+    for (int i = 1; i <= n; i++) {
+      int j = i + (i & -i);
+      if (j <= n) {
+        v[j] += v[i];
+      }
     }
   }
-}
 
-void fenwick_add(long long* v, int pos, long long val) {
-  do {
-    v[pos] += val;
-    pos += pos & -pos;
-  } while (pos <= n);
-}
-
-long long fenwick_sum(long long* v, int pos) {
-  long long s = 0;
-  while (pos) {
-    s += v[pos];
-    pos &= pos - 1;
+  void add(int pos, long long val) {
+    do {
+      v[pos] += val;
+      pos += pos & -pos;
+    } while (pos <= n);
   }
-  return s;
-}
 
-void fenwick_range_add(int l, int r, long long val) {
-  fenwick_add(v, l, -val * (l - 1));
-  fenwick_add(v, r + 1, val * r);
-  fenwick_add(w, l, val);
-  fenwick_add(w, r + 1, -val);
-}
+  long long sum(int pos) {
+    long long s = 0;
+    while (pos) {
+      s += v[pos];
+      pos &= pos - 1;
+    }
+    return s;
+  }
+};
 
-long long fenwick_sum2(int pos) {
-  return fenwick_sum(w, pos) * pos + fenwick_sum(v, pos);
-}
+struct fenwick_tree_2 {
+  fenwick_tree v, w;
 
-long long fenwick_range_sum(int l, int r) {
-  return fenwick_sum2(r) - fenwick_sum2(l - 1);
-}
+  void from_array(long long* src, int n) {
+    v.from_array(src, n);
+    w.n = n;
+  }
+
+  void range_add(int l, int r, long long val) {
+    v.add(l, -val * (l - 1));
+    v.add(r + 1, val * r);
+    w.add(l, val);
+    w.add(r + 1, -val);
+  }
+
+  long long sum(int pos) {
+    return w.sum(pos) * pos + v.sum(pos);
+  }
+
+  long long range_sum(int l, int r) {
+    return sum(r) - sum(l - 1);
+  }
+};
+
+fenwick_tree_2 fen;
 
 void process_ops() {
   for (int i = 0; i < num_queries; i++) {
     if (q[i].t == OP_UPDATE) {
-      fenwick_range_add(q[i].l, q[i].r, q[i].val);
+      fen.range_add(q[i].l, q[i].r, q[i].val);
     } else {
-      answer[num_answers++] = fenwick_range_sum(q[i].l, q[i].r);
+      answer[num_answers++] = fen.range_sum(q[i].l, q[i].r);
     }
   }
 }
@@ -63,7 +84,7 @@ int main() {
   read_data();
   mark_time();
 
-  fenwick_build();
+  fen.from_array(v, n);
   process_ops();
 
   report_time("Fenwick trees");

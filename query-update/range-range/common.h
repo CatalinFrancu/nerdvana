@@ -17,7 +17,7 @@ typedef struct {
   int t, l, r, val;
 } query;
 
-long long v[MAX_N + 1];
+long long v[MAX_N];
 query q[MAX_Q];
 long long answer[MAX_Q];
 int n, num_queries, num_answers;
@@ -27,7 +27,7 @@ long long time1;
 
 void read_data() {
   scanf("%d %d ", &n, &num_queries);
-  for (int i = 1; i <= n; i++) {
+  for (int i = 0; i < n; i++) {
     scanf("%lld", &v[i]);
   }
 

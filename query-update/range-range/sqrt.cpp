@@ -10,7 +10,7 @@ long long bsum[MAX_BUCKETS], bdelta[MAX_BUCKETS];
 int bs, nb;
 
 void init_buckets() {
-  nb = sqrt(n + 1);
+  nb = sqrt(n);
   bs = n / nb + 1;
 
   for (int i = 0; i < nb; i++) {
@@ -71,11 +71,10 @@ void range_add(int l, int r, int val) {
 
 void process_ops() {
   for (int i = 0; i < num_queries; i++) {
-    q[i].r++; // use the [x, y) interval, 1-based
     if (q[i].t == OP_UPDATE) {
-      range_add(q[i].l, q[i].r, q[i].val);
+      range_add(q[i].l - 1, q[i].r, q[i].val);
     } else {
-      answer[num_answers++] = range_sum(q[i].l, q[i].r);
+      answer[num_answers++] = range_sum(q[i].l - 1, q[i].r);
     }
   }
 }

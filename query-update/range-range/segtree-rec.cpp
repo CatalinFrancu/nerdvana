@@ -100,7 +100,7 @@ int main() {
   read_data();
   mark_time();
 
-  st.init(v + 1, n);
+  st.init(v, n);
   process_ops();
 
   report_time("segment tree, recursive");
