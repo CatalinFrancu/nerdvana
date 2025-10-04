@@ -28,21 +28,29 @@ struct segment_tree {
     }
   }
 
+  void push(int node, int size) {
+    v[node].s += v[node].lazy * size;
+    v[2 * node].lazy += v[node].lazy;
+    v[2 * node + 1].lazy += v[node].lazy;
+    v[node].lazy = 0;
+  }
+
   void push_path(int node) {
     for (int b = bits, size = n; b; b--, size >>= 1) {
       int x = node >> b;
-      v[x].s += v[x].lazy * size;
-      v[2 * x].lazy += v[x].lazy;
-      v[2 * x + 1].lazy += v[x].lazy;
-      v[x].lazy = 0;
+      push(x, size);
     }
   }
 
+  void pull(int node, int size) {
+    v[node].s =
+      v[2 * node].s + v[2 * node].lazy * size / 2 +
+      v[2 * node + 1].s + v[2 * node + 1].lazy * size / 2;
+  }
+
   void pull_path(int node) {
-    for (int x = node / 2, size = 1; x; x /= 2, size <<= 1) {
-      v[x].s =
-        v[2 * x].s + v[2 * x].lazy * size +
-        v[2 * x + 1].s + v[2 * x + 1].lazy * size;
+    for (int x = node / 2, size = 2; x; x /= 2, size <<= 1) {
+      pull(x, size);
     }
   }
 
