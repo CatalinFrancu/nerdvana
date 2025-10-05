@@ -16,11 +16,7 @@ int max(int x, int y) {
 }
 
 int next_power_of_2(int n) {
-  while (n & (n - 1)) {
-    n += (n & -n);
-  }
-
-  return n;
+  return 1 << (32 - __builtin_clz(n - 1));
 }
 
 long long progression_sum(long long first, long long step, int len) {
@@ -32,7 +28,7 @@ long long progression_sum(long long first, long long step, int len) {
 // 1. first[k] and step[k] mean that the real values of spanned nodes are the
 //    values in v[] plus an arithmetic progression with the given parameters.
 // 2. v[k] does not include first[k] and step[k].
-// 3. All intervales are [closed, open).
+// 3. All intervals are [closed, open).
 struct segment_tree {
   long long v[2 * MAX_N];
   long long first[2 * MAX_N];
