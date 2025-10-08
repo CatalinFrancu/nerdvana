@@ -47,19 +47,19 @@ struct fenwick_tree_2 {
   fenwick_tree v, w;
 
   void from_array(long long* src, int n) {
-    v.from_array(src, n);
-    w.n = n;
+    v.n = n;
+    w.from_array(src, n);
   }
 
   void range_add(int l, int r, long long val) {
-    v.add(l, -val * (l - 1));
-    v.add(r + 1, val * r);
-    w.add(l, val);
-    w.add(r + 1, -val);
+    v.add(l, val);
+    v.add(r + 1, -val);
+    w.add(l, -val * (l - 1));
+    w.add(r + 1, val * r);
   }
 
   long long prefix_sum(int pos) {
-    return w.prefix_sum(pos) * pos + v.prefix_sum(pos);
+    return v.prefix_sum(pos) * pos + w.prefix_sum(pos);
   }
 
   long long range_sum(int l, int r) {
