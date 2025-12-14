@@ -1,8 +1,9 @@
 // Complexity: O(Q sqrt N log N).
 //
 // Method: Square root decomposition. On each block store the naive array as
-// well as a set of values for log time lookups. We need PBDS because there
-// can be duplicates.
+// well as a set of values for log time lookups. We need multisets because
+// there can be duplicates and we need PBDS sets for the order_of_key
+// function.
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
 #include <stdio.h>
