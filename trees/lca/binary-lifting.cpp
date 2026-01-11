@@ -15,19 +15,20 @@ struct node {
 };
 
 cell list[2 * MAX_NODES];
-node n[MAX_NODES + 1];
-int num_nodes, log_2;
+node nd[MAX_NODES + 1];
+int n, log_2;
 
 void add_edge(int u, int v) {
   static int pos = 1;
-  list[pos] = { v, n[u].adj };
-  n[u].adj = pos++;
+  list[pos] = { v, nd[u].adj };
+  nd[u].adj = pos++;
 }
 
 void read_input_data() {
-  scanf("%d", &num_nodes);
+  scanf("%d", &n);
+  log_2 = 31 - __builtin_clz(n);
 
-  for (int i = 0; i < num_nodes - 1; i++) {
+  for (int i = 0; i < n - 1; i++) {
     int u, v;
     scanf("%d %d", &u, &v);
     add_edge(u, v);
@@ -35,21 +36,15 @@ void read_input_data() {
   }
 }
 
-void compute_log_2() {
-  for (int n = num_nodes; n > 1; n >>= 1) {
-    log_2++;
-  }
-}
-
 // Traverse the tree and compute depths and jump pointers.
 void dfs(int u, int parent) {
-  n[u].depth = 1 + n[parent].depth;
-  n[u].jump[0] = parent;
+  nd[u].depth = 1 + nd[parent].depth;
+  nd[u].jump[0] = parent;
   for (int i = 0; i < log_2; i++) {
-    n[u].jump[i + 1] = n[n[u].jump[i]].jump[i];
+    nd[u].jump[i + 1] = nd[nd[u].jump[i]].jump[i];
   }
 
-  for (int ptr = n[u].adj; ptr; ptr = list[ptr].next) {
+  for (int ptr = nd[u].adj; ptr; ptr = list[ptr].next) {
     int v = list[ptr].v;
     if (v != parent) {
       dfs(v, u);
@@ -58,16 +53,16 @@ void dfs(int u, int parent) {
 }
 
 int lca(int u, int v) {
-  if (n[v].depth > n[u].depth) {
+  if (nd[v].depth > nd[u].depth) {
     int tmp = u; u = v; v = tmp;
   }
 
   // First bring them on the same level.
   // Compare d[u] and d[v] bit by bit.
   int pow = 0;
-  while (n[u].depth > n[v].depth) {
-    if ((n[u].depth & (1 << pow)) != (n[v].depth & (1 << pow))) {
-      u = n[u].jump[pow];
+  while (nd[u].depth > nd[v].depth) {
+    if ((nd[u].depth & (1 << pow)) != (nd[v].depth & (1 << pow))) {
+      u = nd[u].jump[pow];
     }
     pow++;
   }
@@ -76,13 +71,13 @@ int lca(int u, int v) {
     return u;
   } else {
     for (int i = log_2; i >= 0; i--) {
-      if (n[u].jump[i] != n[v].jump[i]) {
-        u = n[u].jump[i];
-        v = n[v].jump[i];
+      if (nd[u].jump[i] != nd[v].jump[i]) {
+        u = nd[u].jump[i];
+        v = nd[v].jump[i];
       }
     }
 
-    return n[u].jump[0];
+    return nd[u].jump[0];
   }
 }
 
@@ -97,7 +92,6 @@ void answer_queries() {
 
 int main() {
   read_input_data();
-  compute_log_2();
   dfs(1, 0);
   answer_queries();
 

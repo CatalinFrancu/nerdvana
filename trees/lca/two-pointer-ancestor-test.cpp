@@ -19,19 +19,19 @@ struct node {
 };
 
 cell list[2 * MAX_NODES];
-node n[MAX_NODES + 1];
-int num_nodes;
+node nd[MAX_NODES + 1];
+int n;
 
 void add_edge(int u, int v) {
   static int pos = 1;
-  list[pos] = { v, n[u].adj };
-  n[u].adj = pos++;
+  list[pos] = { v, nd[u].adj };
+  nd[u].adj = pos++;
 }
 
 void read_input_data() {
-  scanf("%d", &num_nodes);
+  scanf("%d", &n);
 
-  for (int i = 0; i < num_nodes - 1; i++) {
+  for (int i = 0; i < n - 1; i++) {
     int u, v;
     scanf("%d %d", &u, &v);
     add_edge(u, v);
@@ -42,37 +42,37 @@ void read_input_data() {
 // Traverse the tree and compute parents, depths and jump pointers.
 void dfs(int u) {
   static int time = 1;
-  n[u].time_in = time++;
+  nd[u].time_in = time++;
 
-  int u2 = n[u].jump, u3 = n[u2].jump;
-  bool equal = (n[u2].depth - n[u].depth == n[u3].depth - n[u2].depth);
+  int u2 = nd[u].jump, u3 = nd[u2].jump;
+  bool equal = (nd[u2].depth - nd[u].depth == nd[u3].depth - nd[u2].depth);
 
-  for (int ptr = n[u].adj; ptr; ptr = list[ptr].next) {
+  for (int ptr = nd[u].adj; ptr; ptr = list[ptr].next) {
     int v = list[ptr].v;
-    if (!n[v].depth) {
-      n[v].depth = 1 + n[u].depth;
-      n[v].parent = u;
-      n[v].jump = equal ? u3 : u;
+    if (!nd[v].depth) {
+      nd[v].depth = 1 + nd[u].depth;
+      nd[v].parent = u;
+      nd[v].jump = equal ? u3 : u;
       dfs(v);
     }
   }
 
-  n[u].time_out = time++;
+  nd[u].time_out = time++;
 }
 
 bool is_ancestor(int u, int v) {
   return
-    (n[u].time_in <= n[v].time_in) &&
-    (n[u].time_out >= n[v].time_out);
+    (nd[u].time_in <= nd[v].time_in) &&
+    (nd[u].time_out >= nd[v].time_out);
 }
 
 int two_ptr_lca(int u, int v) {
   // Find the lowest ancestor of u that is also an ancestor of v.
   while (!is_ancestor(u, v)) {
-    if (n[u].jump && !is_ancestor(n[u].jump, v)) {
-      u = n[u].jump;
+    if (nd[u].jump && !is_ancestor(nd[u].jump, v)) {
+      u = nd[u].jump;
     } else {
-      u = n[u].parent;
+      u = nd[u].parent;
     }
   }
 
@@ -90,7 +90,7 @@ void answer_queries() {
 
 int main() {
   read_input_data();
-  n[1].depth = 1;
+  nd[1].depth = 1;
   dfs(1);
   answer_queries();
 

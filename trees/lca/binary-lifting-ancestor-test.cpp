@@ -15,19 +15,20 @@ struct node {
 };
 
 cell list[2 * MAX_NODES];
-node n[MAX_NODES + 1];
-int num_nodes, log_2;
+node nd[MAX_NODES + 1];
+int n, log_2;
 
 void add_edge(int u, int v) {
   static int pos = 1;
-  list[pos] = { v, n[u].adj };
-  n[u].adj = pos++;
+  list[pos] = { v, nd[u].adj };
+  nd[u].adj = pos++;
 }
 
 void read_input_data() {
-  scanf("%d", &num_nodes);
+  scanf("%d", &n);
+  log_2 = 31 - __builtin_clz(n);
 
-  for (int i = 0; i < num_nodes - 1; i++) {
+  for (int i = 0; i < n - 1; i++) {
     int u, v;
     scanf("%d %d", &u, &v);
     add_edge(u, v);
@@ -35,36 +36,30 @@ void read_input_data() {
   }
 }
 
-void compute_log_2() {
-  for (int n = num_nodes; n > 1; n >>= 1) {
-    log_2++;
-  }
-}
-
 // Traverse the tree and compute node timers and jump pointers.
 void dfs(int u, int parent) {
   static int time = 0;
-  n[u].time_in = time++;
+  nd[u].time_in = time++;
 
-  n[u].jump[0] = parent;
+  nd[u].jump[0] = parent;
   for (int i = 0; i < log_2; i++) {
-    n[u].jump[i + 1] = n[n[u].jump[i]].jump[i];
+    nd[u].jump[i + 1] = nd[nd[u].jump[i]].jump[i];
   }
 
-  for (int ptr = n[u].adj; ptr; ptr = list[ptr].next) {
+  for (int ptr = nd[u].adj; ptr; ptr = list[ptr].next) {
     int v = list[ptr].v;
     if (v != parent) {
       dfs(v, u);
     }
   }
 
-  n[u].time_out = time++;
+  nd[u].time_out = time++;
 }
 
 bool is_ancestor(int u, int v) {
   return
-    (n[u].time_in <= n[v].time_in) &&
-    (n[u].time_out >= n[v].time_out);
+    (nd[u].time_in <= nd[v].time_in) &&
+    (nd[u].time_out >= nd[v].time_out);
 }
 
 int lca(int u, int v) {
@@ -74,13 +69,13 @@ int lca(int u, int v) {
 
   // Find the highest ancestor of u that is *not* an ancestor of v.
   for (int i = log_2; i >= 0; i--) {
-    if (n[u].jump[i] && !is_ancestor(n[u].jump[i], v)) {
-      u = n[u].jump[i];
+    if (nd[u].jump[i] && !is_ancestor(nd[u].jump[i], v)) {
+      u = nd[u].jump[i];
     }
   }
 
   // Now u's parent *is* an ancestor of v.
-  return n[u].jump[0];
+  return nd[u].jump[0];
 }
 
 void answer_queries() {
@@ -94,7 +89,6 @@ void answer_queries() {
 
 int main() {
   read_input_data();
-  compute_log_2();
   dfs(1, 0);
   answer_queries();
 

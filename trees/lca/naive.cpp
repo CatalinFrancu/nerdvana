@@ -13,19 +13,19 @@ struct node {
 };
 
 cell list[2 * MAX_NODES];
-node n[MAX_NODES + 1];
-int num_nodes;
+node nd[MAX_NODES + 1];
+int n;
 
 void add_edge(int u, int v) {
   static int pos = 1;
-  list[pos] = { v, n[u].adj };
-  n[u].adj = pos++;
+  list[pos] = { v, nd[u].adj };
+  nd[u].adj = pos++;
 }
 
 void read_input_data() {
-  scanf("%d", &num_nodes);
+  scanf("%d", &n);
 
-  for (int i = 0; i < num_nodes - 1; i++) {
+  for (int i = 0; i < n - 1; i++) {
     int u, v;
     scanf("%d %d", &u, &v);
     add_edge(u, v);
@@ -35,26 +35,26 @@ void read_input_data() {
 
 // Traverse the tree and compute parents and depths.
 void dfs(int u) {
-  for (int ptr = n[u].adj; ptr; ptr = list[ptr].next) {
+  for (int ptr = nd[u].adj; ptr; ptr = list[ptr].next) {
     int v = list[ptr].v;
-    if (!n[v].depth) {
-      n[v].depth = 1 + n[u].depth;
-      n[v].parent = u;
+    if (!nd[v].depth) {
+      nd[v].depth = 1 + nd[u].depth;
+      nd[v].parent = u;
       dfs(v);
     }
   }
 }
 
 int naive_lca(int u, int v) {
-  while (n[u].depth > n[v].depth) {
-    u = n[u].parent;
+  while (nd[u].depth > nd[v].depth) {
+    u = nd[u].parent;
   }
-  while (n[v].depth > n[u].depth) {
-    v = n[v].parent;
+  while (nd[v].depth > nd[u].depth) {
+    v = nd[v].parent;
   }
   while (u != v) {
-    u = n[u].parent;
-    v = n[v].parent;
+    u = nd[u].parent;
+    v = nd[v].parent;
   }
   return u;
 }
@@ -70,7 +70,7 @@ void answer_queries() {
 
 int main() {
   read_input_data();
-  n[1].depth = 1;
+  nd[1].depth = 1;
   dfs(1);
   answer_queries();
 

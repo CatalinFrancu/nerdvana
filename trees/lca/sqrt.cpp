@@ -17,21 +17,21 @@ struct node {
 };
 
 cell list[2 * MAX_NODES];
-node n[MAX_NODES + 1];
+node nd[MAX_NODES + 1];
 int st[MAX_NODES + 1];    // DFS stack for building the jump pointers
-int num_nodes, jump_distance;
+int n, jump_distance;
 
 void add_edge(int u, int v) {
   static int pos = 1;
-  list[pos] = { v, n[u].adj };
-  n[u].adj = pos++;
+  list[pos] = { v, nd[u].adj };
+  nd[u].adj = pos++;
 }
 
 void read_input_data() {
-  scanf("%d", &num_nodes);
-  jump_distance = sqrt(num_nodes);
+  scanf("%d", &n);
+  jump_distance = sqrt(n);
 
-  for (int i = 0; i < num_nodes - 1; i++) {
+  for (int i = 0; i < n - 1; i++) {
     int u, v;
     scanf("%d %d", &u, &v);
     add_edge(u, v);
@@ -41,14 +41,14 @@ void read_input_data() {
 
 // Traverse the tree and compute parents, depths and jump pointers.
 void dfs(int u) {
-  st[n[u].depth] = u;  // The stack holds the gray nodes.
-  for (int ptr = n[u].adj; ptr; ptr = list[ptr].next) {
+  st[nd[u].depth] = u;  // The stack holds the gray nodes.
+  for (int ptr = nd[u].adj; ptr; ptr = list[ptr].next) {
     int v = list[ptr].v;
-    if (!n[v].depth) {
-      n[v].depth = 1 + n[u].depth;
-      n[v].parent = u;
-      n[v].jump = (n[v].depth > jump_distance)
-        ? st[n[v].depth - jump_distance]
+    if (!nd[v].depth) {
+      nd[v].depth = 1 + nd[u].depth;
+      nd[v].parent = u;
+      nd[v].jump = (nd[v].depth > jump_distance)
+        ? st[nd[v].depth - jump_distance]
         : 0;
       dfs(v);
     }
@@ -56,28 +56,28 @@ void dfs(int u) {
 }
 
 int sqrt_lca(int u, int v) {
-  if (n[v].depth > n[u].depth) {
+  if (nd[v].depth > nd[u].depth) {
     int tmp = u; u = v; v = tmp;
   }
 
   // First bring them on the same level.
-  while (n[u].depth - jump_distance >= n[v].depth) {
-    u = n[u].jump;
+  while (nd[u].depth - jump_distance >= nd[v].depth) {
+    u = nd[u].jump;
   }
-  while (n[u].depth > n[v].depth) {
-    u = n[u].parent;
+  while (nd[u].depth > nd[v].depth) {
+    u = nd[u].parent;
   }
 
   // Climb entire blocks.
-  while ((n[u].depth >= jump_distance) && (n[u].jump != n[v].jump)) {
-    u = n[u].jump;
-    v = n[v].jump;
+  while ((nd[u].depth >= jump_distance) && (nd[u].jump != nd[v].jump)) {
+    u = nd[u].jump;
+    v = nd[v].jump;
   }
 
   // Climb single levels.
   while (u != v) {
-    u = n[u].parent;
-    v = n[v].parent;
+    u = nd[u].parent;
+    v = nd[v].parent;
   }
   return u;
 }
@@ -93,7 +93,7 @@ void answer_queries() {
 
 int main() {
   read_input_data();
-  n[1].depth = 1;
+  nd[1].depth = 1;
   dfs(1);
   answer_queries();
 
