@@ -3,12 +3,13 @@
 #include <stdlib.h>
 #include <set>
 
-#include "skip-list/rand-naive.h"
+#include "skip-list/rand-mask.h"
+// #include "skip-list/rand-naive.h"
 // #include "skip-list/rand-05.h"
 // #include "skip-list/rand-0375.h"
 // #include "skip-list/rand-025.h"
 
-// #include "basic-array.h"
+// #include "skip-list/basic-array.h"
 #include "skip-list/basic-buf.h"
 // #include "skip-list/basic-vector.h"
 

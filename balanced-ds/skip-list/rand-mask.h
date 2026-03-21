@@ -2,9 +2,5 @@ const int MAX_LEVELS = 21;
 const char RAND_METHOD[] = "naiv";
 
 int get_height() {
-  int h = 1;
-  while ((rand() & 1) && (h < MAX_LEVELS)) {
-    h++;
-  }
-  return h;
+  return 1 + __builtin_ctz(rand());
 }

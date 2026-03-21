@@ -3,7 +3,7 @@
 #include <ext/pb_ds/tree_policy.hpp>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/time.h>
+#include <time.h>
 
 typedef __gnu_pbds::tree<
   int,
@@ -20,48 +20,59 @@ const int INF = 2'000'000'000;
 struct node {
   int val;
   int height;
-  int next[MAX_LEVELS];
-  int dist[MAX_LEVELS];
+  int* next;
+  int* dist;
 };
 
 struct skip_list {
   node a[MAX_NODES + 2];
+  int buf[MAX_NODES * 5], buf_ptr; // buffer pentru pointeri și distanțe
   int prev[MAX_LEVELS], prev_ord[MAX_LEVELS];
-  int size;
+  int size; // următoarea celulă nealocată
 
+  // Folosește celulele 0 și 1 pentru santinele: turnuri de MAX_LEVELS
+  // pointeri pentru -∞ și +∞. Toți pointerii de la -∞ pointează la +∞, la
+  // distanță 1.
   void init() {
     size = 2;
     a[0].val = -INF;
     a[1].val = +INF;
     a[0].height = a[1].height = MAX_LEVELS;
+    a[0].next = buf;
+    a[0].dist = buf + MAX_LEVELS;
+    buf_ptr = 2 * MAX_LEVELS;
     for (int l = 0; l < MAX_LEVELS; l++) {
       a[0].next[l] = 1;
       a[0].dist[l] = 1;
     }
   }
 
+  // Alege o înălțime de turn din distribuția geometrică cu p = 0,5.
   int get_height() {
-    int h = 1;
-    while ((rand() & 1) && (h < MAX_LEVELS)) {
-      h++;
-    }
-    return h;
+    return 1 + __builtin_ctz(rand());
   }
 
   void insert(int val) {
+    // Atribuie valoarea și creează turnul de pointeri și de distanțe.
     a[size].val = val;
     int h = get_height();
     a[size].height = h;
+    a[size].next = buf + buf_ptr;
+    a[size].dist = buf + buf_ptr + h;
+    buf_ptr += 2 * h;
 
     int pos = 0, order = 0;
 
     for (int l = MAX_LEVELS - 1; l >= 0; l--) {
+      // Avansează pe orizontală pe nivelul l, doar peste valori strict mai
+      // mici. Calculează și indicele inserării.
       while (a[a[pos].next[l]].val < val) {
         order += a[pos].dist[l];
         pos = a[pos].next[l];
       }
 
-      a[pos].dist[l]++; // include ourselves
+      // Interpune celula size între pos și următoarea celulă.
+      a[pos].dist[l]++; // Include și nodul însuși.
       if (l < h) {
         a[size].next[l] = a[pos].next[l];
         a[pos].next[l] = size;
@@ -70,7 +81,7 @@ struct skip_list {
       }
     }
 
-    // Now that we know our own order, update the jump distances.
+    // Acum că ne știm propriul indice, actualizează distanțele.
     order++;
     for (int l = 0; l < h; l++) {
       a[size].dist[l] = a[prev[l]].dist[l] - (order - prev_ord[l]);
@@ -80,6 +91,7 @@ struct skip_list {
     size++;
   }
 
+  // Avansează pe fiecare nivel, doar peste valori strict mai mici.
   bool contains(int val) {
     int pos = 0;
 
@@ -89,13 +101,15 @@ struct skip_list {
       }
     }
 
+    // Următoarea celulă ar putea fi cea căutată.
     return (a[a[pos].next[0]].val == val);
   }
 
-  // Assumes that val exists and is unique.
+  // Presupune că valoarea există și este unică.
   int order_of(int val) {
     int pos = 0, order = 0;
 
+    // Cod identic cu cel de la inserare.
     for (int l = MAX_LEVELS - 1; l >= 0; l--) {
       while (a[a[pos].next[l]].val < val) {
         order += a[pos].dist[l];
@@ -103,15 +117,17 @@ struct skip_list {
       }
     }
 
-    // We should return the next element, but we skip the left sentinel, so...
+    // Ar trebui să returnăm elementul următor, dar pe de altă parte am pornit
+    // de pe santinela -∞.
     return order;
   }
 
   int kth_element(int k) {
     int pos = 0;
-    k++; // skip the left sentinel
+    k++; // Sari peste santinela -∞.
 
     for (int l = MAX_LEVELS - 1; l >= 0; l--) {
+      // Suma distanțelor nu trebuie să depășească k.
       while (a[pos].dist[l] <= k) {
         k -= a[pos].dist[l];
         pos = a[pos].next[l];
@@ -122,20 +138,16 @@ struct skip_list {
   }
 };
 
-void init_rng() {
-  struct timeval time;
-  gettimeofday(&time, NULL);
-  srand(time.tv_usec);
-}
-
 skip_list sl;
 ordered_set stl_set;
 
 int main() {
-  init_rng();
+  srand(time(NULL));
 
   sl.init();
 
+  // Exemplu de folosire și test de corectitudine. Inserează aceleași valori
+  // în skip list și într-un set PBDS și verifică că ordinile coincid.
   for (int i = 0; i < MAX_NODES; i++) {
     int x = rand() % INF;
     // For simplicity, don't deal with multisets.
@@ -146,6 +158,7 @@ int main() {
     }
   }
 
+  // Verifică că al k-lea element coincide.
   for (int i = stl_set.size() - 1; i >= 0; i--) {
     assert(sl.kth_element(i) == *stl_set.find_by_order(i));
   }

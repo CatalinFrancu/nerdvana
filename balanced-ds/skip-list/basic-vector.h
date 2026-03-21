@@ -23,14 +23,6 @@ struct skip_list {
     }
   }
 
-  int get_height() {
-    int h = 1;
-    while (coin_toss() && (h < MAX_LEVELS)) {
-      h++;
-    }
-    return h;
-  }
-
   void insert(int val) {
     a[size].val = val;
     int h = get_height();

@@ -4,7 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "skip-list/rand-naive.h"
+#include "skip-list/rand-mask.h"
+// #include "skip-list/rand-naive.h"
 // #include "skip-list/rand-05.h"
 // #include "skip-list/rand-0375.h"
 // #include "skip-list/rand-025.h"
