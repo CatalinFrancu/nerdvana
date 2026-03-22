@@ -1,5 +1,8 @@
-const int MAX_LEVELS = 18;
-const char RAND_METHOD[] = "buffer 0,375";
+#include "common.h"
+
+std::string get_generator_description() {
+  return "generator cu buffer și p = 0,375";
+}
 
 bool coin_toss() {
   static int rnd, uses = 0;

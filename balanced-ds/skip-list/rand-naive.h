@@ -1,5 +1,8 @@
-const int MAX_LEVELS = 21;
-const char RAND_METHOD[] = "naiv";
+#include "common.h"
+
+std::string get_generator_description() {
+  return "generator cu rand() naiv";
+}
 
 int get_height() {
   int h = 1;

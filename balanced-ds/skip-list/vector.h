@@ -1,24 +1,28 @@
-const int MAX_NODES = 300'000;
+#include <vector>
+
 const int INF = 2'000'000'000;
-const char METHOD[] = "înălțimi fixe";
 
 struct node {
   int val;
   int height;
-  int next[MAX_LEVELS];
-  int dist[MAX_LEVELS];
+  std::vector<int> next, dist;
 };
 
-struct skip_list {
-  node a[MAX_NODES + 2];
+struct data_structure {
+  node a[N + 2];
   int prev[MAX_LEVELS], prev_ord[MAX_LEVELS];
   int size;
+
+  const std::string get_description() {
+    return "skip lists cu vector și " + get_generator_description();
+  }
 
   void init() {
     size = 2;
     a[0].val = -INF;
     a[1].val = +INF;
-    a[0].height = a[1].height = MAX_LEVELS;
+    a[0].next.resize(MAX_LEVELS);
+    a[0].dist.resize(MAX_LEVELS);
     for (int l = 0; l < MAX_LEVELS; l++) {
       a[0].next[l] = 1;
       a[0].dist[l] = 1;
@@ -28,7 +32,8 @@ struct skip_list {
   void insert(int val) {
     a[size].val = val;
     int h = get_height();
-    a[size].height = h;
+    a[size].next.resize(h);
+    a[size].dist.resize(h);
 
     int pos = 0, order = 0;
 
@@ -54,6 +59,24 @@ struct skip_list {
     }
 
     size++;
+  }
+
+  void erase(int val) {
+    int pos = 0;
+
+    for (int l = MAX_LEVELS - 1; l >= 0; l--) {
+      while (a[a[pos].next[l]].val < val) {
+        pos = a[pos].next[l];
+      }
+
+      a[pos].dist[l]--;
+      if (a[a[pos].next[l]].val == val) {
+        a[pos].dist[l] += a[a[pos].next[l]].dist[l];
+        a[pos].next[l] = a[a[pos].next[l]].next[l];
+      }
+    }
+
+    size--;
   }
 
   bool contains(int val) {
