@@ -13,13 +13,12 @@ const int INF = 2'000'000'000;
 struct node {
   int val;
   int height;
-  int* next;
-  int* dist;
+  int next[MAX_LEVELS];
+  int dist[MAX_LEVELS];
 };
 
 struct skip_list {
   node a[N + 2];
-  int buf[N * 5], buf_ptr; // buffer pentru pointeri și distanțe
   int prev[MAX_LEVELS], prev_ord[MAX_LEVELS];
   int size; // următoarea celulă nealocată
 
@@ -31,9 +30,6 @@ struct skip_list {
     a[0].val = -INF;
     a[1].val = +INF;
     a[0].height = a[1].height = MAX_LEVELS;
-    a[0].next = buf;
-    a[0].dist = buf + MAX_LEVELS;
-    buf_ptr = 2 * MAX_LEVELS;
     for (int l = 0; l < MAX_LEVELS; l++) {
       a[0].next[l] = 1;
       a[0].dist[l] = 1;
@@ -52,9 +48,6 @@ struct skip_list {
     a[size].val = val;
     int h = get_height();
     a[size].height = h;
-    a[size].next = buf + buf_ptr;
-    a[size].dist = buf + buf_ptr + h;
-    buf_ptr += 2 * h;
 
     int pos = 0, order = 0;
 
