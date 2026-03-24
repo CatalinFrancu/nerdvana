@@ -1,10 +1,11 @@
+// Treap implicit implementat cu split și merge.
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/time.h>
+#include <time.h>
 #include <vector>
 
-const int MAX_NODES = 1'000;
+const int N = 1'000;
 const int MAX_VAL = 1'000'000;
 
 struct node {
@@ -14,22 +15,22 @@ struct node {
 };
 
 struct treap {
-  node v[10 * MAX_NODES + 1]; // no garbage collection
+  node v[10 * N + 1]; // Nu facem garbage collection.
   int n, root;
 
-  node make_node(int val, int pri) {
-    return { .val = val, .pri = pri, .cnt = 1, .l = 0, .r = 0 };
-  }
-
   void init() {
-    n = 1; // mark node 0 as used since we use 0 to mean NULL
+    n = 1; // Marchează nodul 0 ca folosit, întrucît 0 înseamnă NULL.
     root = 0;
   }
 
   void update_cnt(int t) {
-    v[t].cnt = t ? (1 + v[v[t].l].cnt + v[v[t].r].cnt) : 0;
+    if (t) {
+      v[t].cnt = 1 + v[v[t].l].cnt + v[v[t].r].cnt;
+    }
   }
 
+  // Sparge subarborele lui t în primele pos valori și restul și pune cele
+  // două rădăcini în l și în r.
   void split(int t, int pos, int& l, int& r) {
     if (!t) {
       l = r = 0;
@@ -44,6 +45,7 @@ struct treap {
     }
   }
 
+  // Unifică subarborii lui l și r și pune rădăcina rezultată în t.
   void merge(int& t, int l, int r) {
     if (!l) {
       t = r;
@@ -59,6 +61,7 @@ struct treap {
     update_cnt(t);
   }
 
+  // Inserează elementul elem la poziția pos și scrie în t noua rădăcină.
   void insert(int& t, int pos, int elem) {
     if (!t) {
       t = elem;
@@ -74,10 +77,11 @@ struct treap {
   }
 
   void insert(int pos, int val) {
-    v[n] = make_node(val, rand());
+    v[n] = { .val = val, .pri = rand(), .cnt = 1, .l = 0, .r = 0 };
     insert(root, pos, n++);
   }
 
+  // Șterge poziția pos din subarborele lui t și scrie în t noua rădăcină.
   void erase(int& t, int pos) {
     if (pos == v[v[t].l].cnt) {
       merge(t, v[t].l, v[t].r);
@@ -93,8 +97,10 @@ struct treap {
     erase(root, pos);
   }
 
-  int get(int pos) {
+  // Returnează al pos-lea element (practic o rescriere a lui kth_element).
+  int get_ptr(int pos) {
     int t = root;
+
     while (pos != v[v[t].l].cnt) {
       if (pos < v[v[t].l].cnt) {
         t = v[t].l;
@@ -103,36 +109,24 @@ struct treap {
         t = v[t].r;
       }
     }
+
+    return t;
+  }
+
+  int get(int pos) {
+    int t = get_ptr(pos);
     return v[t].val;
   }
 
-  void print(int t) {
-    if (!t) {
-      printf("NIL");
-    } else {
-      printf("(");
-      print(v[t].l);
-      printf(" t=%d,v=%d,p=%d,c=%d ", t, v[t].val, v[t].pri, v[t].cnt);
-      print(v[t].r);
-      printf(")");
-    }
-  }
-
-  void print() {
-    print(root);
-    printf("\n");
+  void set(int pos, int val) {
+    int t = get_ptr(pos);
+    v[t].val = val;
   }
 };
 
 treap t;
 std::vector<int> v;
-int values[MAX_NODES];
-
-void init_rng() {
-  struct timeval time;
-  gettimeofday(&time, NULL);
-  srand(time.tv_usec);
-}
+int values[N];
 
 void compare() {
   for (unsigned i = 0; i < v.size(); i++) {
@@ -141,41 +135,54 @@ void compare() {
 }
 
 void insert_op() {
-  int pos = rand() % (v.size() + 1);
-  int val = rand() % (MAX_VAL + 1);
-  v.insert(v.begin() + pos, val);
-  t.insert(pos, val);
-  compare();
+  if (v.size() < N) {
+    int pos = rand() % (v.size() + 1);
+    int val = rand() % (MAX_VAL + 1);
+    v.insert(v.begin() + pos, val);
+    t.insert(pos, val);
+    compare();
+  }
 }
 
 void erase_op() {
-  int pos = rand() % v.size();
-  v.erase(v.begin() + pos);
-  t.erase(pos);
-  compare();
+  if (v.size()) {
+    int pos = rand() % v.size();
+    v.erase(v.begin() + pos);
+    t.erase(pos);
+    compare();
+  }
+}
+
+void set_op() {
+  if (v.size()) {
+    int pos = rand() % v.size();
+    int val = rand() % (MAX_VAL + 1);
+    v[pos] = val;
+    t.set(pos, val);
+    compare();
+  }
 }
 
 int main() {
-  init_rng();
+  srand(time(NULL));
 
   t.init();
 
-  // Fill to 50%
-  for (int i = 0; i < MAX_NODES / 2; i++) {
+  // Umple-l pînă la 50%.
+  for (int i = 0; i < N / 2; i++) {
     insert_op();
   }
 
-  // Play with it for a while
-  for (int i = 0; i < MAX_NODES * 10; i++) {
-    bool coin = rand() & 1;
-    if (!v.size() || (coin && (v.size() < MAX_NODES))) {
-      insert_op();
-    } else {
-      erase_op();
+  // Fă diverse operații.
+  for (int i = 0; i < N * 10; i++) {
+    switch (rand() % 3) {
+      case 0: insert_op(); break;
+      case 1: erase_op(); break;
+      case 2: set_op(); break;
     }
   }
 
-  // Flush it
+  // Golește-l.
   while (v.size()) {
     erase_op();
   }
